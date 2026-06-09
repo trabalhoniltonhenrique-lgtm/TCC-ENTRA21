@@ -129,18 +129,30 @@ nav a {
     grid-template-columns: 1fr;
     gap: 1rem;
     padding: 1rem;
+    animation: entrada 1s ease;
 }
 
 .card-box {
     background: var(--azul-claro);
     padding: 1rem;
     border-radius: 12px;
+    animation: entrada 1s ease ; 
+}
+
+@keyframes entrada {
+    from {
+        opacity: 0;
+        transform: translate3d(-500px, 0px, 0px);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0px, 10px, 0px);
+    }
 }
 
 .card-box:hover {
     position: relative;
     padding: 20px
-
 }
 
 @media(min-width:768px) {
