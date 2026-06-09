@@ -1,8 +1,19 @@
+@font-face {
+    font-family: 'CaviarDreams';
+    src: url(../font/CaviarDreams.ttf) format(ttf),
+         url(../font/CaviarDreams_Bold.ttf) format(ttf),
+         url(../font/CaviarDreams_Italic.ttf) format(ttf),
+         url(../font/CaviarDreams_BoldItalic.ttf);
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root {
     --verde-escuro: #1B4332;
     --verde: #2D6A4F;
     --verde-claro: #D8F3DC;
     --verde-principal: #2e7d32;
+    --verde-normal: #3fcf47;
     --azul: #1565C0;
     --azul-escuro: #0d47a1;
     --azul-claro: #8ac7f99f;
@@ -64,8 +75,25 @@ button:hover {
     background: var(--azul-escuro);
 }
 
-a {
-    text-decoration: none;
+h1 {
+    font-family: 'CaviarDreams', sans-serif;
+    color: var(--verde-normal);
+    padding: 20px;
+    
+}
+
+h2 {
+    color: var(--verde-principal);
+}
+
+span {
+    color: var(--verde-claro);
+}
+
+p {
+    position: relative;
+    font-size: 20px;
+    padding: 5px;
 }
 
 header {
@@ -81,8 +109,14 @@ nav ul {
     gap : 1rem;
 }
 
+a {
+    text-decoration: none;
+}
+
 a:hover {
+    position: relative;
     color: var(--verde-claro);
+    top: -5px;
     cursor: pointer;
 }
 
@@ -101,6 +135,12 @@ nav a {
     background: var(--azul-claro);
     padding: 1rem;
     border-radius: 12px;
+}
+
+.card-box:hover {
+    position: relative;
+    padding: 20px
+
 }
 
 @media(min-width:768px) {
