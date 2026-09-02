@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Dispensa</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container dispensa-container">
+
+  <!-- Cabeçalho -->
+  <div class="dispensa-cabecalho">
+    <div>
+      <h2>🏠 Dispensa da Casa</h2>
+      <p>Itens disponíveis em casa. Ajuste as quantidades conforme o uso.</p>
+    </div>
+    <div class="acoes">
+      <input id="busca" placeholder="🔍 Buscar item...">
+      <a href="compras.html"><button class="btn-secundario">🛒 Lista de Compras</button></a>
+      <button id="btnExportarPdf">📄 Exportar PDF</button>
+    </div>
+  </div>
+
+  <!-- Resumo -->
+  <div class="bloco-resumo-dispensa">
+    <div class="resumo-grid" id="resumoDispensa"></div>
+  </div>
+
+  <!-- Adicionar item direto na dispensa -->
+  <div class="bloco-add-dispensa">
+    <div class="card-box">
+      <div class="titulo">+ Adicionar diretamente à dispensa</div>
+      <div class="linha">
+        <input id="dispensaNome" class="campo-nome" placeholder="Nome do item">
+        <select id="dispensaCat" class="campo-cat"></select>
+        <input id="dispensaQtd" class="campo-qtd" type="number" value="1" min="1">
+        <button id="btnAddDispensa">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista da dispensa por categoria -->
+  <div class="lista-dispensa-wrap" id="listaDispensa"></div>
+
+</div>
+<script src="js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/dispensa.js"></script>
+</body>
+</html>

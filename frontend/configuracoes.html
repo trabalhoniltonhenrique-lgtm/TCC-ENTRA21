@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Configurações</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container config-container">
+
+  <!-- Cabeçalho -->
+  <div class="config-cabecalho">
+    <h2>⚙️ Configurações</h2>
+    <p>Personalize o CasaCapital para a sua família.</p>
+  </div>
+
+  <div class="config-conteudo">
+
+    <!-- Perfil da Família -->
+    <div class="config-secao">
+      <h3>🏠 Perfil da Família</h3>
+
+      <!-- Avatar com inicial -->
+      <div class="config-avatar-wrap">
+        <div class="avatar-familia" id="avatarFamilia">?</div>
+        <div class="config-avatar-legenda">Avatar gerado pelo nome da família</div>
+      </div>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Nome da Família</div>
+          <div class="config-desc">Exibido no topo do sistema</div>
+        </div>
+        <input id="cfgNomeFamilia" class="input-config-curto" placeholder="Ex: Família Silva">
+      </div>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Cidade</div>
+          <div class="config-desc">Para contexto local</div>
+        </div>
+        <input id="cfgCidade" class="input-config-curto" placeholder="Ex: Timbó - SC">
+      </div>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Responsável Financeiro</div>
+          <div class="config-desc">Nome do administrador da conta</div>
+        </div>
+        <input id="cfgResponsavel" class="input-config-curto" placeholder="Ex: João Silva">
+      </div>
+    </div>
+
+    <!-- Moeda e Formato -->
+    <div class="config-secao">
+      <h3>💱 Moeda e Formato</h3>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Moeda</div>
+          <div class="config-desc">Símbolo exibido nos valores</div>
+        </div>
+        <div class="moedas-ops-wrap" id="moedasOps">
+          <button class="moeda-op ativo" data-moeda="R$">R$ Real</button>
+          <button class="moeda-op" data-moeda="$">$ Dólar</button>
+          <button class="moeda-op" data-moeda="€">€ Euro</button>
+          <button class="moeda-op" data-moeda="£">£ Libra</button>
+        </div>
+      </div>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Separador decimal</div>
+          <div class="config-desc">Formato de exibição dos valores</div>
+        </div>
+        <div class="sep-ops-wrap">
+          <button class="moeda-op ativo" id="sepVirgula" data-sep=",">1.234,56</button>
+          <button class="moeda-op" id="sepPonto" data-sep=".">1,234.56</button>
+        </div>
+      </div>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Dia de fechamento</div>
+          <div class="config-desc">Dia do mês para referência do balanço</div>
+        </div>
+        <input id="cfgDiaFechamento" class="input-config-dia" type="number" min="1" max="31" value="1" placeholder="Ex: 5">
+      </div>
+    </div>
+
+    <!-- Preferências de Exibição -->
+    <div class="config-secao">
+      <h3>🖥️ Preferências de Exibição</h3>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Tema escuro</div>
+          <div class="config-desc">Reduz o brilho da tela para uso noturno</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="cfgTemaEscuro">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Mostrar saldo no dashboard</div>
+          <div class="config-desc">Exibe o saldo familiar na tela inicial</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="cfgMostrarSaldo" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Alertas de contas próximas</div>
+          <div class="config-desc">Aviso no dashboard para contas vencendo em até 5 dias</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="cfgAlertaContas" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Confirmar antes de excluir</div>
+          <div class="config-desc">Exibe caixa de confirmação ao excluir itens</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="cfgConfirmarExclusao" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Agrupar transações por categoria</div>
+          <div class="config-desc">Organiza receitas e despesas por categoria na listagem</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="cfgAgruparCat">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Plano atual -->
+    <div class="config-secao">
+      <h3>📋 Plano Atual</h3>
+      <div class="config-linha">
+        <div>
+          <div class="config-label" id="cfgNomePlano">—</div>
+          <div class="config-desc" id="cfgDescPlano">—</div>
+        </div>
+        <button id="btnAlterarPlano" class="btn-secundario btn-alterar-plano">Alterar Plano</button>
+      </div>
+    </div>
+
+    <!-- Dados -->
+    <div class="config-secao">
+      <h3>🗄️ Gerenciar Dados</h3>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Exportar todos os dados</div>
+          <div class="config-desc">Baixa um arquivo JSON com todas as informações</div>
+        </div>
+        <button id="btnExportarDados" class="btn-secundario btn-alterar-plano">⬇️ Exportar</button>
+      </div>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label">Importar dados</div>
+          <div class="config-desc">Restaura dados a partir de um arquivo exportado</div>
+        </div>
+        <label class="label-importar">
+          <input type="file" id="importFile" accept=".json" class="input-file-oculto">
+          <span id="btnAbrirImportar" class="btn-secundario btn-importar-arquivo">
+            ⬆️ Importar
+          </span>
+        </label>
+      </div>
+
+      <div class="config-linha">
+        <div>
+          <div class="config-label config-label-perigo">Apagar todos os dados</div>
+          <div class="config-desc">Remove permanentemente receitas, despesas, contas e listas</div>
+        </div>
+        <button id="btnApagarTudo" class="btn-perigo btn-alterar-plano">🗑️ Apagar tudo</button>
+      </div>
+    </div>
+
+    <!-- Botão salvar -->
+    <div class="config-acoes-finais">
+      <button id="btnSalvarConfigPagina">💾 Salvar Configurações</button>
+      <button id="btnVoltarDashboard" class="btn-secundario">Voltar</button>
+    </div>
+
+    <!-- Versão -->
+    <div class="config-versao">
+      CasaCapital · Dados sincronizados com a nuvem da sua família
+    </div>
+
+  </div>
+</div>
+
+<script src="js/configuracoes.js"></script>
+</body>
+</html>

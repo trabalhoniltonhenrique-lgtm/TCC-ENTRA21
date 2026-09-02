@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Criar Conta</title>
+</head>
+<body>
+<main class="center">
+  <section class="card">
+    <div class="login-cabecalho">
+      <span class="login-logo">EC</span>
+      <h1 class="login-titulo">Criar Conta</h1>
+      <p class="login-subtitulo">Comece sua gestão financeira doméstica</p>
+    </div>
+    <input id="cadNome" placeholder="Nome Completo">
+    <input id="cadNomeFamilia" placeholder="Nome da Família (ex: Família Silva)">
+    <input type="email" id="cadEmail" placeholder="E-mail">
+    <input type="password" id="cadSenha" placeholder="Senha (mínimo 6 caracteres)">
+    <input type="password" id="cadConfirmarSenha" placeholder="Confirmar Senha">
+    <p id="cadastroErro" class="login-erro oculto"></p>
+    <div id="badgePlano" class="badge-plano-aviso">
+      <span>📋</span>
+      <span id="textoBadge"><strong>Plano Essencial</strong> — R$ 19,90/mês</span>
+    </div>
+    <button id="btnFinalizarCadastro">Finalizar Cadastro</button>
+    <a href="planos.html">← Alterar plano</a>
+    <a href="index.html" class="link-espacado">Já tem conta? <strong>Entrar</strong></a>
+  </section>
+</main>
+<script src="js/api.js"></script>
+<script src="js/cadastro.js"></script>
+</body>
+</html>

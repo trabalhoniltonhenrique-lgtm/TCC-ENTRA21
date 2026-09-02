@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Dashboard</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container container-topo">
+
+  <!-- Saldo principal + filtro de mês -->
+  <div class="cards cards-1col">
+    <div class="card-box card-saldo">
+      <div class="card-saldo-topo">
+        <div>
+          <div class="rotulo-saldo" id="labelSaldo">Saldo Familiar</div>
+          <div id="saldo">R$ 0,00</div>
+          <div class="resumo-rd">
+            <span id="resumoReceitas">↑ Receitas: R$ 0,00</span>
+            <span id="resumoDespesas">↓ Despesas: R$ 0,00</span>
+          </div>
+        </div>
+        <!-- Seletor de mês embutido no card -->
+        <div class="filtro-mes-wrap">
+          <label>📅 Filtrar por mês</label>
+          <select id="filtroMes">
+            <option value="">Todos os meses</option>
+          </select>
+          <button id="btnLimparFiltro" class="btn-limpar-filtro">Limpar filtro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards secundários -->
+  <div class="cards">
+    <div class="card-box">
+      <h2>🕐 Últimas Transações</h2>
+      <ul id="ultimasTransacoes" class="lista lista-compacta"></ul>
+      <a href="financas.html" class="link-ver-mais">Ver finanças →</a>
+    </div>
+    <div class="card-box">
+      <h2>📦 Lista de Compras</h2>
+      <ul id="dashboardCompras" class="lista lista-compacta"></ul>
+      <a href="compras.html" class="link-ver-mais">Ver tudo →</a>
+    </div>
+    <div class="card-box">
+      <h2>✅ Tarefas</h2>
+      <ul id="dashboardTarefas" class="lista lista-compacta"></ul>
+      <a href="tarefas.html" class="link-ver-mais">Ver tudo →</a>
+    </div>
+  </div>
+
+  <!-- Card contas a pagar + tarefas atrasadas -->
+  <div class="bloco-secundario">
+    <div class="card-box" id="cardContas"></div>
+    <div id="cardTarefasAtrasadas" class="oculto"></div>
+  </div>
+
+  <!-- Card orçamento + metas -->
+  <div class="cards">
+    <div class="card-box oculto" id="cardOrcamento"></div>
+    <div class="card-box oculto" id="cardMetas"></div>
+  </div>
+
+  <!-- Acesso rápido -->
+  <div class="bloco-acoes">
+    <div class="card-box">
+      <h2>⚡ Acesso Rápido</h2>
+      <div class="acoes-rapidas">
+        <button data-href="financas.html" class="btn-acao-financas">+ Receita / Despesa</button>
+        <button data-href="contas.html" class="btn-acao-contas">📋 Contas</button>
+        <button data-href="compras.html" class="btn-acao-compras">🛒 Compras</button>
+        <button data-href="relatorios.html" class="btn-acao-relatorios">📄 Relatórios</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

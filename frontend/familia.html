@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Família</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container familia-container">
+
+  <!-- Cabeçalho da seção -->
+  <div class="familia-cabecalho">
+    <div>
+      <h2>👨‍👩‍👧‍👦 Membros da Família</h2>
+      <p id="subtitulo">Nenhum membro cadastrado.</p>
+    </div>
+    <button id="btnAddMembro" class="btn-add-membro">+ Adicionar Membro</button>
+  </div>
+
+  <!-- Formulário (oculto por padrão) -->
+  <div id="formulario" class="oculto bloco-form-membro">
+    <div class="card">
+      <h2 id="tituloForm">Novo Membro</h2>
+
+      <div class="form-grupo">
+        <div>
+          <label class="campo-label">Nome *</label>
+          <input id="fNome" placeholder="Ex: Maria">
+        </div>
+        <div>
+          <label class="campo-label">Parentesco *</label>
+          <select id="fParentesco">
+            <option value="">Selecione...</option>
+            <option>Pai</option>
+            <option>Mãe</option>
+            <option>Filho(a)</option>
+            <option>Avô / Avó</option>
+            <option>Irmão / Irmã</option>
+            <option>Cônjuge</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div>
+          <label class="campo-label">Data de Nascimento</label>
+          <input id="fNascimento" type="date">
+        </div>
+        <div>
+          <label class="campo-label">Renda Mensal (R$)</label>
+          <input id="fRenda" type="number" placeholder="0,00" min="0" step="0.01">
+        </div>
+      </div>
+
+      <div class="campo-cor-wrap">
+        <label class="campo-label">Cor do Avatar</label>
+        <div class="cores-lista" id="coresLista"></div>
+      </div>
+
+      <div class="campo-obs-wrap">
+        <label class="campo-label">Observação</label>
+        <input id="fObs" placeholder="Ex: Estuda, trabalha meio período...">
+      </div>
+
+      <div class="form-membro-acoes">
+        <button id="btnSalvarMembro">Salvar</button>
+        <button id="btnCancelarMembro" class="btn-secundario">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de membros -->
+  <div id="listaMembros" class="lista-membros-wrap"></div>
+
+  <!-- Card de resumo da família -->
+  <div class="bloco-resumo-familia-wrap">
+    <div id="resumoFamilia" class="oculto">
+      <div class="card-box card-resumo-familia">
+        <div class="titulo">Resumo da Família</div>
+        <div class="grid-stats">
+          <div>
+            <div class="stat-num" id="totalMembros">0</div>
+            <div class="stat-label">Membros</div>
+          </div>
+          <div>
+            <div class="stat-num" id="totalRendaFamilia">R$ 0,00</div>
+            <div class="stat-label">Renda Total</div>
+          </div>
+          <div>
+            <div class="stat-num" id="mediaMembros">—</div>
+            <div class="stat-label">Renda Média</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/familia.js"></script>
+</body>
+</html>

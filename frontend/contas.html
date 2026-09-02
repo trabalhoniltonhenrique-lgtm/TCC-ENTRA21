@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Contas a Pagar</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container contas-container">
+
+  <!-- Cabeçalho -->
+  <div class="contas-cabecalho">
+    <div>
+      <h2>📋 Contas a Pagar</h2>
+      <p>Controle de vencimentos, boletos e mensalidades.</p>
+    </div>
+    <button id="btnNovaConta" class="btn-nova-conta">+ Nova Conta</button>
+  </div>
+
+  <!-- Formulário -->
+  <div id="formulario" class="oculto bloco-form-conta">
+    <div class="card">
+      <h2 id="tituloForm">Nova Conta</h2>
+      <div class="grid-form-conta">
+        <div class="full">
+          <label>Descrição *</label>
+          <input id="fDesc" placeholder="Ex: Aluguel, Fatura Cartão, Internet...">
+        </div>
+        <div>
+          <label>Categoria</label>
+          <select id="fCat">
+            <option>Moradia</option>
+            <option>Energia</option>
+            <option>Água</option>
+            <option>Internet / TV</option>
+            <option>Telefone</option>
+            <option>Cartão de Crédito</option>
+            <option>Escola / Faculdade</option>
+            <option>Saúde / Plano</option>
+            <option>Seguro</option>
+            <option>Financiamento</option>
+            <option>Condomínio</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div>
+          <label>Valor (R$) *</label>
+          <input id="fValor" type="number" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div>
+          <label>Vencimento *</label>
+          <input id="fVenc" type="date">
+        </div>
+        <div>
+          <label>Recorrência</label>
+          <select id="fRecorr">
+            <option value="unica">Única</option>
+            <option value="mensal">Mensal</option>
+            <option value="anual">Anual</option>
+            <option value="parcelada">Parcelada (cartão)</option>
+          </select>
+        </div>
+        <div>
+          <label>Observação</label>
+          <input id="fObs" placeholder="Opcional">
+        </div>
+
+        <!-- Campos extras de parcelamento (ocultos por padrão) -->
+        <div id="campoQtdParcelas" class="oculto">
+          <label>Número de parcelas</label>
+          <input id="fQtdParcelas" type="number" min="2" max="48" value="12">
+        </div>
+        <div id="campoValorBase" class="oculto">
+          <label>O valor acima é</label>
+          <select id="fTipoValorParcela">
+            <option value="parcela">Valor de cada parcela</option>
+            <option value="total">Valor total da compra</option>
+          </select>
+        </div>
+        <div id="previewParcelas" class="full oculto preview-parcelas"></div>
+      </div>
+      <div class="form-conta-acoes">
+        <button id="btnSalvarConta">Salvar</button>
+        <button id="btnCancelarConta" class="btn-secundario">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumo -->
+  <div class="bloco-resumo-contas">
+    <div class="resumo-topo" id="resumoContas"></div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="bloco-filtros-contas">
+    <div class="filtro-tabs">
+      <div class="filtro-tab ativo" data-filtro="todas">Todas</div>
+      <div class="filtro-tab" data-filtro="pendente">⏳ Pendentes</div>
+      <div class="filtro-tab" data-filtro="atrasado">🚨 Atrasadas</div>
+      <div class="filtro-tab" data-filtro="hoje">📅 Vencem Hoje</div>
+      <div class="filtro-tab" data-filtro="pago">✅ Pagas</div>
+    </div>
+  </div>
+
+  <!-- Lista -->
+  <div class="lista-contas-wrap" id="listaContas"></div>
+
+</div>
+<script src="js/contas.js"></script>
+</body>
+</html>

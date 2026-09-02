@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Alertas</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container">
+  <div class="cards compras-wrap">
+    <div class="card alertas-card">
+      <h2>🔔 Alertas de Limite por Categoria</h2>
+      <p class="alertas-intro">
+        Defina um valor máximo por categoria. Você será avisado quando o gasto ultrapassar o limite.
+      </p>
+      <div class="alertas-form">
+        <select id="alertaCat"></select>
+        <input id="alertaLimite" type="number" placeholder="Limite (R$)" min="0" step="0.01">
+        <button id="btnSalvarAlerta">Salvar</button>
+      </div>
+      <div id="painelAlertas" class="painel-alertas-margem"></div>
+      <ul id="listaAlertas" class="lista"></ul>
+    </div>
+  </div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/alertas.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/app.js"></script>
+  <title>CasaCapital — Finanças</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container">
+
+  <!-- Filtro de mês -->
+  <div class="bloco-filtro-periodo">
+    <div class="card-box">
+      <div class="filtro-periodo-linha">
+        <span class="rotulo">📅 Período:</span>
+        <select id="filtroMes">
+          <option value="">Todos os meses</option>
+        </select>
+        <span id="labelPeriodo" class="periodo-texto"></span>
+        <button id="btnLimparFiltro" class="btn-secundario btn-sm">Limpar filtro</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards">
+
+    <!-- Receitas -->
+    <div class="card card-full">
+      <h2>💰 Receitas</h2>
+      <input id="receitaNome" placeholder="Descrição (ex: Salário)">
+      <div class="linha-dupla">
+        <select id="receitaCat"></select>
+        <input id="receitaData" type="date">
+      </div>
+      <select id="receitaMembro"><option value="">👤 Sem membro vinculado</option></select>
+      <input id="receitaValor" type="number" placeholder="Valor (R$)" min="0" step="0.01">
+      <button id="btnAddReceita" class="btn-verde">+ Adicionar Receita</button>
+      <ul id="listaReceitas" class="lista lista-form"></ul>
+    </div>
+
+    <!-- Despesas -->
+    <div class="card card-full">
+      <h2>💸 Despesas</h2>
+      <input id="despesaNome" placeholder="Descrição (ex: Aluguel)">
+      <div class="linha-dupla">
+        <select id="despesaCat"></select>
+        <input id="despesaData" type="date">
+      </div>
+      <select id="despesaMembro"><option value="">👤 Sem membro vinculado</option></select>
+      <input id="despesaValor" type="number" placeholder="Valor (R$)" min="0" step="0.01">
+      <button id="btnAddDespesa" class="btn-perigo">+ Adicionar Despesa</button>
+      <ul id="listaDespesas" class="lista lista-form"></ul>
+    </div>
+
+  </div>
+
+  <!-- Saldo + Resumo por categoria + Resumo por membro -->
+  <div class="bloco-resumo-financas">
+    <div class="card-box card-saldo-financas">
+      <div class="topo">
+        <div>
+          <div class="rotulo-saldo" id="labelSaldo">Saldo Familiar</div>
+          <div id="saldo">R$ 0,00</div>
+          <div class="resumo-rd">
+            <span id="resumoReceitas">↑ Receitas: R$ 0,00</span>
+            <span id="resumoDespesas">↓ Despesas: R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-box" id="resumoCategoria"></div>
+    <div class="card-box" id="resumoMembros"></div>
+  </div>
+</div>
+<script src="js/financas.js"></script>
+</body>
+</html>

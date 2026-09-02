@@ -1,0 +1,8 @@
+/* ── CasaCapital — impressao.css ──
+   Estilos para a janela de impressão de relatórios (aberta via window.open) ── */
+
+body { font-family:Arial; padding:30px; color:#333; }
+h1 { color:#1E3A8A; }
+p { color:#6B7280; font-size:.9rem; margin:2px 0; }
+hr { border:none; border-top:2px solid #BFDBFE; margin:12px 0; }
+pre { font-family:monospace; font-size:.9rem; white-space:pre-wrap; }

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Planos</title>
+</head>
+<body>
+<header>
+  <h1>CasaCapital</h1>
+  <nav><ul>
+    <li><a href="home.html">Início</a></li>
+    <li class="menu-sair"><a href="home.html">Voltar</a></li>
+  </ul></nav>
+</header>
+
+<div class="planos-cabecalho">
+  <h2>Escolha seu Plano</h2>
+  <p>Comece com o Essencial ou vá direto para o Premium.</p>
+</div>
+
+<div class="planos-grid">
+
+  <!-- Essencial -->
+  <div class="plano-card">
+    <div class="plano-titulo">Plano Essencial</div>
+    <div class="plano-preco">R$ 19,90 <span>/ mês</span></div>
+    <div class="plano-desc">A porta de entrada para uma vida financeira mais organizada e consciente.</div>
+    <ul class="plano-lista">
+      <li>Controle de receitas e despesas</li>
+      <li>Categorização de gastos</li>
+      <li>Lista de compras e tarefas</li>
+      <li>Relatórios financeiros básicos</li>
+      <li>Identificação de maiores gastos</li>
+      <li>Exportação em TXT</li>
+    </ul>
+    <button data-plano="essencial" class="btn-secundario">Começar com o Essencial</button>
+  </div>
+
+  <!-- Premium -->
+  <div class="plano-card destaque">
+    <div class="plano-badge">⭐ Mais completo</div>
+    <div class="plano-titulo destaque-cor">Plano Premium</div>
+    <div class="plano-preco">R$ 39,90 <span>/ mês</span></div>
+    <div class="plano-desc">Para quem busca análise estratégica e visão de longo prazo do patrimônio familiar.</div>
+    <ul class="plano-lista">
+      <li>Tudo do Plano Essencial</li>
+      <li>Gráficos e análise de tendências</li>
+      <li>Projeção financeira futura</li>
+      <li>Relatórios cruzados avançados</li>
+      <li>Exportação em PDF</li>
+      <li>Alertas de limite por categoria</li>
+      <li>Suporte prioritário</li>
+    </ul>
+    <button data-plano="premium">Assinar o Premium</button>
+  </div>
+
+</div>
+
+<p class="planos-rodape">
+  Cancele quando quiser. Sem fidelidade.
+</p>
+
+<script src="js/planos.js"></script>
+</body>
+</html>

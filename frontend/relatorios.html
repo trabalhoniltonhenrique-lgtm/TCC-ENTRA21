@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/app.js"></script>
+  <title>CasaCapital — Relatórios</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container">
+  <div class="cards compras-wrap">
+    <div class="card relatorios-card">
+      <h2>📊 Gerador de Relatórios</h2>
+      <p class="relatorios-intro">Selecione o tipo de relatório e visualize ou exporte os dados centralizados.</p>
+      <select id="tipoRelatorio">
+        <option value="financeiro">Financeiro</option>
+        <option value="compras">Compras</option>
+        <option value="tarefas">Tarefas</option>
+        <option value="geral">Relatório Geral</option>
+      </select>
+      <div class="relatorios-botoes">
+        <button id="btnVisualizarRelatorio">Visualizar</button>
+        <button id="btnImprimirRelatorio" class="btn-secundario">🖨️ Imprimir</button>
+        <button id="btnBaixarRelatorioTxt" class="btn-secundario">⬇️ Baixar TXT</button>
+      </div>
+      <div id="areaRelatorio"></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/relatorios.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Editor/OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings (não compartilhado)
+.claude/settings.local.json
+
+# Segredos locais (nunca versionar credenciais reais)
+*.env
+application-local.yml
+application-local.yaml

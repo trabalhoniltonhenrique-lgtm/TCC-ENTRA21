@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/app.js"></script>
+  <title>CasaCapital — Tarefas</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/header.js"></script>
+<div class="container">
+  <div class="cards compras-wrap">
+    <div class="card tarefas-card">
+      <h2>✅ Tarefas Familiares</h2>
+      <p class="tarefas-intro">
+        Adicione prazo e responsável. Tarefas atrasadas ou que vencem hoje aparecem destacadas e avisam no Dashboard.
+      </p>
+      <input id="tarefa" placeholder="Nova tarefa...">
+      <div class="tarefas-linha-dupla">
+        <input id="tarefaPrazo" type="date">
+        <select id="tarefaMembro"><option value="">👤 Sem responsável</option></select>
+      </div>
+      <button id="btnAddTarefa">+ Adicionar Tarefa</button>
+      <ul id="listaTarefas" class="lista lista-form"></ul>
+    </div>
+  </div>
+</div>
+<script src="js/tarefas.js"></script>
+</body>
+</html>
