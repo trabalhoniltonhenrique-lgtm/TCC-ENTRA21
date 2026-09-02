@@ -37,7 +37,7 @@
         <input id="receitaData" type="date">
       </div>
       <select id="receitaMembro"><option value="">👤 Sem membro vinculado</option></select>
-      <input id="receitaValor" type="number" placeholder="Valor (R$)" min="0" step="0.01">
+      <input id="receitaValor" type="number" placeholder="Valor (R$)" data-moeda-label="Valor ({moeda})" min="0" step="0.01">
       <button id="btnAddReceita" class="btn-verde">+ Adicionar Receita</button>
       <ul id="listaReceitas" class="lista lista-form"></ul>
     </div>
@@ -51,7 +51,7 @@
         <input id="despesaData" type="date">
       </div>
       <select id="despesaMembro"><option value="">👤 Sem membro vinculado</option></select>
-      <input id="despesaValor" type="number" placeholder="Valor (R$)" min="0" step="0.01">
+      <input id="despesaValor" type="number" placeholder="Valor (R$)" data-moeda-label="Valor ({moeda})" min="0" step="0.01">
       <button id="btnAddDespesa" class="btn-perigo">+ Adicionar Despesa</button>
       <ul id="listaDespesas" class="lista lista-form"></ul>
     </div>

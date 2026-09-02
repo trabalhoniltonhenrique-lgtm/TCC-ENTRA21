@@ -58,7 +58,7 @@
       <p class="projecao-intro">Simule quanto seu patrimônio pode crescer com base nos seus hábitos atuais.</p>
       <div class="projecao-campos">
         <div class="projecao-campo">
-          <label>Economia mensal (R$)</label>
+          <label data-moeda-label="Economia mensal ({moeda})">Economia mensal (R$)</label>
           <input id="projEconomia" type="number" placeholder="Deixe em branco para usar saldo atual" min="0" step="0.01">
         </div>
         <div class="projecao-campo">
@@ -66,7 +66,7 @@
           <input id="projMeses" type="number" value="12" min="1" max="360">
         </div>
         <div class="projecao-campo">
-          <label>Meta (R$) — opcional</label>
+          <label data-moeda-label="Meta ({moeda}) — opcional">Meta (R$) — opcional</label>
           <input id="projMeta" type="number" placeholder="Ex: 10000" min="0" step="0.01">
         </div>
       </div>

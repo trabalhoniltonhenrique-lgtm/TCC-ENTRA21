@@ -5,12 +5,28 @@ let editandoId  = null;
 let gruposExpandidos = {}; // { grupoParcelaId: true/false }
 
 const hoje = () => new Date().toISOString().split('T')[0];
-const fmt  = v  => 'R$ ' + Number(v||0).toFixed(2).replace('.', ',');
+let _moedaContas = 'R$';
+let _sepContas    = ',';
+const fmt  = v => {
+  const abs = Number(v || 0).toFixed(2);
+  return _moedaContas + ' ' + (_sepContas === ',' ? abs.replace('.', ',') : abs);
+};
 const fmtD = dt => dt ? new Date(dt + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
 
 async function carregarContas() {
   contas = await api.get('/contas');
   renderContas();
+}
+
+async function aplicarUnidadeMoedaContas() {
+  try {
+    const familia = await api.get('/familia/me');
+    _moedaContas = familia.moeda || 'R$';
+    _sepContas   = familia.separadorDecimal || ',';
+    document.querySelectorAll('[data-moeda-label]').forEach(elx => {
+      elx.textContent = elx.getAttribute('data-moeda-label').replace('{moeda}', _moedaContas);
+    });
+  } catch { /* mantém o padrão em R$ se a chamada falhar */ }
 }
 
 function calcStatus(c) {
@@ -404,5 +420,5 @@ document.addEventListener('DOMContentLoaded', function () {
     if (acao === 'toggle-grupo') toggleGrupoParcela(Number(id));
   });
 
-  carregarContas();
+  aplicarUnidadeMoedaContas().then(carregarContas);
 });

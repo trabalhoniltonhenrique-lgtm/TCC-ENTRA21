@@ -31,6 +31,16 @@ function fmtValor(v) {
   const formatted = sep === ',' ? abs.replace('.', ',') : abs;
   return (v < 0 ? '-' : '') + moeda + ' ' + formatted;
 }
+// Atualiza rótulos/placeholders estáticos que mencionam a moeda (ex: "Limite mensal ({moeda})")
+// para refletir a moeda configurada em Configurações, em vez do "R$" fixo do HTML.
+function aplicarUnidadeMoeda() {
+  const moeda = getMoeda();
+  document.querySelectorAll('[data-moeda-label]').forEach(elx => {
+    const texto = elx.getAttribute('data-moeda-label').replace('{moeda}', moeda);
+    if (elx.tagName === 'INPUT' || elx.tagName === 'TEXTAREA') elx.placeholder = texto;
+    else elx.textContent = texto;
+  });
+}
 const fmt  = v => fmtValor(v);
 const fmtN = v => { const sep = getSep(); const abs = Math.abs(v).toFixed(2); return (v < 0 ? '-' : '') + (sep === ',' ? abs.replace('.', ',') : abs); };
 const fmtD = dt => { const d = new Date(dt + 'T12:00:00'); return d.toLocaleDateString('pt-BR'); };
@@ -1528,6 +1538,8 @@ window.onload = async function () {
     console.error('Falha ao carregar dados iniciais:', erro);
     return;
   }
+  aplicarUnidadeMoeda();
+
   // Avisa scripts de página (dispensa.js, historico-precos.js, familia.js, ...) que os
   // dados globais (receitas, despesas, compras, dispensa, membros, etc.) já estão prontos.
   document.dispatchEvent(new CustomEvent('casacapital-dados-carregados'));
