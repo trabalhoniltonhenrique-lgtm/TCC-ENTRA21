@@ -594,7 +594,7 @@ body.dark .conta-card.atrasado { background:#2A1515; }
 .compras-card { max-width:640px; margin:auto; }
 .compras-intro { font-size:.85rem; color:var(--texto-suave); margin-bottom:1rem; }
 .compras-intro .destaque { color:var(--azul); font-weight:600; }
-.compras-intro a { color:var(--azul); }
+.compras-intro a { display:inline; text-align:left; margin-top:0; font-size:inherit; text-decoration:underline; color:var(--azul); }
 .compras-form-add { display:grid; grid-template-columns:1fr auto; gap:.5rem; margin-bottom:.5rem; }
 .compras-form-add input { margin:0; }
 .compras-form-add button { width:auto; padding:11px 18px; margin:0; }
