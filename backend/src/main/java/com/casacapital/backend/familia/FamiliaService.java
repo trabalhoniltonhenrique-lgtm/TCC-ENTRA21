@@ -34,4 +34,11 @@ public class FamiliaService {
         if (req.agruparCat() != null) familia.setAgruparCat(req.agruparCat());
         return familia;
     }
+
+    @Transactional
+    public Familia alterarPlano(Long familiaId, PlanoFamilia novoPlano) {
+        Familia familia = buscar(familiaId);
+        familia.setPlano(novoPlano);
+        return familia;
+    }
 }

@@ -33,3 +33,9 @@ casacapital:
 logging:
   level:
     com.casacapital.backend: DEBUG
+  file:
+    name: logs/casacapital.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 14

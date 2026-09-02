@@ -39,3 +39,5 @@ application-local.yaml
 
 ### Logs locais ###
 *.log
+logs/*
+!logs/.gitkeep

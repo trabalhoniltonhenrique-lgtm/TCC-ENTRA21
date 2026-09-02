@@ -1,5 +1,6 @@
 package com.casacapital.backend.familia;
 
+import com.casacapital.backend.familia.dto.AlterarPlanoRequest;
 import com.casacapital.backend.familia.dto.FamiliaResponse;
 import com.casacapital.backend.familia.dto.FamiliaUpdateRequest;
 import com.casacapital.backend.security.SecurityUser;
@@ -35,6 +36,12 @@ public class FamiliaController {
     public FamiliaResponse atualizar(@AuthenticationPrincipal SecurityUser user,
                                       @Valid @RequestBody FamiliaUpdateRequest request) {
         return FamiliaResponse.from(familiaService.atualizar(user.familiaId(), request));
+    }
+
+    @PutMapping("/plano")
+    public FamiliaResponse alterarPlano(@AuthenticationPrincipal SecurityUser user,
+                                         @Valid @RequestBody AlterarPlanoRequest request) {
+        return FamiliaResponse.from(familiaService.alterarPlano(user.familiaId(), request.plano()));
     }
 
     @PostMapping("/apagar-dados")
