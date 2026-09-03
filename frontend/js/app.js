@@ -18,6 +18,24 @@ let _familia  = null;
 
 const isPremium = () => !!_familia && _familia.plano === 'PREMIUM';
 
+// Recurso Premium implementado 100% no navegador (ex: exportar PDF com jsPDF) não tem como
+// ser bloqueado pelo servidor da forma como um endpoint é — então, antes de gerar o arquivo,
+// confirmamos o plano com uma chamada nova (não o `_familia` já em cache) para não depender
+// só do que já foi carregado na página.
+async function exigirPremiumOuAvisar(mensagem) {
+  try {
+    const familiaAtual = await api.get('/familia/me');
+    if (familiaAtual.plano !== 'PREMIUM') {
+      alert(mensagem || 'Este recurso é exclusivo do plano Premium.');
+      return false;
+    }
+    return true;
+  } catch {
+    alert('Não foi possível confirmar seu plano. Tente novamente.');
+    return false;
+  }
+}
+
 // ── Utilidades ──
 function getCfg() {
   return _familia || {};
@@ -772,26 +790,31 @@ function atualizarDashboard() {
 // ── PREMIUM: Gráficos ──
 // ══════════════════════════════════════════════
 
-function renderGraficos() {
-  renderGraficoBarras();
-  renderGraficoPizza();
-  renderTendencias();
-  renderComparativoMeses();
+// Os dados desta seção vêm exclusivamente de GET /api/analises/resumo (ver analises.js),
+// que só responde para famílias Premium (403 para Essencial) — não há cálculo a partir de
+// `receitas`/`despesas` locais aqui, para que o bloqueio de plano seja aplicado de verdade
+// no servidor, e não apenas escondido na tela.
+function renderGraficos(dados) {
+  _saldoAtualAnalise = dados.saldoAtual;
+  renderGraficoBarras(dados.seriesMensal);
+  renderGraficoPizza(dados.despesasPorCategoria);
+  renderTendencias(dados.tendenciaCategorias);
+  renderComparativoMeses(dados.seriesMensal);
 }
 
-function renderGraficoBarras() {
+function renderGraficoBarras(seriesMensal) {
   const canvas = el('graficoBarras');
   if (!canvas) return;
 
-  const meses = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    meses.push({ label: d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }), key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` });
-  }
+  const ultimos6 = seriesMensal.slice(-6);
+  const meses = ultimos6.map(s => {
+    const [ano, mes] = s.mesAno.split('-');
+    const label = new Date(Number(ano), Number(mes) - 1, 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    return { label, key: s.mesAno };
+  });
 
-  const dadosR = meses.map(m => receitas.filter(x => x.data?.startsWith(m.key)).reduce((a,b)=>a+b.valor,0));
-  const dadosD = meses.map(m => despesas.filter(x => x.data?.startsWith(m.key)).reduce((a,b)=>a+b.valor,0));
+  const dadosR = ultimos6.map(s => s.receitas);
+  const dadosD = ultimos6.map(s => s.despesas);
   const maxVal = Math.max(...dadosR, ...dadosD, 1);
 
   const W = canvas.offsetWidth || 560;
@@ -837,14 +860,12 @@ function renderGraficoBarras() {
   ctx.fillStyle = '#374151'; ctx.fillText('Despesas', pad.left + 96, 13);
 }
 
-function renderGraficoPizza() {
+function renderGraficoPizza(despesasPorCategoria) {
   const canvas = el('graficoPizza');
-  if (!canvas || !despesas.length) return;
+  if (!canvas || !despesasPorCategoria.length) return;
 
-  const mapa = {};
-  despesas.forEach(d => { mapa[d.categoria] = (mapa[d.categoria] || 0) + d.valor; });
-  const total   = Object.values(mapa).reduce((a,b)=>a+b,0);
-  const entries = Object.entries(mapa).sort((a,b)=>b[1]-a[1]);
+  const entries = despesasPorCategoria.map(c => [c.categoria, c.valor]);
+  const total   = entries.reduce((a, [, v]) => a + v, 0);
   const cores   = ['#2563EB','#16A34A','#F59E0B','#DC2626','#7C3AED','#0891B2','#EA580C','#DB2777','#64748B'];
 
   const S = 200;
@@ -886,25 +907,19 @@ function renderGraficoPizza() {
 }
 
 // ── PREMIUM: Tendências ──
-function renderTendencias() {
+function renderTendencias(tendenciaCategorias) {
   const el2 = el('painelTendencias');
   if (!el2) return;
 
   const mesAtual = new Date();
   const mesAnt   = new Date(); mesAnt.setMonth(mesAnt.getMonth() - 1);
-  const keyAtual = `${mesAtual.getFullYear()}-${String(mesAtual.getMonth()+1).padStart(2,'0')}`;
-  const keyAnt   = `${mesAnt.getFullYear()}-${String(mesAnt.getMonth()+1).padStart(2,'0')}`;
 
-  const mapaAtual = {}, mapaAnt = {};
-  despesas.filter(d=>d.data?.startsWith(keyAtual)).forEach(d=>{ mapaAtual[d.categoria]=(mapaAtual[d.categoria]||0)+d.valor; });
-  despesas.filter(d=>d.data?.startsWith(keyAnt)).forEach(d=>{ mapaAnt[d.categoria]=(mapaAnt[d.categoria]||0)+d.valor; });
+  if (!tendenciaCategorias.length) { el2.innerHTML = '<p class="texto-vazio-tendencia">Dados insuficientes. Adicione transações em meses diferentes.</p>'; return; }
 
-  const cats = [...new Set([...Object.keys(mapaAtual), ...Object.keys(mapaAnt)])];
-  if (!cats.length) { el2.innerHTML = '<p class="texto-vazio-tendencia">Dados insuficientes. Adicione transações em meses diferentes.</p>'; return; }
-
-  const linhas = cats.map(cat => {
-    const a   = mapaAnt[cat]   || 0;
-    const b   = mapaAtual[cat] || 0;
+  const linhas = tendenciaCategorias.map(t => {
+    const cat = t.categoria;
+    const a   = t.anterior;
+    const b   = t.atual;
     const var_ = a ? ((b - a) / a * 100).toFixed(1) : null;
     const seta = b > a ? '↑' : b < a ? '↓' : '→';
     const corCls = b > a ? 'cor-subiu' : b < a ? 'cor-desceu' : 'cor-igual';
@@ -932,36 +947,26 @@ function renderTendencias() {
 
 // ── PREMIUM: Comparativo de Meses (6 ou 12 meses) ──
 let _qtdMesesComparativo = 6;
+let _seriesMensalAnalise = [];
 
 function definirPeriodoComparativo(qtd) {
   _qtdMesesComparativo = qtd;
   document.querySelectorAll('.comp-periodo-btn').forEach(b => b.classList.remove('ativo'));
   const btn = el('compBtn' + qtd);
   if (btn) btn.classList.add('ativo');
-  renderComparativoMeses();
+  renderComparativoMeses(_seriesMensalAnalise);
 }
 
-function renderComparativoMeses() {
+function renderComparativoMeses(seriesMensal) {
   const cont = el('tabelaComparativo');
   if (!cont) return;
+  _seriesMensalAnalise = seriesMensal;
 
   const qtd = _qtdMesesComparativo;
-  const meses = [];
-  for (let i = qtd - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(1);
-    d.setMonth(d.getMonth() - i);
-    meses.push({
-      key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
-      label: d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
-    });
-  }
-
-  const linhas = meses.map((m, idx) => {
-    const r = receitas.filter(x => x.data?.startsWith(m.key)).reduce((a,b)=>a+b.valor,0);
-    const d = despesas.filter(x => x.data?.startsWith(m.key)).reduce((a,b)=>a+b.valor,0);
-    const saldo = r - d;
-    return { ...m, receita: r, despesa: d, saldo };
+  const linhas = seriesMensal.slice(-qtd).map(s => {
+    const [ano, mes] = s.mesAno.split('-');
+    const label = new Date(Number(ano), Number(mes) - 1, 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    return { label, receita: s.receitas, despesa: s.despesas, saldo: s.saldo };
   });
 
   function variacao(atual, anterior) {
@@ -1026,13 +1031,14 @@ function renderComparativoMeses() {
 }
 
 // ── PREMIUM: Projeção Financeira ──
+let _saldoAtualAnalise = 0;
+
 function calcularProjecao() {
   const economia = parseFloat(el('projEconomia')?.value || 0);
   const meses    = parseInt(el('projMeses')?.value    || 12);
   const meta     = parseFloat(el('projMeta')?.value   || 0);
-  const { tr, td } = calcTotais();
-  const saldoAtual = tr - td;
-  const saldoMensal = economia > 0 ? economia : Math.max(tr - td, 0);
+  const saldoAtual = _saldoAtualAnalise;
+  const saldoMensal = economia > 0 ? economia : Math.max(saldoAtual, 0);
 
   const resultado = el('projResultado');
   if (!resultado) return;
@@ -1146,7 +1152,8 @@ function imprimirRelatorioSelecionado() {
 }
 
 // ── PREMIUM: Export PDF ──
-function baixarRelatorioPDF() {
+async function baixarRelatorioPDF() {
+  if (!(await exigirPremiumOuAvisar('Exportar relatórios em PDF é um recurso Premium.'))) return;
   const { jsPDF } = window.jspdf;
   const doc  = new jsPDF();
   const data = new Date().toLocaleDateString('pt-BR');
@@ -1202,7 +1209,7 @@ function baixarRelatorioPDF() {
     .forEach(t => {
       doc.setTextColor(55,65,81); doc.setFontSize(8); doc.setFont('helvetica','normal');
       doc.text(`[${fmtD(t.data)}] ${t.nome} (${t.categoria})`, 14, y);
-      doc.setTextColor(t.tipo==='R'?[22,163,74]:[220,38,38]);
+      doc.setTextColor(...(t.tipo==='R'?[22,163,74]:[220,38,38]));
       doc.setFont('helvetica','bold');
       doc.text(`${t.tipo==='R'?'+':'-'}${fmtN(t.valor)}`, 196, y, { align:'right' });
       y += 6; if (y > 275) { doc.addPage(); y = 20; }
@@ -1568,9 +1575,8 @@ window.onload = async function () {
   renderAlertas();
   verificarAlertas();
 
-  if (isPremium()) {
-    setTimeout(renderGraficos, 100);
-  }
+  // Análises (gráficos/tendências/projeção) é inicializado por analises.js,
+  // que busca os dados em GET /api/analises/resumo (bloqueado no servidor para Essencial).
 
   const badge = el('planoBadge');
   if (badge) badge.innerHTML = isPremium()

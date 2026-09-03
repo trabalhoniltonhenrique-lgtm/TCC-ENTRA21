@@ -113,7 +113,8 @@ function renderDispensa() {
 }
 
 // ── Exportar Dispensa em PDF ──
-function exportarDispensaPDF() {
+async function exportarDispensaPDF() {
+  if (!(await exigirPremiumOuAvisar('Exportar a dispensa em PDF é um recurso Premium.'))) return;
   if (!window.jspdf) {
     alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão e tente novamente.');
     return;
@@ -214,5 +215,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   popularCats();
-  document.addEventListener('casacapital-dados-carregados', renderDispensa);
+  document.addEventListener('casacapital-dados-carregados', function () {
+    renderDispensa();
+    document.getElementById('btnExportarPdf').classList.toggle('oculto', !isPremium());
+  });
 });
