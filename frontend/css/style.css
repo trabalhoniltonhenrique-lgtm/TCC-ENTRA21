@@ -443,6 +443,7 @@ body.dark .moeda-op.ativo { color:#93C5FD; }
 .btn-acao-relatorios { background:#FEF3C7; color:#92400E; border:1.5px solid #FDE68A; }
 .oculto { display:none; }
 .login-erro { color:#DC2626; font-size:.85rem; margin:-.25rem 0 .5rem; text-align:center; }
+.login-sucesso { color:var(--verde); font-size:.85rem; margin:-.25rem 0 .5rem; text-align:center; }
 
 /* ── Finanças ── */
 .bloco-filtro-periodo { padding:1rem 1.25rem .25rem; }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Redefinir senha</title>
+</head>
+<body>
+<main class="center">
+  <section class="card">
+    <div class="login-cabecalho">
+      <span class="login-logo">EC</span>
+      <h1 class="login-titulo">Nova senha</h1>
+      <p class="login-subtitulo">Defina uma nova senha para sua conta</p>
+    </div>
+    <input type="password" id="novaSenha" placeholder="Nova senha (mínimo 6 caracteres)">
+    <input type="password" id="confirmarNovaSenha" placeholder="Confirmar nova senha">
+    <p id="redefinirErro" class="login-erro oculto"></p>
+    <p id="redefinirSucesso" class="login-sucesso oculto"></p>
+    <button id="btnRedefinirSenha">Redefinir senha</button>
+    <a href="index.html">← Voltar para o login</a>
+  </section>
+</main>
+<script src="js/api.js"></script>
+<script src="js/redefinir-senha.js"></script>
+</body>
+</html>

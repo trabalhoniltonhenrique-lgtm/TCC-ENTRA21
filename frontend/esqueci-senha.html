@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Esqueci minha senha</title>
+</head>
+<body>
+<main class="center">
+  <section class="card">
+    <div class="login-cabecalho">
+      <span class="login-logo">EC</span>
+      <h1 class="login-titulo">Esqueci minha senha</h1>
+      <p class="login-subtitulo">Informe seu e-mail para receber o link de redefinição</p>
+    </div>
+    <input type="email" id="recEmail" placeholder="E-mail">
+    <p id="recErro" class="login-erro oculto"></p>
+    <p id="recSucesso" class="login-sucesso oculto"></p>
+    <button id="btnEnviarRecuperacao">Enviar link de redefinição</button>
+    <a href="index.html">← Voltar para o login</a>
+  </section>
+</main>
+<script src="js/api.js"></script>
+<script src="js/esqueci-senha.js"></script>
+</body>
+</html>

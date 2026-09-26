@@ -1,7 +1,9 @@
 package com.casacapital.backend.auth;
 
 import com.casacapital.backend.auth.dto.AuthResponse;
+import com.casacapital.backend.auth.dto.EsqueciSenhaRequest;
 import com.casacapital.backend.auth.dto.LoginRequest;
+import com.casacapital.backend.auth.dto.RedefinirSenhaRequest;
 import com.casacapital.backend.auth.dto.RegistrarRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,5 +32,15 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/esqueci-senha")
+    public void esqueciSenha(@Valid @RequestBody EsqueciSenhaRequest request) {
+        authService.esqueciSenha(request.email());
+    }
+
+    @PostMapping("/redefinir-senha")
+    public void redefinirSenha(@Valid @RequestBody RedefinirSenhaRequest request) {
+        authService.redefinirSenha(request.token(), request.novaSenha());
     }
 }

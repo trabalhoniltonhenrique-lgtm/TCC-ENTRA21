@@ -22,7 +22,7 @@ function estaAutenticado() {
 
 function irParaLogin() {
   limparSessao();
-  if (!['index.html', 'cadastro.html', 'home.html', ''].includes(location.pathname.split('/').pop())) {
+  if (!['index.html', 'cadastro.html', 'home.html', 'esqueci-senha.html', 'redefinir-senha.html', ''].includes(location.pathname.split('/').pop())) {
     location.href = 'index.html';
   }
 }
