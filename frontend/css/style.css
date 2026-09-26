@@ -45,6 +45,49 @@ body.dark {
   --bg-media-comp: #1E3A5F;
 }
 
+/* --azul-escuro (#1E3A8A) é escuro demais sobre fundos do tema escuro (cards
+   #1E293B, página #0F172A, ou o próprio --azul-claro que também escurece)
+   — texto quase ilegível. Mesmo ajuste já aplicado a .moeda-op.ativo,
+   .card h1/h2, .card-box h2 e .config-secao h3. */
+body.dark .badge-plano-aviso,
+body.dark .btn-acao-financas,
+body.dark .preview-parcelas,
+body.dark .resumo-grid .resumo-box .num,
+body.dark .stat-pill,
+body.dark .stat-projecao.cor-saldo-hoje .stat-projecao-valor,
+body.dark .home-hero h1,
+body.dark .home-titulo,
+body.dark .login-titulo,
+body.dark .step h2,
+body.dark .planos-cabecalho h2,
+body.dark .plano-preco,
+body.dark .plano-titulo,
+body.dark .filtro-periodo-linha .rotulo,
+body.dark .conta-valor.cor-normal,
+body.dark .contas-cabecalho h2,
+body.dark .grupo-restante .valor,
+body.dark .parcela-linha .valor.cor-normal,
+body.dark .dispensa-cabecalho h2,
+body.dark .bloco-add-dispensa .titulo,
+body.dark .familia-cabecalho h2,
+body.dark .metas-cabecalho h2,
+body.dark .orcamento-cabecalho h2,
+body.dark .secao h2,
+body.dark .config-cabecalho h2,
+body.dark .modal-box h3,
+body.dark .titulo-resumo-cat,
+body.dark .th-mes,
+body.dark .th-saldo,
+body.dark .td-saldo.saldo-positivo-cel,
+body.dark .td-media-label,
+body.dark .td-media-saldo,
+body.dark .valor-conta-proxima,
+body.dark .poupado-meta,
+body.dark .historico-cabecalho h2 {
+  color: #93C5FD;
+}
+body.dark .cor-op.selecionada { border-color: #93C5FD; }
+
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
