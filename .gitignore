@@ -12,3 +12,7 @@ Thumbs.db
 *.env
 application-local.yml
 application-local.yaml
+
+# Instalador (pacote gerado e cache do WinSW)
+dist/
+instalador/.cache/

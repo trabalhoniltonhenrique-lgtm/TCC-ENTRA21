@@ -1,0 +1,22 @@
+CasaCapital - Instalacao
+========================
+
+Pre-requisito: MySQL Server 8 instalado (servico "MySQL80").
+Nao e preciso instalar Java: ele ja vem dentro do pacote.
+
+1. Abra o configuracao.ini e confira as senhas (banco e e-mail).
+2. De dois cliques em Instalar.bat e aceite a permissao de administrador.
+   - Se o banco ainda nao existir, sera pedida a senha do root do MySQL.
+3. Pronto. O navegador abre em http://localhost:8080 e fica um atalho
+   "CasaCapital" na Area de Trabalho.
+
+O sistema roda como servico do Windows: inicia sozinho quando o computador
+liga e reinicia sozinho se cair. Nao e preciso abrir nenhuma janela preta.
+
+Atualizar para uma nova versao: rode o Instalar.bat do pacote novo
+(os dados sao mantidos).
+
+Remover: Desinstalar.bat (o banco de dados NAO e apagado).
+
+Logs: C:\ProgramData\CasaCapital\logs
+Servico: "CasaCapital" em services.msc
