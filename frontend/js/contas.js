@@ -1,6 +1,7 @@
 // ── CasaCapital — contas.js (backend Java + MySQL) ──
 let contas      = [];
 let filtroAtivo = 'todas';
+let filtroCategoriaAtivo = 'todas';
 let editandoId  = null;
 let gruposExpandidos = {}; // { grupoParcelaId: true/false }
 
@@ -229,6 +230,11 @@ function setFiltro(f, elTab) {
   renderContas();
 }
 
+function setFiltroCategoria(cat) {
+  filtroCategoriaAtivo = cat;
+  renderContas();
+}
+
 function toggleGrupoParcela(grupoId) {
   gruposExpandidos[grupoId] = !gruposExpandidos[grupoId];
   renderContas();
@@ -359,6 +365,7 @@ function renderContas() {
   if (filtroAtivo === 'atrasado') lista2 = lista2.filter(c => calcStatus(c) === 'atrasado');
   if (filtroAtivo === 'hoje')     lista2 = lista2.filter(c => calcStatus(c) === 'hoje');
   if (filtroAtivo === 'pago')     lista2 = lista2.filter(c => c.pago);
+  if (filtroCategoriaAtivo !== 'todas') lista2 = lista2.filter(c => c.categoria === filtroCategoriaAtivo);
 
   if (!lista2.length) {
     lista.innerHTML = `<div class="lista-vazia">
@@ -402,6 +409,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('.filtro-tab').forEach(tab => {
     tab.addEventListener('click', () => setFiltro(tab.getAttribute('data-filtro'), tab));
+  });
+
+  document.getElementById('filtroCategoria').addEventListener('change', function (e) {
+    setFiltroCategoria(e.target.value);
   });
 
   document.getElementById('listaContas').addEventListener('click', function (e) {
