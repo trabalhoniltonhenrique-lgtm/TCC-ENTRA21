@@ -16,3 +16,6 @@ application-local.yaml
 # Instalador (pacote gerado e cache do WinSW)
 dist/
 instalador/.cache/
+
+# Temporarios do backend (TEMP/TMP do Tomcat criado pelo rodar-tudo.ps1)
+backend/.tmp/
