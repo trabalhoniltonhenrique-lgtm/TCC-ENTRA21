@@ -891,7 +891,7 @@ function renderGraficoPizza(despesasPorCategoria) {
 
   ctx.beginPath(); ctx.arc(cx, cy, 45, 0, 2*Math.PI);
   ctx.fillStyle = '#fff'; ctx.fill();
-  ctx.fillStyle = '#1E3A8A'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
+  ctx.fillStyle = corTema('--azul-escuro') || '#1E3A8A'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
   ctx.fillText('Total', cx, cy - 5);
   ctx.fillText(fmt(total), cx, cy + 10);
 
@@ -1065,8 +1065,8 @@ function calcularProjecao() {
 
   const svg = `<svg viewBox="0 0 ${W} ${H}" class="svg-projecao">
     ${meta ? `<line x1="20" y1="${H-20-((meta-minP)/rangeP)*(H-30)}" x2="${W-20}" y2="${H-20-((meta-minP)/rangeP)*(H-30)}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4"/>` : ''}
-    <polyline points="${pts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linejoin="round"/>
-    ${pts.map((p,i)=> i===0||i===meses ? `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#2563EB"/>` : '').join('')}
+    <polyline points="${pts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="none" style="stroke:var(--azul)" stroke-width="2.5" stroke-linejoin="round"/>
+    ${pts.map((p,i)=> i===0||i===meses ? `<circle cx="${p.x}" cy="${p.y}" r="4" style="fill:var(--azul)"/>` : '').join('')}
     <text x="20" y="${H-5}" font-size="10" fill="#9CA3AF">Hoje</text>
     <text x="${W-45}" y="${H-5}" font-size="10" fill="#9CA3AF">${meses}m</text>
     ${meta ? `<text x="${W-20}" y="${H-20-((meta-minP)/rangeP)*(H-30)-4}" font-size="10" fill="#F59E0B" text-anchor="end">meta</text>` : ''}

@@ -28,6 +28,25 @@ async function carregarConfig() {
   document.getElementById('cfgDescPlano').textContent  = plano === 'PREMIUM' ? 'R$ 39,90/mês — Análises, alertas e relatórios avançados' : 'R$ 19,90/mês — Controle básico e organização familiar';
 
   previewAvatar();
+  renderCoresFamilia();
+}
+
+// ── Cores da Família ──
+function renderCoresFamilia() {
+  const atual = (cfg.corPrimaria || '').toUpperCase();
+  const predefinida = CORES_FAMILIA.some(c => c.cor === atual);
+  document.getElementById('coresFamilia').innerHTML = CORES_FAMILIA.map(c => `
+    <button type="button" class="cor-familia-op ${c.cor === atual ? 'selecionada' : ''}"
+            data-cor="${c.cor}" title="${c.nome}" aria-label="${c.nome}"
+            style="--cor-op:${c.cor || '#2563EB'};"></button>`).join('');
+  document.querySelector('.cor-personalizada').classList.toggle('selecionada', !!atual && !predefinida);
+  if (atual) document.getElementById('cfgCorPersonalizada').value = atual;
+}
+
+function selecionarCorFamilia(cor) {
+  cfg.corPrimaria = cor || null;
+  aplicarCorFamilia(cor, false); // só pré-visualiza; grava ao salvar
+  renderCoresFamilia();
 }
 
 function toggleTemaConfig() {
@@ -72,7 +91,9 @@ async function salvarConfig() {
       moeda: cfg.moeda, separadorDecimal: cfg.separadorDecimal, diaFechamento: cfg.diaFechamento,
       mostrarSaldo: cfg.mostrarSaldo, alertaContas: cfg.alertaContas,
       confirmarExclusao: cfg.confirmarExclusao, agruparCat: cfg.agruparCat,
+      corPrimaria: cfg.corPrimaria || '', // '' volta ao azul padrão
     });
+    aplicarCorFamilia(cfg.corPrimaria);
     toast('Configurações salvas com sucesso!', '#16A34A');
   } catch (erro) {
     toast((erro.message || 'Não foi possível salvar.'), '#DC2626');
@@ -165,6 +186,14 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.getElementById('sepVirgula').addEventListener('click', function () { selecionarSep(',', this); });
   document.getElementById('sepPonto').addEventListener('click', function () { selecionarSep('.', this); });
+
+  document.getElementById('coresFamilia').addEventListener('click', function (e) {
+    const op = e.target.closest('.cor-familia-op');
+    if (op) selecionarCorFamilia(op.getAttribute('data-cor'));
+  });
+  document.getElementById('cfgCorPersonalizada').addEventListener('input', function () {
+    selecionarCorFamilia(this.value.toUpperCase());
+  });
 
   document.getElementById('btnAlterarPlano').addEventListener('click', function () { location.href = 'planos.html'; });
   document.getElementById('btnExportarDados').addEventListener('click', exportarDados);

@@ -8,6 +8,7 @@
 </head>
 <body>
 <script src="js/api.js"></script>
+<script src="js/cores.js"></script>
 <script src="js/header.js"></script>
 <div class="container config-container">
 
@@ -149,6 +150,26 @@
           <span class="toggle-slider"></span>
         </label>
       </div>
+    </div>
+
+    <!-- Cores da Família -->
+    <div class="config-secao">
+      <h3><span class="ico ico-palette"></span> Cores da Família</h3>
+
+      <div class="config-linha com-quebra">
+        <div>
+          <div class="config-label">Cor principal do sistema</div>
+          <div class="config-desc">Muda o menu lateral, botões e destaques. Vale para todos da família.</div>
+        </div>
+        <div class="cores-familia-wrap">
+          <div class="cores-familia" id="coresFamilia"></div>
+          <label class="cor-personalizada" title="Escolher outra cor">
+            <input type="color" id="cfgCorPersonalizada" value="#2563EB">
+            <span>Personalizada</span>
+          </label>
+        </div>
+      </div>
+      <p class="config-desc cores-familia-aviso">A cor aparece na hora para você conferir. Clique em <strong>Salvar Configurações</strong> para manter.</p>
     </div>
 
     <!-- Plano atual -->

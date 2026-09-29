@@ -14,6 +14,7 @@ function setToken(token) {
 
 function limparSessao() {
   localStorage.removeItem(CHAVE_TOKEN);
+  localStorage.removeItem('casacapital_cor'); // a próxima família a entrar não herda as cores desta
 }
 
 function estaAutenticado() {

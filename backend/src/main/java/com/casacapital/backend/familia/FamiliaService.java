@@ -32,6 +32,9 @@ public class FamiliaService {
         if (req.alertaContas() != null) familia.setAlertaContas(req.alertaContas());
         if (req.confirmarExclusao() != null) familia.setConfirmarExclusao(req.confirmarExclusao());
         if (req.agruparCat() != null) familia.setAgruparCat(req.agruparCat());
+        if (req.corPrimaria() != null) {
+            familia.setCorPrimaria(req.corPrimaria().isBlank() ? null : req.corPrimaria().toUpperCase());
+        }
         return familia;
     }
 

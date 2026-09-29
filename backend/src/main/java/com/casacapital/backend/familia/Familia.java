@@ -61,6 +61,10 @@ public class Familia {
     @Column(name = "agrupar_cat", nullable = false)
     private Boolean agruparCat = false;
 
+    /** Cor principal do layout em hexadecimal (#RRGGBB); null usa o azul padrão. */
+    @Column(name = "cor_primaria", length = 7)
+    private String corPrimaria;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

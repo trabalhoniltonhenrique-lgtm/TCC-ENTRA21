@@ -16,6 +16,7 @@
   }
 
   window.__familia = familia; // cache simples para outras telas (moeda, separador, etc.)
+  if (window.aplicarCorFamilia) aplicarCorFamilia(familia.corPrimaria);
   const isPremium = familia.plano === 'PREMIUM';
 
   const itens = [

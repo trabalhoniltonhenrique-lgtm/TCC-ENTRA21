@@ -15,7 +15,8 @@ public record FamiliaResponse(
         Boolean mostrarSaldo,
         Boolean alertaContas,
         Boolean confirmarExclusao,
-        Boolean agruparCat
+        Boolean agruparCat,
+        String corPrimaria
 ) {
     public static FamiliaResponse from(Familia f) {
         return new FamiliaResponse(
@@ -30,7 +31,8 @@ public record FamiliaResponse(
                 f.getMostrarSaldo(),
                 f.getAlertaContas(),
                 f.getConfirmarExclusao(),
-                f.getAgruparCat()
+                f.getAgruparCat(),
+                f.getCorPrimaria()
         );
     }
 }
