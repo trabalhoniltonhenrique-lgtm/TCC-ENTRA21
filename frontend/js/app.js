@@ -42,12 +42,14 @@ function getCfg() {
 }
 function getMoeda() { return getCfg().moeda || 'R$'; }
 function getSep()   { return getCfg().separadorDecimal || ','; }
+// Formata o valor absoluto com 2 casas e separador de milhar: 10.000,00 (ou 10,000.00 se o decimal for ponto)
+function fmtNumero(v, sep) {
+  const [inteiro, dec] = Math.abs(Number(v) || 0).toFixed(2).split('.');
+  const milhar = sep === ',' ? '.' : ',';
+  return inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, milhar) + (sep === ',' ? ',' : '.') + dec;
+}
 function fmtValor(v) {
-  const sep   = getSep();
-  const moeda = getMoeda();
-  const abs   = Math.abs(v).toFixed(2);
-  const formatted = sep === ',' ? abs.replace('.', ',') : abs;
-  return (v < 0 ? '-' : '') + moeda + ' ' + formatted;
+  return (v < 0 ? '-' : '') + getMoeda() + ' ' + fmtNumero(v, getSep());
 }
 // Atualiza rótulos/placeholders estáticos que mencionam a moeda (ex: "Limite mensal ({moeda})")
 // para refletir a moeda configurada em Configurações, em vez do "R$" fixo do HTML.
@@ -60,7 +62,7 @@ function aplicarUnidadeMoeda() {
   });
 }
 const fmt  = v => fmtValor(v);
-const fmtN = v => { const sep = getSep(); const abs = Math.abs(v).toFixed(2); return (v < 0 ? '-' : '') + (sep === ',' ? abs.replace('.', ',') : abs); };
+const fmtN = v => (v < 0 ? '-' : '') + fmtNumero(v, getSep());
 const fmtD = dt => { const d = new Date(dt + 'T12:00:00'); return d.toLocaleDateString('pt-BR'); };
 const hoje = () => new Date().toISOString().split('T')[0];
 const el   = id => document.getElementById(id);

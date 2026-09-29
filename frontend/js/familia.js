@@ -19,7 +19,7 @@ function calcIdade(nascimento) {
 }
 
 function fmtRenda(v) {
-  return (typeof fmt === 'function' ? fmt(v) : 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','));
+  return (typeof fmt === 'function' ? fmt(v) : 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 function renderCores(selecionada) {

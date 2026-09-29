@@ -9,8 +9,10 @@ const hoje = () => new Date().toISOString().split('T')[0];
 let _moedaContas = 'R$';
 let _sepContas    = ',';
 const fmt  = v => {
-  const abs = Number(v || 0).toFixed(2);
-  return _moedaContas + ' ' + (_sepContas === ',' ? abs.replace('.', ',') : abs);
+  const [inteiro, dec] = Math.abs(Number(v) || 0).toFixed(2).split('.');
+  const milhar = _sepContas === ',' ? '.' : ',';
+  const numero = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, milhar) + (_sepContas === ',' ? ',' : '.') + dec;
+  return (v < 0 ? '-' : '') + _moedaContas + ' ' + numero;
 };
 const fmtD = dt => dt ? new Date(dt + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
 
