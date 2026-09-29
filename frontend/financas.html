@@ -16,7 +16,7 @@
   <div class="bloco-filtro-periodo">
     <div class="card-box">
       <div class="filtro-periodo-linha">
-        <span class="rotulo">📅 Período:</span>
+        <span class="rotulo"><span class="ico ico-calendar"></span> Período:</span>
         <select id="filtroMes">
           <option value="">Todos os meses</option>
         </select>
@@ -30,13 +30,13 @@
 
     <!-- Receitas -->
     <div class="card card-full">
-      <h2>💰 Receitas</h2>
+      <h2><span class="ico ico-trending-up"></span> Receitas</h2>
       <input id="receitaNome" placeholder="Descrição (ex: Salário)">
       <div class="linha-dupla">
         <select id="receitaCat"></select>
         <input id="receitaData" type="date">
       </div>
-      <select id="receitaMembro"><option value="">👤 Sem membro vinculado</option></select>
+      <select id="receitaMembro"><option value="">Sem membro vinculado</option></select>
       <input id="receitaValor" type="number" placeholder="Valor (R$)" data-moeda-label="Valor ({moeda})" min="0" step="0.01">
       <button id="btnAddReceita" class="btn-verde">+ Adicionar Receita</button>
       <ul id="listaReceitas" class="lista lista-form"></ul>
@@ -44,13 +44,13 @@
 
     <!-- Despesas -->
     <div class="card card-full">
-      <h2>💸 Despesas</h2>
+      <h2><span class="ico ico-trending-down"></span> Despesas</h2>
       <input id="despesaNome" placeholder="Descrição (ex: Aluguel)">
       <div class="linha-dupla">
         <select id="despesaCat"></select>
         <input id="despesaData" type="date">
       </div>
-      <select id="despesaMembro"><option value="">👤 Sem membro vinculado</option></select>
+      <select id="despesaMembro"><option value="">Sem membro vinculado</option></select>
       <input id="despesaValor" type="number" placeholder="Valor (R$)" data-moeda-label="Valor ({moeda})" min="0" step="0.01">
       <button id="btnAddDespesa" class="btn-perigo">+ Adicionar Despesa</button>
       <ul id="listaDespesas" class="lista lista-form"></ul>

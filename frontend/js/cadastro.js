@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const texto = document.getElementById('textoBadge');
   if (plano === 'premium') {
     badge.classList.add('premium');
-    texto.innerHTML = '<strong>⭐ Plano Premium</strong> — R$ 39,90/mês';
+    texto.innerHTML = '<strong><span class="ico ico-star"></span> Plano Premium</strong> — R$ 39,90/mês';
   }
 
   const btn = document.getElementById('btnFinalizarCadastro');

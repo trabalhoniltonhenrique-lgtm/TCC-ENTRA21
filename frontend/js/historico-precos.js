@@ -54,9 +54,9 @@ function renderHistoricoPrecos() {
 
   if (!filtrados.length) {
     lista.innerHTML = `<div class="lista-vazia">
-      <div class="icone">💰</div>
+      <div class="icone"><span class="ico ico-tag"></span></div>
       <p>${busca ? 'Nenhum produto encontrado.' : 'Nenhum preço registrado ainda.<br>Informe o valor ao marcar itens como comprados na Lista de Compras.'}</p>
-      ${!busca ? `<a href="compras.html"><button class="btn-ir-compras">🛒 Ir para Compras</button></a>` : ''}
+      ${!busca ? `<a href="compras.html"><button class="btn-ir-compras"><span class="ico ico-cart"></span> Ir para Compras</button></a>` : ''}
     </div>`;
     return;
   }
@@ -70,7 +70,7 @@ function renderHistoricoPrecos() {
     <div class="conta-card grupo historico-produto-card" data-action="toggle-historico" data-chave="${p.chave}">
       <div class="grupo-linha-topo">
         <div class="conta-info">
-          <strong>🛒 ${p.nome}</strong>
+          <strong><span class="ico ico-cart"></span> ${p.nome}</strong>
           <span>${p.registros.length} compra${p.registros.length > 1 ? 's' : ''} registrada${p.registros.length > 1 ? 's' : ''} · Última: ${fmtDataHistorico(p.dataUltimo)}</span>
         </div>
         <div class="grupo-restante">

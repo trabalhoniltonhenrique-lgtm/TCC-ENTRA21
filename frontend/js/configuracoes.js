@@ -24,7 +24,7 @@ async function carregarConfig() {
   document.getElementById('sepPonto').classList.toggle('ativo',   cfg.separadorDecimal === '.');
 
   const plano = cfg.plano || 'ESSENCIAL';
-  document.getElementById('cfgNomePlano').textContent  = plano === 'PREMIUM' ? '⭐ Plano Premium' : '📋 Plano Essencial';
+  document.getElementById('cfgNomePlano').innerHTML    = plano === 'PREMIUM' ? '<span class="ico ico-star"></span> Plano Premium' : '<span class="ico ico-clipboard"></span> Plano Essencial';
   document.getElementById('cfgDescPlano').textContent  = plano === 'PREMIUM' ? 'R$ 39,90/mês — Análises, alertas e relatórios avançados' : 'R$ 19,90/mês — Controle básico e organização familiar';
 
   previewAvatar();
@@ -73,9 +73,9 @@ async function salvarConfig() {
       mostrarSaldo: cfg.mostrarSaldo, alertaContas: cfg.alertaContas,
       confirmarExclusao: cfg.confirmarExclusao, agruparCat: cfg.agruparCat,
     });
-    toast('✔ Configurações salvas com sucesso!', '#16A34A');
+    toast('Configurações salvas com sucesso!', '#16A34A');
   } catch (erro) {
-    toast('❌ ' + (erro.message || 'Não foi possível salvar.'), '#DC2626');
+    toast((erro.message || 'Não foi possível salvar.'), '#DC2626');
   }
 }
 
@@ -100,7 +100,7 @@ async function exportarDados() {
   a.href     = URL.createObjectURL(blob);
   a.download = `${nome}_backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  toast('⬇️ Backup exportado com sucesso!', '#2563EB');
+  toast('Backup exportado com sucesso!', '#2563EB');
 }
 
 function importarDados(event) {
@@ -121,24 +121,24 @@ function importarDados(event) {
       ];
 
       await Promise.all(tarefasImport);
-      toast('✔ Dados importados! Recarregando...', '#16A34A');
+      toast('Dados importados! Recarregando...', '#16A34A');
       setTimeout(() => location.reload(), 1500);
     } catch (erro) {
-      toast('❌ Arquivo inválido ou erro ao importar. Verifique e tente novamente.', '#DC2626');
+      toast('Arquivo inválido ou erro ao importar. Verifique e tente novamente.', '#DC2626');
     }
   };
   reader.readAsText(file);
 }
 
 async function apagarTudo() {
-  if (!confirm('⚠️ Isso apagará TODOS os dados financeiros, contas, compras e membros da família.\n\nTem certeza? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Isso apagará TODOS os dados financeiros, contas, compras e membros da família.\n\nTem certeza? Esta ação não pode ser desfeita.')) return;
   if (!confirm('Confirme novamente: apagar todos os dados permanentemente?')) return;
   try {
     await api.post('/familia/apagar-dados');
-    toast('🗑️ Dados apagados. Redirecionando...', '#DC2626');
+    toast('Dados apagados. Redirecionando...', '#DC2626');
     setTimeout(() => location.href = 'dashboard.html', 1500);
   } catch (erro) {
-    toast('❌ ' + (erro.message || 'Não foi possível apagar os dados.'), '#DC2626');
+    toast((erro.message || 'Não foi possível apagar os dados.'), '#DC2626');
   }
 }
 

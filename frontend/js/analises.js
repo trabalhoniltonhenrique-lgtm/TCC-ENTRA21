@@ -8,7 +8,7 @@ function mostrarBloqueioPremium() {
   container.innerHTML = `
     <div class="bloco-analises">
       <div class="secao" style="text-align:center;">
-        <h2>🔒 Recurso Premium</h2>
+        <h2><span class="ico ico-lock"></span> Recurso Premium</h2>
         <p>Análises (gráficos, tendências e projeção financeira) estão disponíveis apenas no plano Premium.</p>
         <a href="configuracoes.html"><button class="btn-calcular-projecao" style="margin-top:1rem;">Ver planos em Configurações</button></a>
       </div>

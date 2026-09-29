@@ -262,7 +262,7 @@ function tagMembro(membroId) {
   const m = getMembroPorId(membroId);
   if (!m) return '';
   const cor = m.cor || '#2563EB';
-  return ` <span class="tag-membro" style="--cor-membro:${cor};--bg-membro:${cor}22;">👤 ${m.nome}</span>`;
+  return ` <span class="tag-membro" style="--cor-membro:${cor};--bg-membro:${cor}22;"><span class="ico ico-user"></span> ${m.nome}</span>`;
 }
 
 function renderFinanceiro() {
@@ -280,7 +280,7 @@ function renderFinanceiro() {
             <span class="linha-item-meta">${x.categoria} · ${fmtD(x.data)}</span>
           </div>
           <span class="item-receita valor-sem-quebra">${fmt(x.valor)}</span>
-          <button class="btn-sm btn-perigo btn-excluir-item" data-action="excluir-receita" data-id="${x.id}">✕</button>
+          <button class="btn-sm btn-perigo btn-excluir-item" data-action="excluir-receita" data-id="${x.id}"><span class="ico ico-x"></span></button>
         </li>`;
       }).join('')
     : '<li class="li-vazio">Nenhuma receita no período.</li>';
@@ -289,11 +289,11 @@ function renderFinanceiro() {
     ? [...desFilt].reverse().map((x) => {
         return `<li>
           <div class="linha-item-info">
-            <span class="linha-item-nome">${x.nome}${x.origemConta ? ' <span class="tag-origem-conta">📋 Conta</span>' : ''}${tagMembro(x.membroId)}</span>
+            <span class="linha-item-nome">${x.nome}${x.origemConta ? ' <span class="tag-origem-conta"><span class="ico ico-clipboard"></span> Conta</span>' : ''}${tagMembro(x.membroId)}</span>
             <span class="linha-item-meta">${x.categoria} · ${fmtD(x.data)}</span>
           </div>
           <span class="item-despesa valor-sem-quebra">${fmt(x.valor)}</span>
-          <button class="btn-sm btn-perigo btn-excluir-item" data-action="excluir-despesa" data-id="${x.id}">✕</button>
+          <button class="btn-sm btn-perigo btn-excluir-item" data-action="excluir-despesa" data-id="${x.id}"><span class="ico ico-x"></span></button>
         </li>`;
       }).join('')
     : '<li class="li-vazio">Nenhuma despesa no período.</li>';
@@ -318,7 +318,7 @@ function renderResumoCategoria() {
   const sorted = Object.entries(mapa).sort((a, b) => b[1] - a[1]);
 
   el2.innerHTML = `
-    <h3 class="titulo-resumo-cat">📊 Gastos por Categoria</h3>
+    <h3 class="titulo-resumo-cat"><span class="ico ico-chart-bar"></span> Gastos por Categoria</h3>
     ${sorted.map(([cat, val]) => {
       const pct  = ((val / total) * 100).toFixed(0);
       const lim  = alertas[cat];
@@ -332,12 +332,12 @@ function renderResumoCategoria() {
         <div class="barra-fundo-cat">
           <div class="barra-progresso-cat ${corCls}" style="--largura:${Math.min(pct,100)}%;"></div>
         </div>
-        ${over ? `<div class="aviso-limite-excedido">⚠️ Limite excedido em ${fmt(val - lim)}</div>` : ''}
+        ${over ? `<div class="aviso-limite-excedido"><span class="ico ico-alert-triangle"></span> Limite excedido em ${fmt(val - lim)}</div>` : ''}
       </div>`;
     }).join('')}
     ${sorted[0][1] / total > 0.35
       ? `<div class="aviso-categoria-dominante">
-          ⚠️ <strong>${sorted[0][0]}</strong> representa ${((sorted[0][1]/total)*100).toFixed(0)}% dos gastos. Revise se está dentro do planejado.
+          <span class="ico ico-alert-triangle"></span> <strong>${sorted[0][0]}</strong> representa ${((sorted[0][1]/total)*100).toFixed(0)}% dos gastos. Revise se está dentro do planejado.
          </div>`
       : ''}
   `;
@@ -366,7 +366,7 @@ function renderResumoPorMembro() {
   if (!linhas.length && !semVinculoR && !semVinculoD) { el2.innerHTML = ''; return; }
 
   el2.innerHTML = `
-    <h3 class="titulo-resumo-cat">👨‍👩‍👧‍👦 Balanço por Membro</h3>
+    <h3 class="titulo-resumo-cat"><span class="ico ico-users"></span> Balanço por Membro</h3>
     ${linhas.map(({ m, totalReceita, totalDespesa }) => `
       <div class="linha-balanco-membro">
         <div class="avatar-mini" style="--cor-avatar:${m.cor || '#2563EB'};">
@@ -399,7 +399,7 @@ function verificarAlertas() {
   const avisos = Object.entries(alertas)
     .filter(([cat, lim]) => mapa[cat] && mapa[cat] > lim)
     .map(([cat, lim]) => `<div class="aviso-alerta-disparado">
-        🚨 <strong>${cat}</strong>: gasto de ${fmt(mapa[cat])} ultrapassou o limite de ${fmt(lim)}
+        <span class="ico ico-alert-circle"></span> <strong>${cat}</strong>: gasto de ${fmt(mapa[cat])} ultrapassou o limite de ${fmt(lim)}
       </div>`);
   painelAlertas.innerHTML = avisos.length
     ? `<div class="bloco-avisos-margem">${avisos.join('')}</div>` : '';
@@ -434,8 +434,8 @@ function renderAlertas() {
   const entradas = Object.entries(alertas);
   l.innerHTML = entradas.length
     ? entradas.map(([cat, lim]) =>
-        `<li><span>🔔 <strong>${cat}</strong> — limite ${fmt(lim)}</span>
-         <button class="btn-sm btn-perigo" data-action="excluir-alerta" data-cat="${cat}">✕</button></li>`
+        `<li><span><span class="ico ico-bell"></span> <strong>${cat}</strong> — limite ${fmt(lim)}</span>
+         <button class="btn-sm btn-perigo" data-action="excluir-alerta" data-cat="${cat}"><span class="ico ico-x"></span></button></li>`
       ).join('')
     : '<li class="li-vazio sem-padding">Nenhum alerta configurado.</li>';
 }
@@ -490,11 +490,11 @@ async function recarregarHistoricoPrecos() {
 const CATS_COMPRA = ['Geral','Hortifruti','Laticínios','Carnes','Bebidas','Higiene','Limpeza','Frios','Padaria','Outros'];
 
 const FREQUENCIAS_COMPRA = [
-  { valor: 'diaria',         label: 'Diária',          icone: '☀️' },
-  { valor: 'semanal',        label: 'Semanal',         icone: '📅' },
-  { valor: 'quinzenal',      label: 'Quinzenal',       icone: '🗓️' },
-  { valor: 'mensal',         label: 'Mensal',          icone: '📆' },
-  { valor: 'sem-frequencia', label: 'Sem frequência',  icone: '➖' },
+  { valor: 'diaria',         label: 'Diária',          icone: 'sun' },
+  { valor: 'semanal',        label: 'Semanal',         icone: 'calendar' },
+  { valor: 'quinzenal',      label: 'Quinzenal',       icone: 'calendar-days' },
+  { valor: 'mensal',         label: 'Mensal',          icone: 'calendar-days' },
+  { valor: 'sem-frequencia', label: 'Sem frequência',  icone: 'minus' },
 ];
 function infoFrequencia(valor) {
   return FREQUENCIAS_COMPRA.find(f => f.valor === valor) || FREQUENCIAS_COMPRA[FREQUENCIAS_COMPRA.length - 1];
@@ -552,7 +552,7 @@ async function confirmarCompraItem(id, precoUnitario) {
   fecharModalPrecoCompra();
 
   const msg = el('msgCompra');
-  if (msg) { msg.textContent = `✔ "${item.nome}" movido para a dispensa!`; setTimeout(() => msg.textContent = '', 2500); }
+  if (msg) { msg.textContent = `"${item.nome}" movido para a dispensa!`; setTimeout(() => msg.textContent = '', 2500); }
 }
 
 // ── Modal de preço ao marcar item como comprado ──
@@ -565,7 +565,7 @@ function abrirModalPrecoCompra(item) {
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
     <div class="modal-box">
-      <h3>💰 Quanto custou "${item.nome}"?</h3>
+      <h3><span class="ico ico-wallet"></span> Quanto custou "${item.nome}"?</h3>
       <p class="modal-sub">Preço por unidade${item.qtd > 1 ? ` (você está comprando ${item.qtd})` : ''}. Informar é opcional.</p>
       ${ultimo !== null ? `<p class="modal-info-anterior">Última compra: ${fmt(ultimo)}/un.</p>` : ''}
       <input id="inputPrecoCompra" type="number" min="0" step="0.01" placeholder="Ex: 5,90" autofocus>
@@ -609,12 +609,12 @@ function renderCompras() {
   if (sc && !sc.options.length) sc.innerHTML = CATS_COMPRA.map(c => `<option>${c}</option>`).join('');
 
   const sf = el('compraFrequencia');
-  if (sf && !sf.options.length) sf.innerHTML = FREQUENCIAS_COMPRA.map(f => `<option value="${f.valor}">${f.icone} ${f.label}</option>`).join('');
+  if (sf && !sf.options.length) sf.innerHTML = FREQUENCIAS_COMPRA.map(f => `<option value="${f.valor}">${f.label}</option>`).join('');
 
   const tabs = el('filtrosFrequenciaCompra');
   if (tabs && !tabs.dataset.montado) {
     tabs.innerHTML = `<div class="filtro-tab ativo" data-action="filtro-freq-compra" data-freq="todas">Todas</div>` +
-      FREQUENCIAS_COMPRA.map(f => `<div class="filtro-tab" data-action="filtro-freq-compra" data-freq="${f.valor}">${f.icone} ${f.label}</div>`).join('');
+      FREQUENCIAS_COMPRA.map(f => `<div class="filtro-tab" data-action="filtro-freq-compra" data-freq="${f.valor}"><span class="ico ico-${f.icone}"></span> ${f.label}</div>`).join('');
     tabs.dataset.montado = '1';
   }
 
@@ -640,11 +640,11 @@ function renderCompras() {
         const freq = infoFrequencia(x.frequencia);
         return `
         <div class="linha-item-compra">
-          <button class="btn-marcar-comprado" data-action="comprar-item" data-id="${x.id}" title="Marcar como comprado">✔</button>
+          <button class="btn-marcar-comprado" data-action="comprar-item" data-id="${x.id}" title="Marcar como comprado"><span class="ico ico-check"></span></button>
           <span class="nome-item-compra">${x.nome}</span>
-          <span class="tag-frequencia-compra freq-${freq.valor}">${freq.icone} ${freq.label}</span>
+          <span class="tag-frequencia-compra freq-${freq.valor}"><span class="ico ico-${freq.icone}"></span> ${freq.label}</span>
           <span class="qtd-item-compra">x${x.qtd}</span>
-          <button class="btn-sm btn-perigo btn-sem-margem" data-action="excluir-compra" data-id="${x.id}">✕</button>
+          <button class="btn-sm btn-perigo btn-sem-margem" data-action="excluir-compra" data-id="${x.id}"><span class="ico ico-x"></span></button>
         </div>`;
       }).join('')}
     </li>`).join('');
@@ -689,7 +689,7 @@ function statusTarefa(t) {
 function tagResponsavel(membroId) {
   const m = getMembroPorId(membroId);
   if (!m) return '';
-  return `<div class="tag-responsavel" style="--cor-membro:${m.cor || '#2563EB'};">👤 ${m.nome}</div>`;
+  return `<div class="tag-responsavel" style="--cor-membro:${m.cor || '#2563EB'};"><span class="ico ico-user"></span> ${m.nome}</div>`;
 }
 
 function renderTarefas() {
@@ -708,15 +708,15 @@ function renderTarefas() {
     const st = statusTarefa(t);
     return `<li class="${t.concluida ? 'tarefa-concluida' : ''}">
       <div class="linha-tarefa-info">
-        <button class="btn-concluir-tarefa ${t.concluida ? 'feita' : ''}" data-action="concluir-tarefa" data-id="${t.id}" title="${t.concluida ? 'Reabrir' : 'Concluir'}">${t.concluida ? '✔' : ''}</button>
+        <button class="btn-concluir-tarefa ${t.concluida ? 'feita' : ''}" data-action="concluir-tarefa" data-id="${t.id}" title="${t.concluida ? 'Reabrir' : 'Concluir'}">${t.concluida ? '<span class="ico ico-check"></span>' : ''}</button>
         <div class="tarefa-texto-wrap">
           <span class="${t.concluida ? 'tarefa-riscada' : ''}">${t.nome}</span>
-          ${t.prazo ? `<div class="tarefa-prazo">📅 ${fmtD(t.prazo)}</div>` : ''}
+          ${t.prazo ? `<div class="tarefa-prazo"><span class="ico ico-calendar"></span> ${fmtD(t.prazo)}</div>` : ''}
           ${tagResponsavel(t.membroId)}
         </div>
       </div>
       ${st ? `<span class="tag-status-tarefa ${st.cls}">${st.texto}</span>` : ''}
-      <button class="btn-sm btn-perigo btn-excluir-tarefa" data-action="excluir-tarefa" data-id="${t.id}">✕</button>
+      <button class="btn-sm btn-perigo btn-excluir-tarefa" data-action="excluir-tarefa" data-id="${t.id}"><span class="ico ico-x"></span></button>
     </li>`;
   }).join('');
 }
@@ -734,10 +734,10 @@ function renderCardTarefasAtrasadas() {
   card.classList.remove('oculto');
   card.innerHTML = `
     <div class="card-tarefas-urgentes">
-      <div class="titulo-tarefas-urgentes">⚠️ Tarefas que precisam de atenção</div>
+      <div class="titulo-tarefas-urgentes"><span class="ico ico-alert-triangle"></span> Tarefas que precisam de atenção</div>
       ${urgentes.map(t => `
         <div class="linha-tarefa-urgente">
-          <span>${t.prazo < hojeStr ? '🚨' : '📅'} ${t.nome}</span>
+          <span>${t.prazo < hojeStr ? '<span class="ico ico-alert-circle"></span>' : '<span class="ico ico-calendar"></span>'} ${t.nome}</span>
           <span class="status-urgente-texto">${t.prazo < hojeStr ? 'Atrasada' : 'Hoje'}</span>
         </div>`).join('')}
     </div>`;
@@ -758,12 +758,12 @@ function atualizarDashboard() {
   if (el('resumoDespesas')) el('resumoDespesas').innerText = '↓ Despesas: ' + fmt(td);
 
   if (el('dashboardCompras')) el('dashboardCompras').innerHTML =
-    compras.slice(0,5).map(x=>`<li>🛒 ${x.nome}${x.qtd > 1 ? ' x'+x.qtd : ''}</li>`).join('') ||
+    compras.slice(0,5).map(x=>`<li><span><span class="ico ico-cart"></span> ${x.nome}${x.qtd > 1 ? ' x'+x.qtd : ''}</span></li>`).join('') ||
     '<li class="li-vazio sem-padding">Nenhum item.</li>';
   if (el('dashboardTarefas')) el('dashboardTarefas').innerHTML =
     tarefas.filter(t => !t.concluida).slice(0,5).map(t => {
       const st = statusTarefa(t);
-      return `<li><span>${st?.texto === 'Atrasada' ? '🚨' : '✅'} ${t.nome}</span>${st ? `<span class="tag-status-tarefa ${st.cls}">${st.texto}</span>` : ''}</li>`;
+      return `<li><span>${st?.texto === 'Atrasada' ? '<span class="ico ico-alert-circle"></span>' : '<span class="ico ico-check-circle"></span>'} ${t.nome}</span>${st ? `<span class="tag-status-tarefa ${st.cls}">${st.texto}</span>` : ''}</li>`;
     }).join('') ||
     '<li class="li-vazio sem-padding">Nenhuma tarefa.</li>';
   renderCardTarefasAtrasadas();
@@ -1089,7 +1089,7 @@ function calcularProjecao() {
       </div>
       ${meta ? `<div class="stat-projecao ${atingeMeta ? 'cor-meta-atingida' : 'cor-meta-pendente'}">
         <div class="stat-projecao-label">Meta ${fmt(meta)}</div>
-        <div class="stat-projecao-valor-meta ${atingeMeta ? 'cor-meta-atingida-txt' : 'cor-meta-pendente-txt'}">${atingeMeta ? '✔ Atingida!' : mesesMeta ? `em ${mesesMeta} meses` : '—'}</div>
+        <div class="stat-projecao-valor-meta ${atingeMeta ? 'cor-meta-atingida-txt' : 'cor-meta-pendente-txt'}">${atingeMeta ? '<span class="ico ico-check"></span> Atingida!' : mesesMeta ? `em ${mesesMeta} meses` : '—'}</div>
       </div>` : ''}
     </div>`;
 }
@@ -1250,7 +1250,7 @@ async function renderCardContas() {
 
   card.innerHTML = `
     <div class="cabecalho-card-contas">
-      <h2 class="sem-margem">📋 Contas a Pagar</h2>
+      <h2 class="sem-margem"><span class="ico ico-clipboard"></span> Contas a Pagar</h2>
       <a href="contas.html" class="link-ver-todas">Ver todas →</a>
     </div>
     ${urgentes.length ? `
@@ -1258,7 +1258,7 @@ async function renderCardContas() {
         ${urgentes.map(c => `
           <div class="linha-conta-urgente">
             <span>
-              ${c.vencimento < hojeStr ? '🚨' : '📅'}
+              ${c.vencimento < hojeStr ? '<span class="ico ico-alert-circle"></span>' : '<span class="ico ico-calendar"></span>'}
               <strong>${c.descricao}</strong>
               <span class="data-conta-urgente">${fmtD2(c.vencimento)}</span>
             </span>
@@ -1342,7 +1342,7 @@ function renderOrcamentos(mesKey) {
 
   if (!Object.keys(orc).length) {
     cont.innerHTML = `<div class="lista-vazia">
-      <div class="icone">🎯</div>
+      <div class="icone"><span class="ico ico-target"></span></div>
       <p>Nenhum orçamento definido para este mês.<br>Use o formulário acima para começar.</p>
     </div>`;
     return;
@@ -1360,7 +1360,7 @@ function renderOrcamentos(mesKey) {
     return `<div class="card-orcamento-item">
       <div class="cabecalho-orcamento-item">
         <span class="cat-orcamento-item">${cat}</span>
-        <button class="btn-sm btn-perigo btn-excluir-orc" data-action="excluir-orcamento" data-cat="${cat}">✕</button>
+        <button class="btn-sm btn-perigo btn-excluir-orc" data-action="excluir-orcamento" data-cat="${cat}"><span class="ico ico-x"></span></button>
       </div>
       <div class="linha-valores-orcamento">
         <span>${fmt(gasto)} de ${fmt(limite)}</span>
@@ -1370,7 +1370,7 @@ function renderOrcamentos(mesKey) {
         <div class="barra-progresso-orc ${corCls}" style="--largura:${pct}%;"></div>
       </div>
       <div class="status-restante-orc ${restante < 0 ? 'cor-orc-excedido' : 'cor-orc-ok'}">
-        ${restante < 0 ? `⚠️ Ultrapassou em ${fmt(Math.abs(restante))}` : `✔ Restam ${fmt(restante)}`}
+        ${restante < 0 ? `<span class="ico ico-alert-triangle"></span> Ultrapassou em ${fmt(Math.abs(restante))}` : `<span class="ico ico-check"></span> Restam ${fmt(restante)}`}
       </div>
     </div>`;
   }).join('');
@@ -1417,7 +1417,7 @@ async function renderResumoOrcamentoDashboard() {
   card.classList.remove('oculto');
   card.innerHTML = `
     <div class="cabecalho-resumo-orc">
-      <h2 class="sem-margem">🎯 Orçamento do Mês</h2>
+      <h2 class="sem-margem"><span class="ico ico-target"></span> Orçamento do Mês</h2>
       <a href="orcamento.html" class="link-ver-todas">Gerenciar →</a>
     </div>
     <div class="linha-valores-orcamento">
@@ -1471,7 +1471,7 @@ function renderMetas() {
 
   if (!metas.length) {
     cont.innerHTML = `<div class="lista-vazia">
-      <div class="icone">🏆</div>
+      <div class="icone"><span class="ico ico-trophy"></span></div>
       <p>Nenhuma meta cadastrada ainda.<br>Crie sua primeira meta de economia acima.</p>
     </div>`;
     return;
@@ -1486,10 +1486,10 @@ function renderMetas() {
     return `<div class="card-meta-item ${completa ? 'meta-completa' : ''}">
       <div class="cabecalho-meta-item">
         <div>
-          <div class="nome-meta-item">${completa ? '🏆 ' : '🎯 '}${m.nome}</div>
+          <div class="nome-meta-item">${completa ? '<span class="ico ico-trophy"></span> ' : '<span class="ico ico-target"></span> '}${m.nome}</div>
           ${m.prazo ? `<div class="prazo-meta-item">Prazo: ${fmtD(m.prazo)}${diasRestantes !== null && !completa ? ` (${diasRestantes >= 0 ? diasRestantes + ' dias restantes' : 'prazo vencido'})` : ''}</div>` : ''}
         </div>
-        <button class="btn-sm btn-perigo btn-sem-margem" data-action="excluir-meta" data-id="${m.id}">✕</button>
+        <button class="btn-sm btn-perigo btn-sem-margem" data-action="excluir-meta" data-id="${m.id}"><span class="ico ico-x"></span></button>
       </div>
       <div class="linha-valores-meta">
         <span class="poupado-meta">${fmt(poupado)}</span>
@@ -1500,7 +1500,7 @@ function renderMetas() {
       </div>
       <div class="rodape-meta-item">
         <span class="texto-progresso-meta ${completa ? 'meta-completa' : ''}">
-          ${completa ? '✔ Meta atingida!' : pct.toFixed(0) + '% concluído'}
+          ${completa ? '<span class="ico ico-check"></span> Meta atingida!' : pct.toFixed(0) + '% concluído'}
         </span>
         ${!completa ? `<button class="btn-add-aporte" data-action="aporte-meta" data-id="${m.id}">+ Adicionar valor</button>` : ''}
       </div>
@@ -1519,7 +1519,7 @@ function renderResumoMetasDashboard() {
   card.classList.remove('oculto');
   card.innerHTML = `
     <div class="cabecalho-resumo-orc">
-      <h2 class="sem-margem">🏆 Metas de Economia</h2>
+      <h2 class="sem-margem"><span class="ico ico-trophy"></span> Metas de Economia</h2>
       <a href="metas.html" class="link-ver-todas">Ver todas →</a>
     </div>
     ${ativas.slice(0,2).map(m => {
@@ -1582,7 +1582,7 @@ window.onload = async function () {
 
   const badge = el('planoBadge');
   if (badge) badge.innerHTML = isPremium()
-    ? '<span class="badge-plano-header premium">⭐ PREMIUM</span>'
+    ? '<span class="badge-plano-header premium"><span class="ico ico-star"></span> PREMIUM</span>'
     : '<span class="badge-plano-header essencial">ESSENCIAL</span>';
 };
 

@@ -47,9 +47,9 @@ function diasParaVencer(venc) {
 function avisoVencimento(c) {
   if (c.pago) return '';
   const dias = diasParaVencer(c.vencimento);
-  if (dias < 0)  return `<div class="vencimento-aviso aviso-atrasado">⚠️ Atrasada há ${Math.abs(dias)} dia${Math.abs(dias)>1?'s':''}</div>`;
-  if (dias === 0) return `<div class="vencimento-aviso aviso-hoje">📅 Vence hoje!</div>`;
-  if (dias <= 5)  return `<div class="vencimento-aviso aviso-breve">⏰ Vence em ${dias} dia${dias>1?'s':''}</div>`;
+  if (dias < 0)  return `<div class="vencimento-aviso aviso-atrasado"><span class="ico ico-alert-triangle"></span> Atrasada há ${Math.abs(dias)} dia${Math.abs(dias)>1?'s':''}</div>`;
+  if (dias === 0) return `<div class="vencimento-aviso aviso-hoje"><span class="ico ico-calendar"></span> Vence hoje!</div>`;
+  if (dias <= 5)  return `<div class="vencimento-aviso aviso-breve"><span class="ico ico-clock"></span> Vence em ${dias} dia${dias>1?'s':''}</div>`;
   return '';
 }
 
@@ -135,7 +135,7 @@ function atualizarPreviewParcelas() {
 
   const valorParcela = tipo === 'total' ? valor / qtd : valor;
   const valorTotal    = tipo === 'total' ? valor : valor * qtd;
-  prev.innerHTML = `📅 Serão geradas <strong>${qtd} parcelas de ${fmt(valorParcela)}</strong>, totalizando <strong>${fmt(valorTotal)}</strong>, uma por mês a partir do vencimento informado.`;
+  prev.innerHTML = `<span class="ico ico-calendar"></span> Serão geradas <strong>${qtd} parcelas de ${fmt(valorParcela)}</strong>, totalizando <strong>${fmt(valorTotal)}</strong>, uma por mês a partir do vencimento informado.`;
 }
 
 async function salvarConta() {
@@ -173,7 +173,7 @@ async function salvarConta() {
     contas.push(...geradas);
     fecharForm();
     renderContas();
-    mostrarToast(`✔ ${qtd} parcelas de "${desc}" criadas com sucesso!`);
+    mostrarToast(`${qtd} parcelas de "${desc}" criadas com sucesso!`);
     return;
   }
 
@@ -191,7 +191,7 @@ async function marcarPago(id) {
   if (!c) return;
   await api.post(`/contas/${id}/marcar-pago`);
   await carregarContas(); // recarrega para refletir eventual próxima ocorrência gerada
-  mostrarToast(`✔ "${c.descricao}" marcada como paga e lançada nas Despesas!`);
+  mostrarToast(`"${c.descricao}" marcada como paga e lançada nas Despesas!`);
 }
 
 async function reabrirConta(id) {
@@ -246,7 +246,7 @@ function renderItemConta(c) {
   const st     = calcStatus(c);
   const tagTxt = st === 'hoje' ? 'Vence Hoje' : st === 'atrasado' ? 'Atrasada' : st === 'pago' ? 'Pago' : 'Pendente';
   const tagCls = st === 'hoje' ? 'hoje' : st;
-  const recorrIcon = c.recorrencia === 'MENSAL' ? ' 🔄' : c.recorrencia === 'ANUAL' ? ' 📆' : c.grupoParcelaId ? ' 💳' : '';
+  const recorrIcon = c.recorrencia === 'MENSAL' ? ' <span class="ico ico-repeat"></span>' : c.recorrencia === 'ANUAL' ? ' <span class="ico ico-calendar-days"></span>' : c.grupoParcelaId ? ' <span class="ico ico-credit-card"></span>' : '';
   const corValor = st === 'pago' ? 'cor-pago' : st === 'atrasado' ? 'cor-atrasado' : 'cor-normal';
   return `
     <div class="conta-card ${st === 'hoje' ? 'pendente' : st}">
@@ -254,16 +254,16 @@ function renderItemConta(c) {
         <strong>${c.descricao}${recorrIcon}</strong>
         <span>${c.categoria} · Venc: ${fmtD(c.vencimento)}${c.obs ? ' · ' + c.obs : ''}</span>
         ${avisoVencimento(c)}
-        ${c.pago && c.dataPagamento ? `<div class="pago-em">✔ Pago em ${fmtD(c.dataPagamento)}</div>` : ''}
+        ${c.pago && c.dataPagamento ? `<div class="pago-em"><span class="ico ico-check"></span> Pago em ${fmtD(c.dataPagamento)}</div>` : ''}
       </div>
       <span class="conta-valor ${corValor}">${fmt(c.valor)}</span>
       <span class="tag ${tagCls}">${tagTxt}</span>
       <div class="conta-acoes">
         ${!c.pago
-          ? `<button class="btn-sm btn-verde" data-action="marcar-pago" data-id="${c.id}" title="Marcar como pago">✔</button>`
+          ? `<button class="btn-sm btn-verde" data-action="marcar-pago" data-id="${c.id}" title="Marcar como pago"><span class="ico ico-check"></span></button>`
           : `<button class="btn-sm btn-secundario" data-action="reabrir" data-id="${c.id}" title="Reabrir">↩</button>`}
-        <button class="btn-sm btn-secundario" data-action="editar" data-id="${c.id}" title="Editar">✏️</button>
-        <button class="btn-sm btn-perigo" data-action="excluir" data-id="${c.id}" title="Excluir">✕</button>
+        <button class="btn-sm btn-secundario" data-action="editar" data-id="${c.id}" title="Editar"><span class="ico ico-pencil"></span></button>
+        <button class="btn-sm btn-perigo" data-action="excluir" data-id="${c.id}" title="Excluir"><span class="ico ico-x"></span></button>
       </div>
     </div>`;
 }
@@ -286,11 +286,11 @@ function renderGrupoParcela(grupoId, parcelas) {
          data-action="toggle-grupo" data-id="${grupoId}">
       <div class="grupo-linha-topo">
         <div class="conta-info">
-          <strong>💳 ${nomeBase}</strong>
+          <strong><span class="ico ico-credit-card"></span> ${nomeBase}</strong>
           <span>${cat} · ${pagas.length}/${parcelas.length} parcelas pagas
             ${proxima ? ` · Próxima: ${fmtD(proxima.vencimento)}` : ' · Concluído'}
           </span>
-          ${temAtrasada ? `<div class="vencimento-aviso aviso-atrasado">⚠️ Há parcela(s) atrasada(s)</div>` : ''}
+          ${temAtrasada ? `<div class="vencimento-aviso aviso-atrasado"><span class="ico ico-alert-triangle"></span> Há parcela(s) atrasada(s)</div>` : ''}
         </div>
         <div class="grupo-restante">
           <div class="rotulo">Restante</div>
@@ -315,10 +315,10 @@ function renderGrupoParcela(grupoId, parcelas) {
               <span class="tag com-margem ${stP === 'hoje' ? 'hoje' : stP}">${tagTxtP}</span>
               <span class="valor ${corValorP}">${fmt(p.valor)}</span>
               ${!p.pago
-                ? `<button class="btn-sm btn-verde" data-action="marcar-pago" data-id="${p.id}" title="Marcar como pago">✔</button>`
+                ? `<button class="btn-sm btn-verde" data-action="marcar-pago" data-id="${p.id}" title="Marcar como pago"><span class="ico ico-check"></span></button>`
                 : `<button class="btn-sm btn-secundario" data-action="reabrir" data-id="${p.id}" title="Reabrir">↩</button>`}
-              <button class="btn-sm btn-secundario" data-action="editar" data-id="${p.id}" title="Editar">✏️</button>
-              <button class="btn-sm btn-perigo" data-action="excluir" data-id="${p.id}" title="Excluir">✕</button>
+              <button class="btn-sm btn-secundario" data-action="editar" data-id="${p.id}" title="Editar"><span class="ico ico-pencil"></span></button>
+              <button class="btn-sm btn-perigo" data-action="excluir" data-id="${p.id}" title="Excluir"><span class="ico ico-x"></span></button>
             </div>`;
           }).join('')}
         </div>
@@ -358,7 +358,7 @@ function renderContas() {
     ${comprometidoParcelas ? `
     <div class="resumo-box cor-parcela">
       <div class="num">${fmt(comprometidoParcelas)}</div>
-      <div class="txt">💳 Comprometido em parcelas</div>
+      <div class="txt"><span class="ico ico-credit-card"></span> Comprometido em parcelas</div>
     </div>` : ''}
   `;
 
@@ -371,7 +371,7 @@ function renderContas() {
 
   if (!lista2.length) {
     lista.innerHTML = `<div class="lista-vazia">
-      <div class="icone">📋</div>
+      <div class="icone"><span class="ico ico-clipboard"></span></div>
       <p>Nenhuma conta encontrada.</p>
     </div>`;
     return;

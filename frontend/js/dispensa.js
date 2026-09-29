@@ -42,7 +42,7 @@ async function moverParaCompras(id) {
   if (!item) return;
   await api.post(`/dispensa/${id}/mover-para-compras`);
   const msg = document.createElement('div');
-  msg.textContent = `🛒 "${item.nome}" adicionado à lista de compras!`;
+  msg.textContent = `"${item.nome}" adicionado à lista de compras!`;
   msg.className = 'toast-info';
   document.body.appendChild(msg);
   setTimeout(() => msg.remove(), 2500);
@@ -80,9 +80,9 @@ function renderDispensa() {
 
   if (!filtrado.length) {
     lista.innerHTML = `<div class="lista-vazia">
-      <div class="icone">🏠</div>
+      <div class="icone"><span class="ico ico-package"></span></div>
       <p>${busca ? 'Nenhum item encontrado.' : 'Dispensa vazia. Os itens comprados aparecerão aqui.'}</p>
-      ${!busca ? `<a href="compras.html"><button class="btn-ir-compras">🛒 Ir para Compras</button></a>` : ''}
+      ${!busca ? `<a href="compras.html"><button class="btn-ir-compras"><span class="ico ico-cart"></span> Ir para Compras</button></a>` : ''}
     </div>`;
     return;
   }
@@ -92,7 +92,7 @@ function renderDispensa() {
 
   lista.innerHTML = Object.entries(grupos).map(([cat, itens]) => `
     <div class="cat-grupo">
-      <span class="cat-label">📦 ${cat}</span>
+      <span class="cat-label"><span class="ico ico-package"></span> ${cat}</span>
       ${itens.map(x => `
         <div class="dispensa-item">
           <div class="info">
@@ -106,8 +106,8 @@ function renderDispensa() {
             <span class="qtd-num">${x.qtd}</span>
             <button class="qtd-btn" data-action="aumentar" data-id="${x.id}">+</button>
           </div>
-          <button class="btn-sm btn-secundario btn-acao-dispensa" data-action="mover-compras" data-id="${x.id}" title="Adicionar à lista de compras">🛒</button>
-          <button class="btn-sm btn-perigo btn-acao-dispensa" data-action="excluir" data-id="${x.id}" title="Remover da dispensa">✕</button>
+          <button class="btn-sm btn-secundario btn-acao-dispensa" data-action="mover-compras" data-id="${x.id}" title="Adicionar à lista de compras"><span class="ico ico-cart"></span></button>
+          <button class="btn-sm btn-perigo btn-acao-dispensa" data-action="excluir" data-id="${x.id}" title="Remover da dispensa"><span class="ico ico-x"></span></button>
         </div>`).join('')}
     </div>`).join('');
 }
@@ -166,7 +166,7 @@ async function exportarDispensaPDF() {
   Object.entries(grupos).forEach(([cat, itens]) => {
     if (y > 270) { doc.addPage(); y = 20; }
     doc.setTextColor(30,58,138); doc.setFontSize(10); doc.setFont('helvetica','bold');
-    doc.text('📦 ' + cat, 14, y); y += 4;
+    doc.text(cat, 14, y); y += 4;
     doc.setDrawColor(191,219,254); doc.line(14, y, 196, y); y += 6;
 
     itens.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(item => {

@@ -26,7 +26,7 @@ function atualizarIconeTema() {
   const btn = document.getElementById('themeToggleBtn');
   if (!btn) return;
   const escuro = document.body.classList.contains('dark');
-  btn.textContent = escuro ? '☀️' : '🌙';
+  btn.innerHTML = escuro ? '<span class="ico ico-sun"></span>' : '<span class="ico ico-moon"></span>';
   btn.title = escuro ? 'Mudar para tema claro' : 'Mudar para tema escuro';
 }
 

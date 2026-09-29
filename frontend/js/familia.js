@@ -111,7 +111,7 @@ function renderMembros() {
   if (!membros.length) {
     lista.innerHTML = `
       <div class="lista-vazia membros">
-        <div class="icone">👨‍👩‍👧‍👦</div>
+        <div class="icone"><span class="ico ico-users"></span></div>
         <p>Nenhum membro cadastrado ainda.<br>Clique em <strong>+ Adicionar Membro</strong> para começar.</p>
       </div>`;
     sub.textContent = 'Nenhum membro cadastrado.';
@@ -142,15 +142,15 @@ function renderMembros() {
         <div class="membro-info">
           <strong>${m.nome}</strong>
           <span>${detalhes}</span>
-          ${m.obs ? `<div class="obs">📝 ${m.obs}</div>` : ''}
+          ${m.obs ? `<div class="obs"><span class="ico ico-note"></span> ${m.obs}</div>` : ''}
           <div class="tags-extra">
-            ${pendentes ? `<span class="pill-tarefa">✅ ${pendentes} tarefa${pendentes>1?'s':''} pendente${pendentes>1?'s':''}</span>` : ''}
-            ${gastoMes ? `<span class="pill-gasto">💸 ${fmtRenda(gastoMes)} este mês</span>` : ''}
+            ${pendentes ? `<span class="pill-tarefa"><span class="ico ico-check-circle"></span> ${pendentes} tarefa${pendentes>1?'s':''} pendente${pendentes>1?'s':''}</span>` : ''}
+            ${gastoMes ? `<span class="pill-gasto"><span class="ico ico-trending-down"></span> ${fmtRenda(gastoMes)} este mês</span>` : ''}
           </div>
         </div>
         <div class="membro-acoes">
-          <button class="btn-sm btn-secundario" data-action="editar" data-id="${m.id}" title="Editar">✏️</button>
-          <button class="btn-sm btn-perigo" data-action="excluir" data-id="${m.id}" title="Excluir">✕</button>
+          <button class="btn-sm btn-secundario" data-action="editar" data-id="${m.id}" title="Editar"><span class="ico ico-pencil"></span></button>
+          <button class="btn-sm btn-perigo" data-action="excluir" data-id="${m.id}" title="Excluir"><span class="ico ico-x"></span></button>
         </div>
       </div>`;
   }).join('');
