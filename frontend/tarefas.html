@@ -12,21 +12,30 @@
 <script src="js/cores.js"></script>
 <script src="js/header.js"></script>
 <div class="container">
-  <div class="cards compras-wrap">
-    <div class="card tarefas-card">
-      <h2><span class="ico ico-check-square"></span> Tarefas Familiares</h2>
-      <p class="tarefas-intro">
-        Adicione prazo e responsável. Tarefas atrasadas ou que vencem hoje aparecem destacadas e avisam no Dashboard.
-      </p>
+  <div class="card tarefas-form-card">
+    <h2><span class="ico ico-check-square"></span> Tarefas Familiares</h2>
+    <p class="tarefas-intro">
+      Organize as tarefas por dia da semana. Arraste um cartão para outra coluna para mudar o dia.
+      Tarefas atrasadas ou que vencem hoje aparecem destacadas e avisam no Dashboard.
+    </p>
+    <div class="tarefas-form-linha">
       <input id="tarefa" placeholder="Nova tarefa...">
-      <div class="tarefas-linha-dupla">
-        <input id="tarefaPrazo" type="date">
-        <select id="tarefaMembro"><option value="">Sem responsável</option></select>
-      </div>
-      <button id="btnAddTarefa">+ Adicionar Tarefa</button>
-      <ul id="listaTarefas" class="lista lista-form"></ul>
+      <select id="tarefaDia" title="Dia da semana">
+        <option value="">Dia pelo prazo</option>
+        <option value="1">Segunda-feira</option>
+        <option value="2">Terça-feira</option>
+        <option value="3">Quarta-feira</option>
+        <option value="4">Quinta-feira</option>
+        <option value="5">Sexta-feira</option>
+        <option value="6">Sábado</option>
+        <option value="7">Domingo</option>
+      </select>
+      <input id="tarefaPrazo" type="date" title="Prazo (opcional)">
+      <select id="tarefaMembro"><option value="">Sem responsável</option></select>
+      <button id="btnAddTarefa">+ Adicionar</button>
     </div>
   </div>
+  <div id="kanbanTarefas" class="kanban-tarefas"></div>
 </div>
 <script src="js/tarefas.js"></script>
 </body>

@@ -829,10 +829,53 @@ body.dark .conta-card.atrasado { background:#2A1515; }
 }
 
 /* ── Tarefas ── */
-.tarefas-card { max-width:620px; margin:auto; }
+.tarefas-form-card { margin:1.5rem 0 0; max-width:none; }
 .tarefas-intro { font-size:.85rem; color:var(--texto-suave); margin-bottom:.75rem; }
-.tarefas-linha-dupla { display:flex; gap:.5rem; }
-.tarefas-linha-dupla input, .tarefas-linha-dupla select { flex:1; margin:6px 0; }
+.tarefas-form-linha { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+.tarefas-form-linha input, .tarefas-form-linha select, .tarefas-form-linha button { margin:0; }
+.tarefas-form-linha #tarefa { flex:2 1 220px; }
+.tarefas-form-linha select, .tarefas-form-linha input[type=date] { flex:1 1 150px; }
+.tarefas-form-linha button { flex:0 0 auto; width:auto; }
+
+/* Quadro kanban: uma coluna por dia da semana; quebra em linhas conforme a largura da tela */
+.kanban-tarefas {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+  gap:1rem; padding:1rem 0 1.5rem; align-items:start;
+}
+.kanban-coluna {
+  background:var(--bg-card); border-radius:12px; padding:1.1rem .8rem .9rem;
+  box-shadow:0 2px 10px var(--sombra); min-height:140px; border:2px solid transparent;
+  transition:border-color .15s;
+}
+.kanban-coluna.hoje { border-color:var(--azul-200); }
+.kanban-coluna.alvo { border-color:var(--azul); border-style:dashed; }
+.kanban-coluna h3 {
+  text-align:center; font-size:1.15rem; font-weight:700; color:var(--texto-primario);
+  margin-bottom:.9rem;
+}
+.kanban-hoje {
+  font-size:.65rem; font-weight:700; text-transform:uppercase; vertical-align:middle;
+  background:var(--azul); color:#fff; padding:2px 7px; border-radius:8px; margin-left:4px;
+}
+.kanban-cartoes { display:flex; flex-direction:column; gap:.5rem; }
+.kanban-cartao {
+  display:flex; align-items:flex-start; gap:.5rem; background:var(--azul-claro);
+  border-radius:8px; padding:.55rem 1.6rem .55rem .6rem; font-size:.9rem; color:var(--texto-primario);
+  cursor:grab; position:relative;
+}
+.kanban-cartao.arrastando { opacity:.4; }
+.kanban-cartao .btn-concluir-tarefa { width:18px; height:18px; margin:1px 0 0; }
+.kanban-cartao-nome { line-height:1.3; overflow-wrap:break-word; }
+.kanban-cartao .tag-status-tarefa { display:inline-block; margin-top:4px; }
+.btn-excluir-cartao {
+  position:absolute; top:.5rem; right:.45rem;
+  background:none; border:none; padding:0 2px; margin:0; width:auto; cursor:pointer;
+  color:var(--texto-fraco); opacity:0; transition:opacity .15s; font-size:.8rem;
+}
+.kanban-cartao:hover .btn-excluir-cartao, .btn-excluir-cartao:focus { opacity:1; }
+.btn-excluir-cartao:hover { color:var(--vermelho); background:none; }
+@media (hover:none) { .btn-excluir-cartao { opacity:1; } }
+.kanban-vazio { font-size:.8rem; color:var(--texto-fraco); text-align:center; padding:.5rem 0; }
 
 /* ── Metas ── */
 .metas-container { padding:1rem 0 2rem; }

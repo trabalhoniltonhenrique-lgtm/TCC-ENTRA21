@@ -137,7 +137,7 @@ function importarDados(event) {
         ...(dados.receitas || []).map(r => api.post('/receitas', { nome: r.nome, valor: r.valor, categoria: r.categoria, data: r.data, membroId: null })),
         ...(dados.despesas || []).map(d => api.post('/despesas', { nome: d.nome, valor: d.valor, categoria: d.categoria, data: d.data, membroId: null })),
         ...(dados.compras  || []).map(c => api.post('/compras',  { nome: c.nome, qtd: c.qtd || 1, categoria: c.categoria, frequencia: FREQ_API[c.frequencia] || c.frequencia || 'SEM_FREQUENCIA' })),
-        ...(dados.tarefas  || []).map(t => api.post('/tarefas',  { nome: t.nome, prazo: t.prazo || null })),
+        ...(dados.tarefas  || []).map(t => api.post('/tarefas',  { nome: t.nome, prazo: t.prazo || null, diaSemana: t.diaSemana || null })),
         ...(dados.membros  || []).map(m => api.post('/membros',  { nome: m.nome, parentesco: m.parentesco || 'Outro', nascimento: m.nascimento || null, renda: m.renda || 0, obs: m.obs || '', cor: m.cor || null })),
       ];
 

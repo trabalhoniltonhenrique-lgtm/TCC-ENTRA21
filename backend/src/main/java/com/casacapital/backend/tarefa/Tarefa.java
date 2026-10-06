@@ -41,6 +41,10 @@ public class Tarefa {
 
     private LocalDate prazo;
 
+    /** 1 = segunda … 7 = domingo (ISO). NULL = coluna definida pelo prazo. */
+    @Column(name = "dia_semana")
+    private Integer diaSemana;
+
     @Column(nullable = false)
     private boolean concluida = false;
 }

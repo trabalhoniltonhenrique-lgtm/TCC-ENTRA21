@@ -62,6 +62,7 @@ public class TarefaService {
     private void aplicar(Long familiaId, Tarefa t, TarefaRequest req) {
         t.setNome(req.nome());
         t.setPrazo(req.prazo());
+        t.setDiaSemana(req.diaSemana());
         if (req.membroId() != null) {
             t.setMembro(membroRepository.findByIdAndFamiliaId(req.membroId(), familiaId)
                     .orElseThrow(() -> new ResourceNotFoundException("Membro não encontrado.")));
