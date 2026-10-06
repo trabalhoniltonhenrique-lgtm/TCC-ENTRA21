@@ -34,7 +34,6 @@
       { href: 'analises.html', label: '<span class="ico ico-chart-bar"></span> Análises' },
       { href: 'alertas.html',  label: '<span class="ico ico-bell"></span> Alertas'  },
     ] : []),
-    { href: 'relatorios.html',    label: '<span class="ico ico-file-text"></span> Relatórios' },
     { href: 'configuracoes.html', label: '<span class="ico ico-settings"></span> Config' },
   ];
 

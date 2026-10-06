@@ -13,7 +13,10 @@
 <script src="js/header.js"></script>
 <div class="container">
   <div class="card tarefas-form-card">
-    <h2><span class="ico ico-check-square"></span> Tarefas Familiares</h2>
+    <div class="titulo-com-acao">
+      <h2><span class="ico ico-check-square"></span> Tarefas Familiares</h2>
+      <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Relatório</button>
+    </div>
     <p class="tarefas-intro">
       Organize as tarefas por dia da semana. Arraste um cartão para outra coluna para mudar o dia.
       Tarefas atrasadas ou que vencem hoje aparecem destacadas e avisam no Dashboard.
@@ -38,5 +41,6 @@
   <div id="kanbanTarefas" class="kanban-tarefas"></div>
 </div>
 <script src="js/tarefas.js"></script>
+<script src="js/relatorio-modulo.js"></script>
 </body>
 </html>

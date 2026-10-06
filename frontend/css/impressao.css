@@ -6,3 +6,17 @@ h1 { color:#1E3A8A; }
 p { color:#6B7280; font-size:.9rem; margin:2px 0; }
 hr { border:none; border-top:2px solid #BFDBFE; margin:12px 0; }
 pre { font-family:monospace; font-size:.9rem; white-space:pre-wrap; }
+
+h2 { color:#1E3A8A; font-size:1.1rem; margin:4px 0 8px; }
+.rel-resumo { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+.rel-resumo-item { background:#EFF6FF; border-radius:8px; padding:8px 12px; display:flex; flex-direction:column; min-width:130px; }
+.rel-resumo-item span { font-size:.75rem; color:#6B7280; }
+.rel-resumo-item strong { color:#1E3A8A; }
+.rel-secao { color:#1E3A8A; font-size:.95rem; margin:16px 0 6px; }
+.rel-secao small { color:#9CA3AF; font-weight:normal; }
+.rel-tabela { width:100%; border-collapse:collapse; font-size:.82rem; }
+.rel-tabela th { text-align:left; background:#DBEAFE; color:#1E3A8A; padding:5px 7px; }
+.rel-tabela td { padding:5px 7px; border-bottom:1px solid #E5E7EB; }
+.rel-tabela .dir { text-align:right; white-space:nowrap; }
+.rel-vazio { color:#9CA3AF; font-size:.85rem; }
+@media print { .rel-tabela tr { break-inside:avoid; } }
