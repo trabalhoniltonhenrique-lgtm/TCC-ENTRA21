@@ -20,7 +20,54 @@
     </div>
     <div class="cabecalho-acoes">
       <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Relatório</button>
+      <button id="btnImportarFatura" class="btn-secundario btn-importar-fatura"><span class="ico ico-credit-card"></span> Importar fatura</button>
       <button id="btnNovaConta" class="btn-nova-conta">+ Nova Conta</button>
+    </div>
+  </div>
+
+  <!-- Importar fatura do cartão (leitura por IA + revisão antes de salvar) -->
+  <div id="painelFatura" class="oculto bloco-fatura">
+    <div class="card">
+      <div class="fatura-topo">
+        <h2><span class="ico ico-credit-card"></span> Importar fatura do cartão</h2>
+        <button id="btnFecharFatura" class="btn-icone-fatura" title="Fechar" aria-label="Fechar"><span class="ico ico-x"></span></button>
+      </div>
+
+      <div id="faturaEnvio">
+        <p class="fatura-ajuda">Envie o PDF da fatura (ou uma foto legível). O sistema lê os lançamentos e mostra tudo
+          para você revisar. Nada é salvo antes da sua confirmação.</p>
+        <div class="fatura-envio-linha">
+          <input id="fArquivoFatura" type="file" accept="application/pdf,image/jpeg,image/png,image/webp">
+          <div id="campoSenhaFatura" class="oculto">
+            <label for="fSenhaFatura">Senha do PDF</label>
+            <input id="fSenhaFatura" type="password" autocomplete="off" placeholder="Geralmente parte do CPF">
+          </div>
+          <button id="btnLerFatura">Ler fatura</button>
+        </div>
+        <div id="faturaStatus" class="fatura-status oculto" role="status"></div>
+      </div>
+
+      <div id="faturaRevisao" class="oculto">
+        <div class="fatura-resumo" id="faturaResumo"></div>
+        <div class="fatura-tabela-wrap">
+          <table class="fatura-tabela">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="fatSelTodos" title="Marcar/desmarcar todos" aria-label="Marcar ou desmarcar todos"></th>
+                <th>Data</th><th>Descrição</th><th>Tipo</th><th>Categoria</th><th class="num">Valor</th>
+              </tr>
+            </thead>
+            <tbody id="faturaItens"></tbody>
+          </table>
+        </div>
+        <div id="faturaCreditos" class="fatura-creditos oculto"></div>
+        <p class="fatura-ajuda">Dica: com a fatura importada, não lance o pagamento da fatura inteira como despesa,
+          senão os gastos contam duas vezes.</p>
+        <div class="form-conta-acoes">
+          <button id="btnConfirmarFatura">Importar selecionados</button>
+          <button id="btnVoltarFatura" class="btn-secundario">Ler outra fatura</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -101,7 +148,7 @@
   <!-- Filtros -->
   <div class="bloco-filtros-contas">
     <div class="filtro-tabs">
-      <div class="filtro-tab ativo" data-filtro="todas">Todas</div>
+      <div class="filtro-tab" data-filtro="todas">Todas</div>
       <div class="filtro-tab" data-filtro="pendente"><span class="ico ico-clock"></span> Pendentes</div>
       <div class="filtro-tab" data-filtro="atrasado"><span class="ico ico-alert-circle"></span> Atrasadas</div>
       <div class="filtro-tab" data-filtro="hoje"><span class="ico ico-calendar"></span> Vencem Hoje</div>
@@ -132,6 +179,7 @@
 
 </div>
 <script src="js/contas.js"></script>
+<script src="js/fatura.js"></script>
 <script src="js/relatorio-modulo.js"></script>
 </body>
 </html>

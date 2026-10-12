@@ -40,6 +40,10 @@ public class Conta {
     @Column(nullable = false, length = 40)
     private String categoria;
 
+    /** Categoria da despesa gerada ao pagar (parcelas importadas da fatura); null = mapeamento padrão. */
+    @Column(name = "categoria_despesa", length = 40)
+    private String categoriaDespesa;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valor;
 

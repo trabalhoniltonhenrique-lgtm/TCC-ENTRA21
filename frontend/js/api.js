@@ -29,7 +29,8 @@ function irParaLogin() {
 }
 
 async function apiRequest(method, path, body) {
-  const headers = { 'Content-Type': 'application/json' };
+  const ehFormulario = body instanceof FormData; // upload de arquivo: o navegador monta o Content-Type
+  const headers = ehFormulario ? {} : { 'Content-Type': 'application/json' };
   const token = getToken();
   if (token) headers['Authorization'] = 'Bearer ' + token;
 
@@ -38,7 +39,7 @@ async function apiRequest(method, path, body) {
     res = await fetch(API_BASE + path, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : ehFormulario ? body : JSON.stringify(body),
     });
   } catch (erroRede) {
     throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão.');
@@ -51,12 +52,15 @@ async function apiRequest(method, path, body) {
 
   if (!res.ok) {
     let mensagem = 'Erro ao comunicar com o servidor.';
+    let codigo = null;
     try {
       const erro = await res.json();
       if (erro && erro.mensagem) mensagem = erro.mensagem;
+      if (erro && erro.codigo) codigo = erro.codigo;
     } catch { /* corpo sem JSON, mantém mensagem padrão */ }
     const erro = new Error(mensagem);
     erro.status = res.status;
+    erro.codigo = codigo;
     throw erro;
   }
 

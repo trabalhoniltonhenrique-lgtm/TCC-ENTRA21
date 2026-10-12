@@ -1,6 +1,6 @@
 // ── CasaCapital — contas.js (backend Java + MySQL) ──
 let contas      = [];
-let filtroAtivo = 'todas';
+let filtroAtivo = null; // null = lista recolhida; clicar numa aba expande, clicar de novo recolhe
 let filtroCategoriaAtivo = 'todas';
 let editandoId  = null;
 let gruposExpandidos = {}; // { grupoParcelaId: true/false }
@@ -225,11 +225,35 @@ async function excluirConta(id) {
   await carregarContas();
 }
 
-function setFiltro(f, elTab) {
-  filtroAtivo = f;
-  document.querySelectorAll('.filtro-tab').forEach(t => t.classList.remove('ativo'));
-  elTab.classList.add('ativo');
+function setFiltro(f) {
+  filtroAtivo = filtroAtivo === f ? null : f;
   renderContas();
+}
+
+// Abas de status: marca a expandida e mostra quantas contas há em cada uma (respeitando a categoria)
+function atualizarAbasFiltro() {
+  const daCategoria = filtroCategoriaAtivo === 'todas' ? contas : contas.filter(c => c.categoria === filtroCategoriaAtivo);
+  const contagem = {
+    todas:    daCategoria.length,
+    pendente: daCategoria.filter(c => calcStatus(c) === 'pendente').length,
+    atrasado: daCategoria.filter(c => calcStatus(c) === 'atrasado').length,
+    hoje:     daCategoria.filter(c => calcStatus(c) === 'hoje').length,
+    pago:     daCategoria.filter(c => c.pago).length,
+  };
+  document.querySelectorAll('.bloco-filtros-contas .filtro-tab').forEach(tab => {
+    const f = tab.getAttribute('data-filtro');
+    const aberta = f === filtroAtivo;
+    tab.classList.toggle('ativo', aberta);
+    tab.setAttribute('aria-expanded', aberta);
+    tab.title = aberta ? 'Clique para recolher' : 'Clique para expandir';
+    let cont = tab.querySelector('.filtro-tab-contagem');
+    if (!cont) {
+      cont = document.createElement('span');
+      cont.className = 'filtro-tab-contagem';
+      tab.appendChild(cont);
+    }
+    cont.textContent = contagem[f];
+  });
 }
 
 function setFiltroCategoria(cat) {
@@ -362,6 +386,14 @@ function renderContas() {
     </div>` : ''}
   `;
 
+  atualizarAbasFiltro();
+  if (!filtroAtivo) {
+    lista.innerHTML = `<div class="contas-recolhidas">
+      Selecione uma opção acima para ver as contas.
+    </div>`;
+    return;
+  }
+
   let lista2 = [...contas].sort((a, b) => a.vencimento?.localeCompare(b.vencimento));
   if (filtroAtivo === 'pendente') lista2 = lista2.filter(c => calcStatus(c) === 'pendente');
   if (filtroAtivo === 'atrasado') lista2 = lista2.filter(c => calcStatus(c) === 'atrasado');
@@ -410,7 +442,12 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('fTipoValorParcela').addEventListener('change', atualizarPreviewParcelas);
 
   document.querySelectorAll('.filtro-tab').forEach(tab => {
-    tab.addEventListener('click', () => setFiltro(tab.getAttribute('data-filtro'), tab));
+    tab.addEventListener('click', () => setFiltro(tab.getAttribute('data-filtro')));
+    tab.setAttribute('role', 'button');
+    tab.setAttribute('tabindex', '0');
+    tab.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFiltro(tab.getAttribute('data-filtro')); }
+    });
   });
 
   document.getElementById('filtroCategoria').addEventListener('change', function (e) {

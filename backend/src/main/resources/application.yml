@@ -17,6 +17,12 @@ spring:
         jdbc:
           time_zone: UTC
 
+  servlet:
+    multipart:
+      # Faturas em PDF/foto enviadas para leitura pela IA
+      max-file-size: 20MB
+      max-request-size: 21MB
+
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -43,6 +49,10 @@ casacapital:
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:720}
   # URL base usada para montar o link de redefinição de senha enviado por e-mail.
   frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:8080}
+  # Leitura de faturas de cartão pela IA (Claude). Sem a chave, a importação de fatura fica desativada.
+  ia:
+    anthropic-api-key: ${ANTHROPIC_API_KEY:}
+    modelo: ${CASACAPITAL_IA_MODELO:claude-opus-5-5}
 
 logging:
   level:

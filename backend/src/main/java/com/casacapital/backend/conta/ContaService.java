@@ -130,7 +130,7 @@ public class ContaService {
             d.setFamilia(familiaRepository.getReferenceById(familiaId));
             d.setNome(c.getDescricao());
             d.setValor(c.getValor());
-            d.setCategoria(MAPA_CATEGORIA_DESPESA.getOrDefault(c.getCategoria(), "Outros"));
+            d.setCategoria(categoriaDespesa(c));
             d.setData(LocalDate.now());
             d.setOrigemConta(c);
             d.setOrigemContaFlag(true);
@@ -152,6 +152,13 @@ public class ContaService {
         }
 
         return c;
+    }
+
+    /** Categoria da despesa lançada quando a conta é paga. */
+    public static String categoriaDespesa(Conta c) {
+        return c.getCategoriaDespesa() != null
+                ? c.getCategoriaDespesa()
+                : MAPA_CATEGORIA_DESPESA.getOrDefault(c.getCategoria(), "Outros");
     }
 
     @Transactional

@@ -12,4 +12,6 @@ public interface ContaRepository extends JpaRepository<Conta, Long> {
     Optional<Conta> findByIdAndFamiliaId(Long id, Long familiaId);
 
     List<Conta> findAllByGrupoParcelaIdAndFamiliaId(Long grupoParcelaId, Long familiaId);
+
+    List<Conta> findAllByFamiliaIdAndParcelaNumAndParcelaTotal(Long familiaId, Integer parcelaNum, Integer parcelaTotal);
 }

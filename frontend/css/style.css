@@ -575,6 +575,25 @@ body.dark .conta-card.atrasado { background:#2A1515; }
 }
 .filtro-tab.ativo { background:var(--azul); color:#fff; border-color:var(--azul); }
 
+/* Contas: abas que expandem/recolhem a lista */
+.bloco-filtros-contas .filtro-tab { display:inline-flex; align-items:center; gap:6px; user-select:none; }
+.bloco-filtros-contas .filtro-tab::after {
+  content:''; width:6px; height:6px; margin-left:2px;
+  border-right:2px solid currentColor; border-bottom:2px solid currentColor;
+  transform:translateY(-2px) rotate(45deg); transition:transform .2s;
+}
+.bloco-filtros-contas .filtro-tab.ativo::after { transform:translateY(1px) rotate(-135deg); }
+.bloco-filtros-contas .filtro-tab:focus-visible { outline:2px solid var(--azul); outline-offset:2px; }
+.filtro-tab-contagem {
+  min-width:20px; padding:0 6px; border-radius:10px; font-size:.72rem; line-height:18px; text-align:center;
+  background:var(--bg-borda-leve); color:var(--texto-secundario);
+}
+.filtro-tab.ativo .filtro-tab-contagem { background:rgba(255,255,255,.25); color:#fff; }
+.contas-recolhidas {
+  text-align:center; padding:1.5rem 1rem; font-size:.88rem; color:var(--texto-fraco);
+  border:1.5px dashed var(--borda-leve); border-radius:12px;
+}
+
 .vencimento-aviso {
   font-size:.75rem; font-weight:600; margin-top:2px;
 }
@@ -1364,3 +1383,49 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .rel-tabela td { padding:6px 8px; border-bottom:1px solid var(--borda-leve); color:var(--texto-secundario); }
 .rel-tabela .dir { text-align:right; white-space:nowrap; }
 .rel-vazio { font-size:.85rem; color:var(--texto-fraco); }
+
+/* ── Contas: importar fatura do cartão ── */
+.btn-importar-fatura { width:auto; margin:0; padding:9px 16px; font-size:.85rem; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.bloco-fatura { padding:0 1.25rem 1rem; }
+.bloco-fatura .card { max-width:1100px; }
+.fatura-topo { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.5rem; }
+.fatura-topo h2 { margin:0; }
+.btn-icone-fatura { width:auto; margin:0; padding:6px 8px; background:transparent; color:var(--texto-suave); border:1px solid var(--borda-leve); }
+.btn-icone-fatura:hover { background:var(--bg-hover); color:var(--texto-primario); }
+.fatura-ajuda { font-size:.85rem; color:var(--texto-suave); margin:.5rem 0; }
+.fatura-envio-linha { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.75rem; margin-top:.75rem; }
+.fatura-envio-linha input[type=file] { flex:1 1 260px; margin:0; }
+.fatura-envio-linha > div { flex:0 1 220px; }
+.fatura-envio-linha label { display:block; font-size:.8rem; margin-bottom:2px; }
+.fatura-envio-linha input[type=password] { margin:0; }
+.fatura-envio-linha button { width:auto; margin:0; padding:10px 20px; }
+.fatura-status { margin-top:.75rem; padding:.6rem .85rem; border-radius:8px; font-size:.88rem; background:var(--bg-borda-leve); color:var(--texto-secundario); }
+.fatura-status.carregando { background:var(--azul-claro); color:var(--azul); }
+.fatura-status.erro { background:color-mix(in srgb, var(--vermelho) 12%, transparent); color:var(--vermelho); }
+
+.fatura-resumo-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:.75rem; margin:.5rem 0 .75rem; }
+.fatura-resumo-grid .rotulo { display:block; font-size:.75rem; color:var(--texto-suave); margin-bottom:2px; }
+.fatura-resumo-grid input[type=date] { margin:0; padding:6px 8px; }
+.fatura-conferencia { font-size:.85rem; margin-bottom:.5rem; }
+.fatura-ok { color:var(--verde); }
+.fatura-alerta { color:var(--vermelho); }
+.fatura-ok .ico, .fatura-alerta .ico { vertical-align:-2px; }
+
+.fatura-tabela-wrap { overflow-x:auto; border:1px solid var(--borda-leve); border-radius:10px; }
+.fatura-tabela { width:100%; border-collapse:collapse; font-size:.85rem; min-width:760px; }
+.fatura-tabela th { text-align:left; font-weight:600; color:var(--texto-suave); background:var(--bg-borda-leve); padding:.5rem; white-space:nowrap; }
+.fatura-tabela td { padding:.35rem .5rem; border-top:1px solid var(--borda-leve); vertical-align:middle; }
+.fatura-tabela .num { text-align:right; }
+.fatura-tabela input, .fatura-tabela select { margin:0; padding:5px 6px; font-size:.85rem; }
+.fatura-tabela input[type=checkbox] { width:auto; }
+.fatura-tabela input[type=date] { width:140px; }
+.fatura-tabela input[type=number] { width:110px; text-align:right; }
+.fatura-tabela td:nth-child(3) input { min-width:200px; }
+.fatura-tabela select { min-width:140px; }
+.fatura-tabela tr.desmarcado td { opacity:.5; }
+.fatura-tabela tr.desmarcado td:first-child { opacity:1; }
+.fatura-tipo { white-space:nowrap; font-weight:600; }
+.fatura-aviso { font-size:.72rem; color:var(--texto-suave); max-width:220px; }
+.fatura-aviso.aviso-dup { color:#B45309; }
+.fatura-aviso.aviso-quitar { color:var(--verde); }
+.fatura-creditos { margin-top:.75rem; font-size:.82rem; color:var(--texto-secundario); }

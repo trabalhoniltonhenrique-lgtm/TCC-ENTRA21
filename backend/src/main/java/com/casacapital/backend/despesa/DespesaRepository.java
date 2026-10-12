@@ -12,6 +12,8 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long> {
 
     Optional<Despesa> findByIdAndFamiliaId(Long id, Long familiaId);
 
+    List<Despesa> findAllByFamiliaIdAndData(Long familiaId, LocalDate data);
+
     boolean existsByOrigemConta_IdAndData(Long contaId, LocalDate data);
 
     void deleteByOrigemConta_Id(Long contaId);
