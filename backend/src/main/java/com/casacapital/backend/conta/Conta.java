@@ -44,6 +44,10 @@ public class Conta {
     @Column(name = "categoria_despesa", length = 40)
     private String categoriaDespesa;
 
+    /** Cartão (ou banco) de onde vem a conta, ex.: "Itaú", "Nubank"; null = conta sem cartão. */
+    @Column(length = 40)
+    private String cartao;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valor;
 

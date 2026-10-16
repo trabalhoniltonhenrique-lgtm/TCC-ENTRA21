@@ -16,13 +16,14 @@ public record ContaResponse(
         LocalDate dataPagamento,
         Recorrencia recorrencia,
         String obs,
+        String cartao,
         Long grupoParcelaId,
         Integer parcelaNum,
         Integer parcelaTotal
 ) {
     public static ContaResponse from(Conta c) {
         return new ContaResponse(c.getId(), c.getDescricao(), c.getCategoria(), c.getValor(), c.getVencimento(),
-                c.isPago(), c.getDataPagamento(), c.getRecorrencia(), c.getObs(),
+                c.isPago(), c.getDataPagamento(), c.getRecorrencia(), c.getObs(), c.getCartao(),
                 c.getGrupoParcelaId(), c.getParcelaNum(), c.getParcelaTotal());
     }
 }

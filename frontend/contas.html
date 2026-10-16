@@ -157,6 +157,11 @@
           <label>Observação</label>
           <input id="fObs" placeholder="Opcional">
         </div>
+        <div>
+          <label for="fCartao">Cartão / banco</label>
+          <input id="fCartao" list="listaCartoes" maxlength="40" placeholder="Opcional — ex.: Itaú, Nubank">
+          <datalist id="listaCartoes"></datalist>
+        </div>
 
         <!-- Campos extras de parcelamento (ocultos por padrão) -->
         <div id="campoQtdParcelas" class="oculto">
@@ -192,6 +197,7 @@
       <div class="filtro-tab" data-filtro="atrasado"><span class="ico ico-alert-circle"></span> Atrasadas</div>
       <div class="filtro-tab" data-filtro="hoje"><span class="ico ico-calendar"></span> Vencem Hoje</div>
       <div class="filtro-tab" data-filtro="pago"><span class="ico ico-check-circle"></span> Pagas</div>
+      <div class="filtro-tab" data-filtro="cartoes"><span class="ico ico-credit-card"></span> Cartões</div>
     </div>
     <div class="filtro-categoria-wrap">
       <label for="filtroCategoria">Categoria</label>
@@ -215,6 +221,15 @@
 
   <!-- Lista -->
   <div class="lista-contas-wrap" id="listaContas"></div>
+
+  <!-- Pagamento em lote: aparece quando há contas selecionadas -->
+  <div id="barraLote" class="barra-lote oculto" role="region" aria-label="Contas selecionadas">
+    <span id="loteInfo"></span>
+    <div class="barra-lote-acoes">
+      <button id="btnPagarLote" class="btn-verde"><span class="ico ico-check"></span> Marcar como pagas</button>
+      <button id="btnLimparLote" class="btn-secundario">Limpar seleção</button>
+    </div>
+  </div>
 
 </div>
 <script src="js/contas.js"></script>

@@ -2,6 +2,7 @@ package com.casacapital.backend.conta;
 
 import com.casacapital.backend.conta.dto.ContaRequest;
 import com.casacapital.backend.conta.dto.ContaResponse;
+import com.casacapital.backend.conta.dto.PagamentoEmLoteRequest;
 import com.casacapital.backend.security.SecurityUser;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,13 @@ public class ContaController {
     @PostMapping("/{id}/marcar-pago")
     public ContaResponse marcarPago(@AuthenticationPrincipal SecurityUser user, @PathVariable Long id) {
         return ContaResponse.from(service.marcarPago(user.familiaId(), id));
+    }
+
+    /** Pagamento em lote: { "ids": [1, 2, 3] } */
+    @PostMapping("/marcar-pago")
+    public List<ContaResponse> marcarPagoEmLote(@AuthenticationPrincipal SecurityUser user,
+                                                @Valid @RequestBody PagamentoEmLoteRequest req) {
+        return service.marcarPagoEmLote(user.familiaId(), req.ids()).stream().map(ContaResponse::from).toList();
     }
 
     @PostMapping("/{id}/reabrir")

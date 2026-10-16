@@ -201,7 +201,8 @@ function atualizarResumoFatura() {
 
   document.getElementById('faturaResumo').innerHTML = `
     <div class="fatura-resumo-grid">
-      <div><span class="rotulo">Cartão</span><strong>${escFatura(faturaLida.emissor || '—')}</strong></div>
+      <div><label class="rotulo" for="fCartaoFatura">Cartão</label>
+        <input id="fCartaoFatura" maxlength="40" placeholder="Ex.: Itaú" value="${escFatura(faturaLida.emissor || '')}"></div>
       <div><label class="rotulo" for="fVencFatura">Vencimento da fatura</label>
         <input type="date" id="fVencFatura" value="${escFatura(faturaLida.vencimento || '')}"></div>
       <div><span class="rotulo">Total da fatura</span><strong>${faturaLida.total ? fmt(faturaLida.total) : '—'}</strong></div>
@@ -229,6 +230,8 @@ function editarItemFatura(e) {
   // O campo de vencimento é recriado ao atualizar o resumo; guarda o valor digitado antes
   const venc = document.getElementById('fVencFatura');
   if (venc) faturaLida.vencimento = venc.value;
+  const cartao = document.getElementById('fCartaoFatura');
+  if (cartao) faturaLida.emissor = cartao.value;
   atualizarResumoFatura();
 }
 
@@ -242,6 +245,7 @@ async function confirmarFatura() {
 
   const corpo = {
     vencimento: venc,
+    cartao: document.getElementById('fCartaoFatura').value.trim() || null,
     itens: selecionados.map(it => ({
       data: it.data,
       descricao: String(it.descricao).trim(),
@@ -292,5 +296,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.getElementById('faturaResumo').addEventListener('change', e => {
     if (e.target.id === 'fVencFatura') faturaLida.vencimento = e.target.value;
+    if (e.target.id === 'fCartaoFatura') faturaLida.emissor = e.target.value;
   });
 });

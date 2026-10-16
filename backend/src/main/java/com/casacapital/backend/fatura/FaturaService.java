@@ -207,6 +207,7 @@ public class FaturaService {
         int despesas = 0, parcelamentos = 0, quitadas = 0;
         BigDecimal total = BigDecimal.ZERO;
         long grupoBase = System.currentTimeMillis();
+        String cartao = req.cartao() == null || req.cartao().isBlank() ? null : req.cartao().trim();
 
         for (int i = 0; i < req.itens().size(); i++) {
             FaturaImportRequest.Item item = req.itens().get(i);
@@ -226,6 +227,7 @@ public class FaturaService {
                                 "A parcela de \"" + descricao + "\" não existe mais em Contas. Leia a fatura de novo."));
                 if (!conta.isPago()) {
                     conta.setCategoriaDespesa(item.categoria());
+                    if (conta.getCartao() == null) conta.setCartao(cartao);
                     pagar(conta, item.data(), item.valor());
                     quitadas++;
                     total = total.add(item.valor());
@@ -241,6 +243,7 @@ public class FaturaService {
                     c.setDescricao(descricao + " (" + n + "/" + qtd + ")");
                     c.setCategoria(CATEGORIA_CONTA);
                     c.setCategoriaDespesa(item.categoria());
+                    c.setCartao(cartao);
                     c.setValor(item.valor());
                     c.setVencimento(req.vencimento().plusMonths(n - atual));
                     c.setRecorrencia(Recorrencia.PARCELADA);

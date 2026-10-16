@@ -17,6 +17,13 @@ spring:
         jdbc:
           time_zone: UTC
 
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          # O navegador sempre confere se a tela mudou (ETag/Last-Modified) — evita ver a versão antiga após atualizar
+          no-cache: true
+
   servlet:
     multipart:
       # Faturas de cartão em PDF enviadas para importação

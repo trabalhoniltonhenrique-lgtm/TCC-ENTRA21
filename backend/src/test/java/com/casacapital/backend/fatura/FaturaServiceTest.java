@@ -101,7 +101,7 @@ class FaturaServiceTest {
         when(contas.findByIdAndFamiliaId(40L, FAMILIA)).thenReturn(Optional.of(pendente));
 
         LocalDate venc = LocalDate.of(2026, 10, 20);
-        FaturaImportResponse r = service.importar(FAMILIA, new FaturaImportRequest(venc, List.of(
+        FaturaImportResponse r = service.importar(FAMILIA, new FaturaImportRequest(venc, "Itaú", List.of(
                 new FaturaImportRequest.Item(LocalDate.of(2026, 9, 14), "MERCADO EXTRA", new BigDecimal("312.45"), null, null, "Alimentação", null),
                 new FaturaImportRequest.Item(venc, "GELADEIRA NOVA", new BigDecimal("450.00"), 3, 10, "Moradia", 40L),
                 new FaturaImportRequest.Item(LocalDate.of(2026, 9, 18), "MAGAZINE LUIZA", new BigDecimal("199.90"), 4, 6, "Vestuário", null))));
@@ -122,6 +122,8 @@ class FaturaServiceTest {
         assertTrue(parcelas.get(0).isPago());
         assertEquals(venc.plusMonths(2), parcelas.get(2).getVencimento());
         assertEquals("Vestuário", parcelas.get(2).getCategoriaDespesa());
+        assertEquals("Itaú", parcelas.get(2).getCartao());
+        assertEquals("Itaú", pendente.getCartao()); // parcela quitada sem cartão recebe o da fatura
 
         ArgumentCaptor<Despesa> lancadas = ArgumentCaptor.forClass(Despesa.class);
         verify(despesas, atLeastOnce()).save(lancadas.capture());

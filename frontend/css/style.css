@@ -1405,7 +1405,7 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 
 .fatura-resumo-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:.75rem; margin:.5rem 0 .75rem; }
 .fatura-resumo-grid .rotulo { display:block; font-size:.75rem; color:var(--texto-suave); margin-bottom:2px; }
-.fatura-resumo-grid input[type=date] { margin:0; padding:6px 8px; }
+.fatura-resumo-grid input { margin:0; padding:6px 8px; }
 .fatura-conferencia { font-size:.85rem; margin-bottom:.5rem; }
 .fatura-ok { color:var(--verde); }
 .fatura-alerta { color:var(--vermelho); }
@@ -1433,3 +1433,29 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .fatura-check { display:flex; align-items:flex-start; gap:8px; font-size:.88rem; font-weight:normal; cursor:pointer; }
 .fatura-check input { width:auto; margin:3px 0 0; }
 #faturaContaAviso .fatura-status { margin-top:.25rem; }
+
+/* ── Contas: seleção para pagar em lote ── */
+.sel-conta { display:inline-flex; flex-direction:column; align-items:center; gap:1px; margin:0; cursor:pointer; flex:0 0 auto; }
+.sel-conta input { width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--verde); }
+.sel-conta span { font-size:.62rem; color:var(--texto-suave); line-height:1; }
+.sel-conta-vazio { flex:0 0 18px; }
+.conta-card.selecionada { box-shadow:0 0 0 2px var(--verde), 0 2px 8px var(--sombra-leve); }
+.selecionar-todas { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem 1rem; margin:0 0 .65rem; padding:.5rem .85rem;
+  background:var(--bg-card); border:1px dashed var(--borda-leve); border-radius:10px; font-size:.86rem; }
+.selecionar-todas label { display:flex; align-items:center; gap:8px; margin:0; font-weight:600; cursor:pointer; }
+.selecionar-todas input { width:18px; height:18px; margin:0; accent-color:var(--verde); }
+.selecionar-todas .dica { font-size:.76rem; color:var(--texto-suave); }
+.barra-lote { position:sticky; bottom:1rem; z-index:20; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  gap:.6rem 1rem; margin-top:.75rem; padding:.75rem 1rem; border-radius:12px; background:var(--bg-card);
+  box-shadow:0 6px 24px var(--sombra); border:2px solid var(--verde); font-size:.9rem; color:var(--texto-primario); }
+.barra-lote-acoes { display:flex; gap:.5rem; flex-wrap:wrap; }
+.barra-lote-acoes button { width:auto; margin:0; padding:9px 16px; display:inline-flex; align-items:center; gap:6px; }
+
+/* ── Contas: aba Cartões ── */
+.chips-cartao { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:.75rem; }
+.chip-cartao { width:auto; margin:0; padding:7px 14px; border-radius:999px; font-size:.85rem; font-weight:600;
+  background:var(--bg-card); color:var(--texto-primario); border:1.5px solid var(--borda-leve); display:inline-flex; gap:6px; align-items:baseline; }
+.chip-cartao span { font-weight:400; font-size:.76rem; color:var(--texto-suave); }
+.chip-cartao:hover { background:var(--bg-hover); }
+.chip-cartao.ativo { background:var(--azul); color:#fff; border-color:var(--azul); }
+.chip-cartao.ativo span { color:rgba(255,255,255,.85); }

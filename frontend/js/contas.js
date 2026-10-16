@@ -4,6 +4,13 @@ let filtroAtivo = null; // null = lista recolhida; clicar numa aba expande, clic
 let filtroCategoriaAtivo = 'todas';
 let editandoId  = null;
 let gruposExpandidos = {}; // { grupoParcelaId: true/false }
+let filtroCartaoAtivo = 'todos'; // na aba Cartões: 'todos' ou o nome do cartão
+const selecionadas = new Set();  // ids de contas em aberto marcadas para pagar em lote
+
+const SEM_CARTAO = 'Cartão não informado';
+const ehDeCartao = c => !!c.cartao || c.categoria === 'Cartão de Crédito';
+const nomeCartao = c => c.cartao || SEM_CARTAO;
+const escC = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
 
 const hoje = () => new Date().toISOString().split('T')[0];
 let _moedaContas = 'R$';
@@ -84,6 +91,7 @@ function abrirForm(id) {
     document.getElementById('fValor').value  = c.valor       || '';
     document.getElementById('fVenc').value   = c.vencimento  || '';
     document.getElementById('fObs').value    = c.obs         || '';
+    document.getElementById('fCartao').value = c.cartao      || '';
 
     if (c.grupoParcelaId) {
       if (!Array.from(selRecorr.options).some(o => o.value === 'parcelada')) {
@@ -105,7 +113,17 @@ function abrirForm(id) {
     selRecorr.disabled = false;
     selRecorr.value = 'unica';
     document.getElementById('fObs').value    = '';
+    document.getElementById('fCartao').value = '';
   }
+  atualizarListaCartoes();
+}
+
+// Sugestões do campo Cartão: os já usados + os bancos mais comuns
+function atualizarListaCartoes() {
+  const nomes = new Set(['Itaú', 'Nubank', 'Inter', 'Caixa']);
+  contas.forEach(c => { if (c.cartao) nomes.add(c.cartao); });
+  document.getElementById('listaCartoes').innerHTML =
+    [...nomes].sort((a, b) => a.localeCompare(b)).map(n => `<option value="${escC(n)}">`).join('');
 }
 
 function fecharForm() {
@@ -147,11 +165,12 @@ async function salvarConta() {
 
   const cat = document.getElementById('fCat').value;
   const obs = document.getElementById('fObs').value.trim();
+  const cartao = document.getElementById('fCartao').value.trim();
 
   // ── Edição de conta existente (não gera novas parcelas) ──
   if (editandoId !== null) {
     const atualizada = await api.put('/contas/' + editandoId, {
-      descricao: desc, categoria: cat, valor, vencimento: venc, recorrencia: RECORR_API[recorr], obs,
+      descricao: desc, categoria: cat, valor, vencimento: venc, recorrencia: RECORR_API[recorr], obs, cartao,
     });
     const idx = contas.findIndex(x => x.id === editandoId);
     if (idx >= 0) contas[idx] = atualizada;
@@ -167,7 +186,7 @@ async function salvarConta() {
     if (!qtd || qtd < 2) { alert('Informe um número de parcelas válido (mínimo 2).'); return; }
 
     const geradas = await api.post('/contas', {
-      descricao: desc, categoria: cat, valor, vencimento: venc, recorrencia: 'PARCELADA', obs,
+      descricao: desc, categoria: cat, valor, vencimento: venc, recorrencia: 'PARCELADA', obs, cartao,
       qtdParcelas: qtd, tipoValorParcela: tipo,
     });
     contas.push(...geradas);
@@ -179,7 +198,7 @@ async function salvarConta() {
 
   // ── Conta única, mensal ou anual ──
   const [nova] = await api.post('/contas', {
-    descricao: desc, categoria: cat, valor, vencimento: venc, recorrencia: RECORR_API[recorr], obs,
+    descricao: desc, categoria: cat, valor, vencimento: venc, recorrencia: RECORR_API[recorr], obs, cartao,
   });
   contas.push(nova);
   fecharForm();
@@ -227,6 +246,8 @@ async function excluirConta(id) {
 
 function setFiltro(f) {
   filtroAtivo = filtroAtivo === f ? null : f;
+  filtroCartaoAtivo = 'todos';
+  selecionadas.clear(); // não pagar contas que deixaram de aparecer na lista
   renderContas();
 }
 
@@ -239,6 +260,7 @@ function atualizarAbasFiltro() {
     atrasado: daCategoria.filter(c => calcStatus(c) === 'atrasado').length,
     hoje:     daCategoria.filter(c => calcStatus(c) === 'hoje').length,
     pago:     daCategoria.filter(c => c.pago).length,
+    cartoes:  daCategoria.filter(ehDeCartao).length,
   };
   document.querySelectorAll('.bloco-filtros-contas .filtro-tab').forEach(tab => {
     const f = tab.getAttribute('data-filtro');
@@ -258,7 +280,47 @@ function atualizarAbasFiltro() {
 
 function setFiltroCategoria(cat) {
   filtroCategoriaAtivo = cat;
+  selecionadas.clear();
   renderContas();
+}
+
+function setFiltroCartao(nome) {
+  filtroCartaoAtivo = nome;
+  selecionadas.clear();
+  renderContas();
+}
+
+// ── Pagamento em lote ──
+const caixaSelecao = (c, rotulo) => `<label class="sel-conta" title="Selecionar para pagar em lote" data-action="rotulo-selecao">
+    <input type="checkbox" data-action="selecionar" data-id="${c.id}" ${selecionadas.has(c.id) ? 'checked' : ''}
+      aria-label="Selecionar ${escC(c.descricao)}">${rotulo ? `<span>${rotulo}</span>` : ''}</label>`;
+
+function atualizarBarraLote() {
+  const barra = document.getElementById('barraLote');
+  const lista = contas.filter(c => selecionadas.has(c.id) && !c.pago);
+  barra.classList.toggle('oculto', lista.length === 0);
+  const total = lista.reduce((a, c) => a + c.valor, 0);
+  document.getElementById('loteInfo').innerHTML =
+    `<strong>${lista.length}</strong> conta${lista.length !== 1 ? 's' : ''} selecionada${lista.length !== 1 ? 's' : ''} · <strong>${fmt(total)}</strong>`;
+}
+
+async function pagarSelecionadas() {
+  const lista = contas.filter(c => selecionadas.has(c.id) && !c.pago);
+  if (!lista.length) return;
+  const total = lista.reduce((a, c) => a + c.valor, 0);
+  if (!confirm(`Marcar ${lista.length} conta(s) como paga(s), somando ${fmt(total)}?\n\nCada uma será lançada nas Despesas.`)) return;
+  const btn = document.getElementById('btnPagarLote');
+  btn.disabled = true;
+  try {
+    const pagas = await api.post('/contas/marcar-pago', { ids: lista.map(c => c.id) });
+    selecionadas.clear();
+    await carregarContas();
+    mostrarToast(`${pagas.length} conta(s) marcada(s) como paga(s) e lançada(s) nas Despesas!`);
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function toggleGrupoParcela(grupoId) {
@@ -273,10 +335,11 @@ function renderItemConta(c) {
   const recorrIcon = c.recorrencia === 'MENSAL' ? ' <span class="ico ico-repeat"></span>' : c.recorrencia === 'ANUAL' ? ' <span class="ico ico-calendar-days"></span>' : c.grupoParcelaId ? ' <span class="ico ico-credit-card"></span>' : '';
   const corValor = st === 'pago' ? 'cor-pago' : st === 'atrasado' ? 'cor-atrasado' : 'cor-normal';
   return `
-    <div class="conta-card ${st === 'hoje' ? 'pendente' : st}">
+    <div class="conta-card ${st === 'hoje' ? 'pendente' : st}${selecionadas.has(c.id) ? ' selecionada' : ''}">
+      ${!c.pago ? caixaSelecao(c) : '<span class="sel-conta-vazio"></span>'}
       <div class="conta-info">
         <strong>${c.descricao}${recorrIcon}</strong>
-        <span>${c.categoria} · Venc: ${fmtD(c.vencimento)}${c.obs ? ' · ' + c.obs : ''}</span>
+        <span>${c.categoria}${c.cartao ? ' · ' + escC(c.cartao) : ''} · Venc: ${fmtD(c.vencimento)}${c.obs ? ' · ' + c.obs : ''}</span>
         ${avisoVencimento(c)}
         ${c.pago && c.dataPagamento ? `<div class="pago-em"><span class="ico ico-check"></span> Pago em ${fmtD(c.dataPagamento)}</div>` : ''}
       </div>
@@ -309,9 +372,10 @@ function renderGrupoParcela(grupoId, parcelas) {
     <div class="conta-card grupo ${temAtrasada ? 'atrasado-grupo' : 'normal-grupo'}"
          data-action="toggle-grupo" data-id="${grupoId}">
       <div class="grupo-linha-topo">
+        ${proxima ? caixaSelecao(proxima, 'próx.') : '<span class="sel-conta-vazio"></span>'}
         <div class="conta-info">
           <strong><span class="ico ico-credit-card"></span> ${nomeBase}</strong>
-          <span>${cat} · ${pagas.length}/${parcelas.length} parcelas pagas
+          <span>${cat}${parcelas[0].cartao ? ' · ' + escC(parcelas[0].cartao) : ''} · ${pagas.length}/${parcelas.length} parcelas pagas
             ${proxima ? ` · Próxima: ${fmtD(proxima.vencimento)}` : ' · Concluído'}
           </span>
           ${temAtrasada ? `<div class="vencimento-aviso aviso-atrasado"><span class="ico ico-alert-triangle"></span> Há parcela(s) atrasada(s)</div>` : ''}
@@ -335,6 +399,7 @@ function renderGrupoParcela(grupoId, parcelas) {
             const corValorP = stP === 'pago' ? 'cor-pago' : 'cor-normal';
             return `
             <div class="parcela-linha">
+              ${!p.pago ? caixaSelecao(p) : '<span class="sel-conta-vazio"></span>'}
               <span class="desc">Parcela ${p.parcelaNum}/${p.parcelaTotal} <span class="data">· ${fmtD(p.vencimento)}</span></span>
               <span class="tag com-margem ${stP === 'hoje' ? 'hoje' : stP}">${tagTxtP}</span>
               <span class="valor ${corValorP}">${fmt(p.valor)}</span>
@@ -387,6 +452,7 @@ function renderContas() {
   `;
 
   atualizarAbasFiltro();
+  atualizarBarraLote();
   if (!filtroAtivo) {
     lista.innerHTML = `<div class="contas-recolhidas">
       Selecione uma opção acima para ver as contas.
@@ -401,8 +467,31 @@ function renderContas() {
   if (filtroAtivo === 'pago')     lista2 = lista2.filter(c => c.pago);
   if (filtroCategoriaAtivo !== 'todas') lista2 = lista2.filter(c => c.categoria === filtroCategoriaAtivo);
 
+  // Aba Cartões: só contas de cartão, com um botão por cartão mostrando o total em aberto
+  let chipsCartao = '';
+  if (filtroAtivo === 'cartoes') {
+    lista2 = lista2.filter(ehDeCartao);
+    const porCartao = {};
+    lista2.forEach(c => {
+      const n = nomeCartao(c);
+      porCartao[n] = porCartao[n] || { aberto: 0, qtd: 0 };
+      porCartao[n].qtd++;
+      if (!c.pago) porCartao[n].aberto += c.valor;
+    });
+    const nomes = Object.keys(porCartao).sort((a, b) => (a === SEM_CARTAO) - (b === SEM_CARTAO) || a.localeCompare(b));
+    if (filtroCartaoAtivo !== 'todos' && !porCartao[filtroCartaoAtivo]) filtroCartaoAtivo = 'todos';
+    const totalAberto = Object.values(porCartao).reduce((a, x) => a + x.aberto, 0);
+    chipsCartao = nomes.length ? `<div class="chips-cartao" role="group" aria-label="Filtrar por cartão">
+      <button class="chip-cartao ${filtroCartaoAtivo === 'todos' ? 'ativo' : ''}" data-action="filtro-cartao" data-cartao="todos">
+        Todos <span>${fmt(totalAberto)} em aberto</span></button>
+      ${nomes.map(n => `<button class="chip-cartao ${filtroCartaoAtivo === n ? 'ativo' : ''}" data-action="filtro-cartao" data-cartao="${escC(n)}">
+        ${escC(n)} <span>${fmt(porCartao[n].aberto)} em aberto</span></button>`).join('')}
+    </div>` : '';
+    if (filtroCartaoAtivo !== 'todos') lista2 = lista2.filter(c => nomeCartao(c) === filtroCartaoAtivo);
+  }
+
   if (!lista2.length) {
-    lista.innerHTML = `<div class="lista-vazia">
+    lista.innerHTML = chipsCartao + `<div class="lista-vazia">
       <div class="icone"><span class="ico ico-clipboard"></span></div>
       <p>Nenhuma conta encontrada.</p>
     </div>`;
@@ -428,7 +517,19 @@ function renderContas() {
     })
   ].sort((a, b) => a.ref.localeCompare(b.ref));
 
-  lista.innerHTML = blocos.map(b => b.render()).join('');
+  // "Selecionar todas": contas soltas em aberto + a próxima parcela de cada compra parcelada
+  const selecionaveis = [
+    ...soltas.filter(c => !c.pago),
+    ...Object.values(grupos).map(ps => ps.filter(p => !p.pago).sort((a, b) => a.vencimento.localeCompare(b.vencimento))[0]).filter(Boolean),
+  ];
+  const todasMarcadas = selecionaveis.length > 0 && selecionaveis.every(c => selecionadas.has(c.id));
+  const barraSelecao = selecionaveis.length ? `<div class="selecionar-todas">
+      <label><input type="checkbox" data-action="selecionar-todas" data-ids="${selecionaveis.map(c => c.id).join(',')}" ${todasMarcadas ? 'checked' : ''}>
+        Selecionar todas em aberto (${selecionaveis.length})</label>
+      <span class="dica">Nas compras parceladas, entra só a próxima parcela.</span>
+    </div>` : '';
+
+  lista.innerHTML = chipsCartao + barraSelecao + blocos.map(b => b.render()).join('');
 }
 
 // ── Listeners estáticos (elementos fixos do formulário/cabeçalho) ──
@@ -460,6 +561,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const acao = acaoEl.getAttribute('data-action');
     const id   = acaoEl.getAttribute('data-id');
 
+    if (acao === 'selecionar') {
+      e.stopPropagation();
+      const idSel = Number(id);
+      if (acaoEl.checked) selecionadas.add(idSel); else selecionadas.delete(idSel);
+      renderContas();
+      return;
+    }
+    if (acao === 'selecionar-todas') {
+      acaoEl.getAttribute('data-ids').split(',').map(Number)
+        .forEach(x => acaoEl.checked ? selecionadas.add(x) : selecionadas.delete(x));
+      renderContas();
+      return;
+    }
+    if (acao === 'filtro-cartao') { setFiltroCartao(acaoEl.getAttribute('data-cartao')); return; }
     if (acao === 'stop-propagation') { e.stopPropagation(); return; }
     if (acao !== 'toggle-grupo') e.stopPropagation();
 
@@ -469,6 +584,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (acao === 'excluir')      excluirConta(Number(id));
     if (acao === 'toggle-grupo') toggleGrupoParcela(Number(id));
   });
+
+  document.getElementById('btnPagarLote').addEventListener('click', pagarSelecionadas);
+  document.getElementById('btnLimparLote').addEventListener('click', () => { selecionadas.clear(); renderContas(); });
 
   aplicarUnidadeMoedaContas().then(carregarContas);
 });

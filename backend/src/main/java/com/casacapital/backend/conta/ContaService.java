@@ -83,6 +83,7 @@ public class ContaService {
                 c.setVencimento(req.vencimento().plusMonths(i));
                 c.setRecorrencia(Recorrencia.PARCELADA);
                 c.setObs(req.obs());
+                c.setCartao(cartao(req.cartao()));
                 c.setGrupoParcelaId(grupoId);
                 c.setParcelaNum(i + 1);
                 c.setParcelaTotal(qtd);
@@ -116,6 +117,11 @@ public class ContaService {
             c.setRecorrencia(req.recorrencia());
         }
         c.setObs(req.obs());
+        c.setCartao(cartao(req.cartao()));
+    }
+
+    private static String cartao(String nome) {
+        return nome == null || nome.isBlank() ? null : nome.trim();
     }
 
     @Transactional
@@ -148,6 +154,7 @@ public class ContaService {
                     : c.getVencimento().plusYears(1));
             proxima.setRecorrencia(c.getRecorrencia());
             proxima.setObs(c.getObs());
+            proxima.setCartao(c.getCartao());
             contaRepository.save(proxima);
         }
 
@@ -159,6 +166,16 @@ public class ContaService {
         return c.getCategoriaDespesa() != null
                 ? c.getCategoriaDespesa()
                 : MAPA_CATEGORIA_DESPESA.getOrDefault(c.getCategoria(), "Outros");
+    }
+
+    /** Marca várias contas como pagas de uma vez (as já pagas são ignoradas). */
+    @Transactional
+    public List<Conta> marcarPagoEmLote(Long familiaId, List<Long> ids) {
+        List<Conta> pagas = new ArrayList<>();
+        for (Long id : new java.util.LinkedHashSet<>(ids)) {
+            if (!buscar(familiaId, id).isPago()) pagas.add(marcarPago(familiaId, id));
+        }
+        return pagas;
     }
 
     @Transactional
