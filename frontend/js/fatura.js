@@ -1,4 +1,4 @@
-// ── CasaCapital — fatura.js: importa a fatura do cartão em PDF (leitura + revisão) ──
+// ── CasaCapital — fatura.js: importa fatura em PDF — cartão (lançamentos) ou conta de luz/água (uma conta) ──
 // Usa fmt, fmtD, mostrarToast e carregarContas de contas.js.
 
 const CATEGORIAS_DESPESA_FATURA = ['Alimentação', 'Moradia', 'Transporte', 'Saúde', 'Educação',
@@ -26,6 +26,7 @@ function fecharPainelFatura() {
 function voltarEnvioFatura() {
   document.getElementById('faturaEnvio').classList.remove('oculto');
   document.getElementById('faturaRevisao').classList.add('oculto');
+  document.getElementById('faturaContaRevisao').classList.add('oculto');
   document.getElementById('fArquivoFatura').value = '';
   document.getElementById('fSenhaFatura').value = '';
   document.getElementById('campoSenhaFatura').classList.add('oculto');
@@ -53,8 +54,12 @@ async function lerFatura() {
   statusFatura('Lendo a fatura…', 'carregando');
   try {
     faturaLida = await apiRequest('POST', '/faturas/analisar', dados);
-    faturaItens = faturaLida.itens.map(it => ({ ...it, sel: it.acao !== 'JA_IMPORTADA' }));
     statusFatura('');
+    if (faturaLida.tipo === 'CONTA_CONSUMO') {
+      mostrarContaFatura(faturaLida.conta);
+      return;
+    }
+    faturaItens = faturaLida.itens.map(it => ({ ...it, sel: it.acao !== 'JA_IMPORTADA' }));
     mostrarRevisaoFatura();
   } catch (e) {
     if (e.codigo === 'PDF_PROTEGIDO' || e.codigo === 'SENHA_INCORRETA') {
@@ -66,6 +71,70 @@ async function lerFatura() {
     btn.disabled = false;
   }
 }
+
+// ── Conta de luz/água: uma conta a pagar ──
+
+function mostrarContaFatura(conta) {
+  document.getElementById('faturaEnvio').classList.add('oculto');
+  document.getElementById('faturaContaRevisao').classList.remove('oculto');
+
+  document.getElementById('fcDesc').value = conta.descricao || '';
+  document.getElementById('fcCat').value = conta.categoria || 'Outros';
+  document.getElementById('fcValor').value = conta.valor != null ? Number(conta.valor).toFixed(2) : '';
+  document.getElementById('fcVenc').value = conta.vencimento || '';
+
+  let aviso = `<div class="fatura-status">Conta de ${escFatura(conta.categoria.toLowerCase())} reconhecida` +
+    (conta.referencia ? ` (referência ${escFatura(conta.referencia)})` : '') + '. Confira os dados abaixo.</div>';
+  if (conta.jaCadastrada) {
+    aviso = `<div class="fatura-status erro">Já existe a conta "${escFatura(conta.contaExistenteDescricao)}" com este valor e vencimento. Cadastrar de novo vai duplicá-la.</div>`;
+  }
+  if (!conta.vencimento) {
+    aviso += '<div class="fatura-status erro">Não encontrei o vencimento no PDF. Preencha antes de cadastrar.</div>';
+  }
+  document.getElementById('faturaContaAviso').innerHTML = aviso;
+
+  const wrap = document.getElementById('fcAtualizarWrap');
+  wrap.classList.toggle('oculto', !conta.contaId);
+  document.getElementById('fcAtualizar').checked = !!conta.contaId;
+  document.getElementById('fcAtualizarTexto').textContent = conta.contaId
+    ? `Atualizar a conta em aberto "${conta.contaExistenteDescricao}" com este valor e vencimento (em vez de criar outra)`
+    : '';
+  atualizarBotaoContaFatura();
+}
+
+function atualizarBotaoContaFatura() {
+  const atualizar = faturaLida?.conta?.contaId && document.getElementById('fcAtualizar').checked;
+  document.getElementById('btnConfirmarContaFatura').textContent = atualizar ? 'Atualizar conta' : 'Cadastrar conta';
+}
+
+async function confirmarContaFatura() {
+  const conta = faturaLida.conta;
+  const corpo = {
+    descricao: document.getElementById('fcDesc').value.trim(),
+    categoria: document.getElementById('fcCat').value,
+    valor: Number(document.getElementById('fcValor').value),
+    vencimento: document.getElementById('fcVenc').value,
+    contaId: conta.contaId && document.getElementById('fcAtualizar').checked ? conta.contaId : null,
+  };
+  if (!corpo.descricao || !(corpo.valor > 0) || !corpo.vencimento) {
+    alert('Preencha descrição, valor e vencimento.');
+    return;
+  }
+  const btn = document.getElementById('btnConfirmarContaFatura');
+  btn.disabled = true;
+  try {
+    const salva = await api.post('/faturas/importar-conta', corpo);
+    mostrarToast(`${corpo.contaId ? 'Conta atualizada' : 'Conta cadastrada'}: ${salva.descricao} — ${fmt(salva.valor)}, vence ${fmtD(salva.vencimento)}`);
+    fecharPainelFatura();
+    await carregarContas();
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Fatura do cartão: vários lançamentos ──
 
 function mostrarRevisaoFatura() {
   document.getElementById('faturaEnvio').classList.add('oculto');
@@ -208,6 +277,9 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btnLerFatura').addEventListener('click', lerFatura);
   document.getElementById('btnVoltarFatura').addEventListener('click', voltarEnvioFatura);
   document.getElementById('btnConfirmarFatura').addEventListener('click', confirmarFatura);
+  document.getElementById('btnConfirmarContaFatura').addEventListener('click', confirmarContaFatura);
+  document.getElementById('btnVoltarContaFatura').addEventListener('click', voltarEnvioFatura);
+  document.getElementById('fcAtualizar').addEventListener('change', atualizarBotaoContaFatura);
   document.getElementById('fSenhaFatura').addEventListener('keydown', e => { if (e.key === 'Enter') lerFatura(); });
 
   const corpo = document.getElementById('faturaItens');

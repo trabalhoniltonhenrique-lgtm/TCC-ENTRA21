@@ -1,6 +1,8 @@
 package com.casacapital.backend.fatura;
 
 import com.casacapital.backend.common.ApiException;
+import com.casacapital.backend.conta.dto.ContaResponse;
+import com.casacapital.backend.fatura.dto.ContaConsumoImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaAnaliseResponse;
 import com.casacapital.backend.fatura.dto.FaturaImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaImportResponse;
@@ -37,6 +39,13 @@ public class FaturaController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "ARQUIVO_VAZIO", "Selecione o arquivo da fatura.");
         }
         return service.analisar(user.familiaId(), arquivo.getBytes(), senha);
+    }
+
+    /** Conta de luz/água: cadastra a conta a pagar (ou atualiza a conta em aberto do mesmo mês). */
+    @PostMapping("/importar-conta")
+    public ContaResponse importarConta(@AuthenticationPrincipal SecurityUser user,
+                                       @Valid @RequestBody ContaConsumoImportRequest req) {
+        return ContaResponse.from(service.importarContaConsumo(user.familiaId(), req));
     }
 
     @PostMapping("/importar")

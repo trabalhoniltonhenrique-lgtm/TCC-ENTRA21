@@ -1429,3 +1429,7 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .fatura-aviso.aviso-dup { color:#B45309; }
 .fatura-aviso.aviso-quitar { color:var(--verde); }
 .fatura-creditos { margin-top:.75rem; font-size:.82rem; color:var(--texto-secundario); }
+.fatura-conta-grid { max-width:620px; margin-top:.75rem; }
+.fatura-check { display:flex; align-items:flex-start; gap:8px; font-size:.88rem; font-weight:normal; cursor:pointer; }
+.fatura-check input { width:auto; margin:3px 0 0; }
+#faturaContaAviso .fatura-status { margin-top:.25rem; }

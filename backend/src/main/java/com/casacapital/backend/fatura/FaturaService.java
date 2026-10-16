@@ -10,8 +10,10 @@ import com.casacapital.backend.despesa.Despesa;
 import com.casacapital.backend.despesa.DespesaRepository;
 import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
+import com.casacapital.backend.fatura.LeitorContaConsumo.ContaLida;
 import com.casacapital.backend.fatura.LeitorFaturaPdf.FaturaLida;
 import com.casacapital.backend.fatura.LeitorFaturaPdf.Lancamento;
+import com.casacapital.backend.fatura.dto.ContaConsumoImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaAnaliseResponse;
 import com.casacapital.backend.fatura.dto.FaturaImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaImportResponse;
@@ -28,10 +30,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -62,6 +66,11 @@ public class FaturaService {
 
     public FaturaAnaliseResponse analisar(Long familiaId, byte[] arquivo, String senha) {
         List<List<String>> texto = extrairTexto(arquivo, senha);
+
+        // Conta de luz/água: vira uma conta a pagar, não uma lista de lançamentos
+        Optional<ContaLida> consumo = LeitorContaConsumo.ler(texto.get(0));
+        if (consumo.isPresent()) return analisarContaConsumo(familiaId, consumo.get());
+
         FaturaLida fatura = LeitorFaturaPdf.lerMelhor(texto.get(0), texto.get(1), LocalDate.now());
         if (fatura.lancamentos().isEmpty()) {
             throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "SEM_LANCAMENTOS",
@@ -87,7 +96,64 @@ public class FaturaService {
             }
         }
 
-        return new FaturaAnaliseResponse(fatura.emissor(), vencimento, fatura.total(), itens, creditos);
+        return FaturaAnaliseResponse.cartao(fatura.emissor(), vencimento, fatura.total(), itens, creditos);
+    }
+
+    private FaturaAnaliseResponse analisarContaConsumo(Long familiaId, ContaLida lida) {
+        if (lida.valor() == null) {
+            throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "SEM_VALOR",
+                    "Reconheci a conta de " + lida.categoria().toLowerCase() + ", mas não encontrei o valor a pagar. "
+                            + "Cadastre-a em Nova Conta.");
+        }
+        Long contaId = null;
+        String contaExistente = null;
+        boolean jaCadastrada = false;
+        if (lida.vencimento() != null) {
+            for (Conta c : contaRepository.findAllByFamiliaIdOrderByVencimentoAsc(familiaId)) {
+                if (!lida.categoria().equals(c.getCategoria())) continue;
+                if (c.getVencimento().equals(lida.vencimento()) && c.getValor().compareTo(lida.valor()) == 0) {
+                    jaCadastrada = true;
+                    contaId = null;
+                    contaExistente = c.getDescricao();
+                    break;
+                }
+                // conta em aberto da mesma categoria no mesmo mês (ex.: a mensal com valor estimado)
+                if (!c.isPago() && contaId == null && c.getGrupoParcelaId() == null
+                        && YearMonth.from(c.getVencimento()).equals(YearMonth.from(lida.vencimento()))) {
+                    contaId = c.getId();
+                    contaExistente = c.getDescricao();
+                }
+            }
+        }
+        return FaturaAnaliseResponse.contaConsumo(new FaturaAnaliseResponse.ContaConsumo(
+                lida.descricao(), lida.categoria(), lida.valor(), lida.vencimento(), lida.referencia(),
+                contaId, contaExistente, jaCadastrada));
+    }
+
+    /** Cadastra a conta de luz/água revisada, ou atualiza valor e vencimento da conta em aberto indicada. */
+    @Transactional
+    public Conta importarContaConsumo(Long familiaId, ContaConsumoImportRequest req) {
+        if (req.contaId() != null) {
+            Conta c = contaRepository.findByIdAndFamiliaId(req.contaId(), familiaId)
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "CONTA_NAO_ENCONTRADA",
+                            "A conta a atualizar não existe mais. Leia a fatura de novo."));
+            if (c.isPago()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "CONTA_JA_PAGA",
+                        "A conta \"" + c.getDescricao() + "\" já foi paga. Leia a fatura de novo.");
+            }
+            c.setValor(req.valor());
+            c.setVencimento(req.vencimento());
+            return c;
+        }
+        Conta c = new Conta();
+        c.setFamilia(familiaRepository.getReferenceById(familiaId));
+        c.setDescricao(limitar(req.descricao().trim(), 160));
+        c.setCategoria(limitar(req.categoria().trim(), 40));
+        c.setValor(req.valor());
+        c.setVencimento(req.vencimento());
+        c.setRecorrencia(Recorrencia.UNICA);
+        c.setObs("Importado da fatura em PDF");
+        return contaRepository.save(c);
     }
 
     private ItemFatura analisarParcela(Long familiaId, String descricao, BigDecimal valor, int atual, int total,

@@ -7,6 +7,7 @@ import com.casacapital.backend.despesa.Despesa;
 import com.casacapital.backend.despesa.DespesaRepository;
 import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
+import com.casacapital.backend.fatura.dto.ContaConsumoImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaAnaliseResponse;
 import com.casacapital.backend.fatura.dto.FaturaImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaImportResponse;
@@ -150,6 +151,47 @@ class FaturaServiceTest {
         byte[] semTexto = pdf(null, "Fatura escaneada sem lancamentos legiveis");
         ApiException e = assertThrows(ApiException.class, () -> service.analisar(FAMILIA, semTexto, null));
         assertEquals("SEM_LANCAMENTOS", e.getCode());
+    }
+
+    @Test
+    void contaDeLuzPropoeAtualizarAContaEmAbertoDoMes() throws Exception {
+        Conta mensal = conta(50L, "Energia elétrica", "120.00", false);
+        mensal.setCategoria("Energia");
+        mensal.setVencimento(LocalDate.of(2026, 10, 15));
+        mensal.setRecorrencia(com.casacapital.backend.conta.Recorrencia.MENSAL);
+        when(contas.findAllByFamiliaIdOrderByVencimentoAsc(FAMILIA)).thenReturn(List.of(mensal));
+        when(contas.findByIdAndFamiliaId(50L, FAMILIA)).thenReturn(Optional.of(mensal));
+
+        byte[] pdf = pdf(null, "Consumo TE KWH 100,000 39,89", "Celesc Distribuicao SA", "Referencia 10/2026",
+                "Vencimento 20/10/2026", "Total a Pagar (R$) 98,70");
+        FaturaAnaliseResponse r = service.analisar(FAMILIA, pdf, null);
+
+        assertEquals("CONTA_CONSUMO", r.tipo());
+        assertEquals("Energia", r.conta().categoria());
+        assertEquals(new BigDecimal("98.70"), r.conta().valor());
+        assertEquals(50L, r.conta().contaId());
+
+        Conta salva = service.importarContaConsumo(FAMILIA, new ContaConsumoImportRequest(
+                r.conta().descricao(), "Energia", r.conta().valor(), r.conta().vencimento(), 50L));
+        assertEquals(mensal, salva);
+        assertEquals(new BigDecimal("98.70"), mensal.getValor());
+        assertEquals(LocalDate.of(2026, 10, 20), mensal.getVencimento());
+        assertEquals(com.casacapital.backend.conta.Recorrencia.MENSAL, mensal.getRecorrencia()); // continua mensal
+    }
+
+    @Test
+    void contaDeLuzSemContaNoMesCriaUmaNova() throws Exception {
+        byte[] pdf = pdf(null, "Consumo TE KWH 100,000 39,89", "Celesc Distribuicao SA",
+                "Vencimento 20/10/2026", "Total a Pagar (R$) 98,70");
+        FaturaAnaliseResponse r = service.analisar(FAMILIA, pdf, null);
+        assertEquals(null, r.conta().contaId());
+
+        Conta nova = service.importarContaConsumo(FAMILIA, new ContaConsumoImportRequest(
+                "Energia elétrica - Celesc", "Energia", new BigDecimal("98.70"), LocalDate.of(2026, 10, 20), null));
+        assertEquals("Energia", nova.getCategoria());
+        assertEquals(LocalDate.of(2026, 10, 20), nova.getVencimento());
+        assertEquals(com.casacapital.backend.conta.Recorrencia.UNICA, nova.getRecorrencia());
+        verify(contas).save(nova);
     }
 
     /** Gera um PDF com uma linha de texto por item (senha opcional). */
