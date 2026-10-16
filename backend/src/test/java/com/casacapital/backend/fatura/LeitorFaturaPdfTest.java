@@ -127,6 +127,39 @@ class LeitorFaturaPdfTest {
     }
 
     @Test
+    void leLayoutDoNubank() {
+        // Resumo com "Próximas faturas" e as transações na mesma página; final do cartão antes da loja
+        FaturaLida f = LeitorFaturaPdf.ler(List.of("""
+                Data de vencimento: 14 OUT 2026
+                Total a pagar R$ 249,48
+                PRÓXIMAS FATURAS
+                Fechamento da próxima fatura 07 NOV 2026
+                Saldo em aberto da próxima fatura R$ 958,38
+                TRANSAÇÕES DE 07 SET A 07 OUT
+                07 SET •••• 4939 Amazon Retail Br Cpi - Parcela 12/12 R$ 89,40
+                15 SET Raia Drogasil - NuPay R$ 25,48
+                15 SET Estorno de Raia Drogasil - NuPay −R$ 25,48
+                16 SET EBW*Spotify - NuPay R$ 23,90
+                24 SET IOF de "Patreon* Membership" R$ 0,91
+                01 OUT •••• 5321 Supermercado Schutze R$ 135,27
+                """), HOJE);
+
+        assertEquals(LocalDate.of(2026, 10, 14), f.vencimento());
+        assertEquals(6, f.lancamentos().size()); // a seção de próximas faturas termina no bloco de transações
+
+        Lancamento amazon = f.lancamentos().get(0);
+        assertEquals("Amazon Retail Br Cpi", amazon.descricao()); // sem o "•••• 4939"
+        assertEquals("Outros", amazon.categoria());
+        assertEquals(12, amazon.parcelaAtual());
+
+        assertTrue(f.lancamentos().get(2).credito()); // estorno com sinal de menos tipográfico
+        assertEquals("Lazer", f.lancamentos().get(3).categoria());
+        assertEquals("Contas & Serviços", f.lancamentos().get(4).categoria());
+        assertEquals("Supermercado Schutze", f.lancamentos().get(5).descricao());
+        assertEquals("Alimentação", f.lancamentos().get(5).categoria());
+    }
+
+    @Test
     void semVencimentoUsaHojeComoReferencia() {
         FaturaLida f = LeitorFaturaPdf.ler(List.of("01/10 PADARIA PAO QUENTE 12,50"), HOJE);
         assertNull(f.vencimento());

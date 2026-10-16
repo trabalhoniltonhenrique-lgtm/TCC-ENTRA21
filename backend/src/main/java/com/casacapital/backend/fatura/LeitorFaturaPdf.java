@@ -54,8 +54,16 @@ final class LeitorFaturaPdf {
             "^(?:COMPRAS PARCELADAS\\s*-?\\s*)?(?:PROXIMAS FATURAS|LANCAMENTOS FUTUROS|PARCELAS FUTURAS|"
                     + "PARCELAMENTOS FUTUROS|DEMAIS FATURAS|COMPRAS PARCELADAS\\s*-\\s*PROXIMAS)");
 
+    // Início de um bloco de compras: encerra uma seção de faturas futuras que veio antes na mesma página
+    private static final Pattern SECAO_COMPRAS = Pattern.compile(
+            "^(?:TRANSACOES|LANCAMENTOS)(?!.*FUTUR)|^DESPESAS DO MES|^COMPRAS NACIONAIS|^COMPRAS INTERNACIONAIS");
+
+    // "Vencimento: 14/10/2026" ou "Data de vencimento: 14 OUT 2026"
     private static final Pattern VENCIMENTO = Pattern.compile(
-            "VENCIMENTO[^0-9\\n]{0,40}(\\d{2})\\s*/\\s*(\\d{2})\\s*/\\s*(\\d{2,4})");
+            "VENCIMENTO[^0-9\\n]{0,40}(\\d{1,2})\\s*(?:/\\s*(\\d{2})\\s*/|\\s(" + MESES + ")[A-Z]*\\s)\\s*(\\d{2,4})");
+
+    // Final do cartão antes da loja: "•••• 4939 Amazon", "**** 4939 Amazon", "XXXX 4939 Amazon"
+    private static final Pattern FINAL_CARTAO = Pattern.compile("^(?:[•*X]{4}\\s*)(?:\\d{4}\\s+)?");
 
     // Em ordem de preferência: "Total desta fatura" antes de "Total da fatura anterior", que é outra coisa
     private static final Pattern[] TOTAL = {
@@ -118,6 +126,7 @@ final class LeitorFaturaPdf {
                 String linha = normalizar(bruta).replaceAll("\\s+", " ").trim();
                 if (linha.isEmpty()) continue;
                 if (SECAO_FUTURA.matcher(linha).find()) secaoFutura = true;
+                else if (SECAO_COMPRAS.matcher(linha).find()) secaoFutura = false;
                 if (secaoFutura) continue;
                 Lancamento l = lancamento(linha, bruta, referencia);
                 if (l != null) {
@@ -165,6 +174,7 @@ final class LeitorFaturaPdf {
             }
         }
 
+        descricao = FINAL_CARTAO.matcher(descricao).replaceFirst("");
         descricao = descricao.replaceAll("^[-*•\\s]+|[-*•\\s]+$", "");
         if (descricao.length() < 2 || IGNORAR.matcher(descricao).find()) return null;
 
@@ -207,8 +217,9 @@ final class LeitorFaturaPdf {
         Matcher m = VENCIMENTO.matcher(texto);
         while (m.find()) {
             try {
-                int a = Integer.parseInt(m.group(3));
-                return LocalDate.of(a < 100 ? 2000 + a : a, Integer.parseInt(m.group(2)), Integer.parseInt(m.group(1)));
+                int a = Integer.parseInt(m.group(4));
+                int mes = m.group(2) != null ? Integer.parseInt(m.group(2)) : ("|" + MESES + "|").indexOf("|" + m.group(3) + "|") / 4 + 1;
+                return LocalDate.of(a < 100 ? 2000 + a : a, mes, Integer.parseInt(m.group(1)));
             } catch (DateTimeException ignored) {
                 // tenta a próxima ocorrência
             }

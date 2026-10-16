@@ -20,7 +20,7 @@ final class CategorizadorDespesa {
                 "BK ", "SUBWAY", "HABIB", "OUTBACK", "CAFE", "CAFETERIA", "SORVETE", "DOCERIA", "BAR ", "EMPORIO",
                 "FEIRA", "BISTRO", "CHURRASC", "SUSHI", "ACAI"));
         PALAVRAS.put("Transporte", List.of("UBER", "99APP", "99 TAXI", "99POP", "CABIFY", "POSTO", "COMBUST",
-                "IPIRANGA", "SHELL", "PETROBRAS", " BR ", "ESTACION", "ESTAPAR", "SEM PARAR", "CONECTCAR", "VELOE",
+                "IPIRANGA", "SHELL", "PETROBRAS", "POSTO BR", "AUTO POSTO", "ESTACION", "ESTAPAR", "SEM PARAR", "CONECTCAR", "VELOE",
                 "PEDAGIO", "AUTOPASS", "METRO", "ONIBUS", "LATAM", "GOL LINHAS", "AZUL LINHAS", "AUTO PECAS",
                 "OFICINA", "PNEU", "LAVA JATO", "DETRAN", "IPVA"));
         PALAVRAS.put("Saúde", List.of("DROGARIA", "DROGA", "FARMA", "PANVEL", "PAGUE MENOS", "RAIA", "DROGASIL",
