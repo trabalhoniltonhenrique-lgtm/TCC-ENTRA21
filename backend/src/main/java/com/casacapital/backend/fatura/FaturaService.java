@@ -10,9 +10,8 @@ import com.casacapital.backend.despesa.Despesa;
 import com.casacapital.backend.despesa.DespesaRepository;
 import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
-import com.casacapital.backend.fatura.LeitorFaturaIA.FaturaExtraida;
-import com.casacapital.backend.fatura.LeitorFaturaIA.LancamentoExtraido;
-import com.casacapital.backend.fatura.LeitorFaturaIA.TipoArquivo;
+import com.casacapital.backend.fatura.LeitorFaturaPdf.FaturaLida;
+import com.casacapital.backend.fatura.LeitorFaturaPdf.Lancamento;
 import com.casacapital.backend.fatura.dto.FaturaAnaliseResponse;
 import com.casacapital.backend.fatura.dto.FaturaImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaImportResponse;
@@ -20,14 +19,13 @@ import com.casacapital.backend.fatura.dto.ItemFatura;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,31 +47,28 @@ public class FaturaService {
     private static final int MAX_PAGINAS = 60;
     private static final int MAX_PARCELAS = 99;
 
-    private final LeitorFaturaIA leitor;
     private final ContaRepository contaRepository;
     private final DespesaRepository despesaRepository;
     private final FamiliaRepository familiaRepository;
 
-    public FaturaService(LeitorFaturaIA leitor, ContaRepository contaRepository,
-                         DespesaRepository despesaRepository, FamiliaRepository familiaRepository) {
-        this.leitor = leitor;
+    public FaturaService(ContaRepository contaRepository, DespesaRepository despesaRepository,
+                         FamiliaRepository familiaRepository) {
         this.contaRepository = contaRepository;
         this.despesaRepository = despesaRepository;
         this.familiaRepository = familiaRepository;
     }
 
-    public boolean disponivel() {
-        return leitor.disponivel();
-    }
-
     // ── 1) Leitura + comparação com o que já está cadastrado (não grava nada) ──
 
     public FaturaAnaliseResponse analisar(Long familiaId, byte[] arquivo, String senha) {
-        TipoArquivo tipo = detectarTipo(arquivo);
-        byte[] conteudo = tipo == TipoArquivo.PDF ? abrirPdf(arquivo, senha) : arquivo;
-
-        FaturaExtraida fatura = leitor.ler(conteudo, tipo);
-        LocalDate vencimento = LeitorFaturaIA.data(fatura.vencimento());
+        List<List<String>> texto = extrairTexto(arquivo, senha);
+        FaturaLida fatura = LeitorFaturaPdf.lerMelhor(texto.get(0), texto.get(1), LocalDate.now());
+        if (fatura.lancamentos().isEmpty()) {
+            throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "SEM_LANCAMENTOS",
+                    "Não encontrei lançamentos neste PDF. Use o PDF original baixado do app ou site do banco "
+                            + "(PDF escaneado ou foto não funciona).");
+        }
+        LocalDate vencimento = fatura.vencimento();
         LocalDate dataPadrao = vencimento != null ? vencimento : LocalDate.now();
 
         Set<Long> contasUsadas = new HashSet<>();
@@ -81,32 +76,18 @@ public class FaturaService {
         List<ItemFatura> itens = new ArrayList<>();
         List<ItemFatura> creditos = new ArrayList<>();
 
-        for (LancamentoExtraido l : fatura.lancamentos() == null ? List.<LancamentoExtraido>of() : fatura.lancamentos()) {
-            BigDecimal valor = BigDecimal.valueOf(Math.abs(l.valor())).setScale(2, RoundingMode.HALF_UP);
-            if (valor.signum() == 0 || l.descricao() == null || l.descricao().isBlank()) continue;
-            String descricao = l.descricao().trim();
-            LocalDate dataCompra = LeitorFaturaIA.data(l.data());
-            String categoria = Categorias.DESPESA.contains(l.categoria()) ? l.categoria() : "Outros";
-
-            if ("CREDITO".equalsIgnoreCase(l.tipo())) {
-                creditos.add(new ItemFatura(dataCompra, descricao, valor, null, null, categoria, null, null, null));
-                continue;
-            }
-
-            boolean parcelado = l.parcelaTotal() >= 2 && l.parcelaAtual() >= 1 && l.parcelaAtual() <= l.parcelaTotal()
-                    && l.parcelaTotal() <= MAX_PARCELAS;
-            if (parcelado) {
-                itens.add(analisarParcela(familiaId, descricao, valor, l.parcelaAtual(), l.parcelaTotal(),
-                        categoria, dataCompra, dataPadrao, contasUsadas));
+        for (Lancamento l : fatura.lancamentos()) {
+            if (l.credito()) {
+                creditos.add(new ItemFatura(l.data(), l.descricao(), l.valor(), null, null, l.categoria(), null, null, null));
+            } else if (l.parcelaTotal() >= 2 && l.parcelaTotal() <= MAX_PARCELAS) {
+                itens.add(analisarParcela(familiaId, l.descricao(), l.valor(), l.parcelaAtual(), l.parcelaTotal(),
+                        l.categoria(), l.data(), dataPadrao, contasUsadas));
             } else {
-                LocalDate data = dataCompra != null ? dataCompra : dataPadrao;
-                itens.add(analisarAVista(familiaId, descricao, valor, data, categoria, despesasUsadas));
+                itens.add(analisarAVista(familiaId, l.descricao(), l.valor(), l.data(), l.categoria(), despesasUsadas));
             }
         }
 
-        BigDecimal total = fatura.total() > 0
-                ? BigDecimal.valueOf(fatura.total()).setScale(2, RoundingMode.HALF_UP) : null;
-        return new FaturaAnaliseResponse(fatura.emissor(), vencimento, total, itens, creditos);
+        return new FaturaAnaliseResponse(fatura.emissor(), vencimento, fatura.total(), itens, creditos);
     }
 
     private ItemFatura analisarParcela(Long familiaId, String descricao, BigDecimal valor, int atual, int total,
@@ -238,28 +219,18 @@ public class FaturaService {
 
     // ── Arquivo ──
 
-    private static TipoArquivo detectarTipo(byte[] b) {
-        if (b.length > 4 && b[0] == '%' && b[1] == 'P' && b[2] == 'D' && b[3] == 'F') return TipoArquivo.PDF;
-        if (b.length > 3 && (b[0] & 0xFF) == 0xFF && (b[1] & 0xFF) == 0xD8 && (b[2] & 0xFF) == 0xFF) return TipoArquivo.JPEG;
-        if (b.length > 8 && (b[0] & 0xFF) == 0x89 && b[1] == 'P' && b[2] == 'N' && b[3] == 'G') return TipoArquivo.PNG;
-        if (b.length > 12 && b[0] == 'R' && b[1] == 'I' && b[2] == 'F' && b[3] == 'F'
-                && b[8] == 'W' && b[9] == 'E' && b[10] == 'B' && b[11] == 'P') return TipoArquivo.WEBP;
-        throw new ApiException(HttpStatus.BAD_REQUEST, "ARQUIVO_INVALIDO",
-                "Envie a fatura em PDF ou uma foto (JPG, PNG ou WEBP).");
-    }
-
-    /** Abre o PDF (com a senha, se houver) e devolve uma cópia sem proteção para a IA conseguir ler. */
-    private static byte[] abrirPdf(byte[] arquivo, String senha) {
+    /** Abre o PDF (com a senha, se houver) e devolve o texto de cada página em duas ordens: a do arquivo e a da posição. */
+    private static List<List<String>> extrairTexto(byte[] arquivo, String senha) {
+        if (arquivo.length < 5 || arquivo[0] != '%' || arquivo[1] != 'P' || arquivo[2] != 'D' || arquivo[3] != 'F') {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "ARQUIVO_INVALIDO", "Envie a fatura em PDF.");
+        }
         try (PDDocument doc = senha == null || senha.isEmpty() ? Loader.loadPDF(arquivo) : Loader.loadPDF(arquivo, senha)) {
-            if (doc.getNumberOfPages() > MAX_PAGINAS) {
+            int paginas = doc.getNumberOfPages();
+            if (paginas > MAX_PAGINAS) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "FATURA_GRANDE_DEMAIS",
                         "O PDF tem páginas demais. Envie só as páginas da fatura.");
             }
-            if (!doc.isEncrypted()) return arquivo;
-            doc.setAllSecurityToBeRemoved(true);
-            ByteArrayOutputStream saida = new ByteArrayOutputStream();
-            doc.save(saida);
-            return saida.toByteArray();
+            return List.of(textoPorPagina(doc, false), textoPorPagina(doc, true));
         } catch (InvalidPasswordException e) {
             boolean semSenha = senha == null || senha.isEmpty();
             throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, semSenha ? "PDF_PROTEGIDO" : "SENHA_INCORRETA",
@@ -268,6 +239,18 @@ public class FaturaService {
         } catch (IOException e) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "PDF_INVALIDO", "Não foi possível abrir este PDF.");
         }
+    }
+
+    private static List<String> textoPorPagina(PDDocument doc, boolean ordenarPorPosicao) throws IOException {
+        PDFTextStripper leitor = new PDFTextStripper();
+        leitor.setSortByPosition(ordenarPorPosicao);
+        List<String> texto = new ArrayList<>();
+        for (int p = 1; p <= doc.getNumberOfPages(); p++) {
+            leitor.setStartPage(p);
+            leitor.setEndPage(p);
+            texto.add(leitor.getText(doc));
+        }
+        return texto;
     }
 
     // ── Comparação ──

@@ -178,7 +178,6 @@ FLUSH PRIVILEGES;
   <env name="DB_PASSWORD" value="$(X $dbPass)"/>
   <env name="MAIL_USERNAME" value="$(X $cfg["MAIL_USERNAME"])"/>
   <env name="MAIL_PASSWORD" value="$(X $cfg["MAIL_PASSWORD"])"/>
-  <env name="ANTHROPIC_API_KEY" value="$(X $cfg["ANTHROPIC_API_KEY"])"/>
   <env name="JWT_SECRET" value="$(X $jwt)"/>
 </service>
 "@

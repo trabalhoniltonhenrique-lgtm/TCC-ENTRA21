@@ -1,4 +1,4 @@
-// ── CasaCapital — fatura.js: importa a fatura do cartão (leitura por IA + revisão) ──
+// ── CasaCapital — fatura.js: importa a fatura do cartão em PDF (leitura + revisão) ──
 // Usa fmt, fmtD, mostrarToast e carregarContas de contas.js.
 
 const CATEGORIAS_DESPESA_FATURA = ['Alimentação', 'Moradia', 'Transporte', 'Saúde', 'Educação',
@@ -10,18 +10,11 @@ let faturaItens = [];    // itens editáveis da revisão: { ...item, sel }
 const escFatura = s => String(s ?? '').replace(/[&<>"']/g, ch =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
-async function abrirPainelFatura() {
+function abrirPainelFatura() {
   document.getElementById('formulario').classList.add('oculto');
   document.getElementById('painelFatura').classList.remove('oculto');
   voltarEnvioFatura();
   document.getElementById('painelFatura').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  try {
-    const st = await api.get('/faturas/status');
-    if (!st.disponivel) {
-      statusFatura('A leitura de faturas ainda não foi ativada neste sistema. Peça para configurar a chave da IA (ANTHROPIC_API_KEY) no instalador.', 'erro');
-      document.getElementById('btnLerFatura').disabled = true;
-    }
-  } catch { /* se falhar, o erro aparece ao tentar ler */ }
 }
 
 function fecharPainelFatura() {
@@ -57,7 +50,7 @@ async function lerFatura() {
 
   const btn = document.getElementById('btnLerFatura');
   btn.disabled = true;
-  statusFatura('Lendo a fatura… isso pode levar até um minuto.', 'carregando');
+  statusFatura('Lendo a fatura…', 'carregando');
   try {
     faturaLida = await apiRequest('POST', '/faturas/analisar', dados);
     faturaItens = faturaLida.itens.map(it => ({ ...it, sel: it.acao !== 'JA_IMPORTADA' }));

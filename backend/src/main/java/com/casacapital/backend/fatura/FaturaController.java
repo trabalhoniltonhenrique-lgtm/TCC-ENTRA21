@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/faturas")
@@ -30,12 +28,7 @@ public class FaturaController {
         this.service = service;
     }
 
-    @GetMapping("/status")
-    public Map<String, Boolean> status() {
-        return Map.of("disponivel", service.disponivel());
-    }
-
-    /** Lê a fatura e devolve os lançamentos para revisão — ainda não grava nada. */
+    /** Lê a fatura em PDF e devolve os lançamentos para revisão — ainda não grava nada. */
     @PostMapping(value = "/analisar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public FaturaAnaliseResponse analisar(@AuthenticationPrincipal SecurityUser user,
                                           @RequestParam("arquivo") MultipartFile arquivo,

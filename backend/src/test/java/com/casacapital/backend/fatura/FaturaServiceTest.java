@@ -7,20 +7,22 @@ import com.casacapital.backend.despesa.Despesa;
 import com.casacapital.backend.despesa.DespesaRepository;
 import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
-import com.casacapital.backend.fatura.LeitorFaturaIA.FaturaExtraida;
-import com.casacapital.backend.fatura.LeitorFaturaIA.LancamentoExtraido;
 import com.casacapital.backend.fatura.dto.FaturaAnaliseResponse;
 import com.casacapital.backend.fatura.dto.FaturaImportRequest;
 import com.casacapital.backend.fatura.dto.FaturaImportResponse;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -41,11 +43,9 @@ import static org.mockito.Mockito.when;
 class FaturaServiceTest {
 
     private static final long FAMILIA = 1L;
-    private static final byte[] PDF_FALSO = pdfEmBranco();
 
     private ContaRepository contas;
     private DespesaRepository despesas;
-    private FaturaExtraida lida;
     private FaturaService service;
 
     @BeforeEach
@@ -57,22 +57,11 @@ class FaturaServiceTest {
         when(contas.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(contas.findAllByFamiliaIdAndParcelaNumAndParcelaTotal(eq(FAMILIA), anyInt(), anyInt())).thenReturn(List.of());
         when(despesas.findAllByFamiliaIdAndData(eq(FAMILIA), any())).thenReturn(List.of());
-
-        LeitorFaturaIA leitor = new LeitorFaturaIA("chave-teste", "claude-opus-5-5") {
-            @Override
-            public FaturaExtraida ler(byte[] arquivo, TipoArquivo tipo) {
-                return lida;
-            }
-        };
-        service = new FaturaService(leitor, contas, despesas, familias);
-    }
-
-    private static LancamentoExtraido lanc(String data, String desc, double valor, int atual, int total, String cat, String tipo) {
-        return new LancamentoExtraido(data, desc, valor, atual, total, cat, tipo);
+        service = new FaturaService(contas, despesas, familias);
     }
 
     @Test
-    void classificaLancamentosEReconheceOQueJaExiste() {
+    void leOPdfEReconheceOQueJaExiste() throws Exception {
         Conta parcelaPendente = conta(40L, "GELADEIRA NOVA (3/10)", "450.00", false);
         when(contas.findAllByFamiliaIdAndParcelaNumAndParcelaTotal(FAMILIA, 3, 10)).thenReturn(List.of(parcelaPendente));
         Despesa netflix = new Despesa();
@@ -81,24 +70,26 @@ class FaturaServiceTest {
         netflix.setValor(new BigDecimal("55.90"));
         when(despesas.findAllByFamiliaIdAndData(FAMILIA, LocalDate.of(2026, 9, 10))).thenReturn(List.of(netflix));
 
-        lida = new FaturaExtraida("Nubank", "2026-10-20", 1000, List.of(
-                lanc("2026-09-14", "MERCADO EXTRA", 312.45, 0, 0, "Alimentação", "COMPRA"),
-                lanc("2026-07-01", "GELADEIRA NOVA", 450.00, 3, 10, "Moradia", "COMPRA"),
-                lanc("2026-09-18", "MAGAZINE LUIZA", 199.90, 1, 6, "Categoria inventada", "COMPRA"),
-                lanc("2026-09-10", "NETFLIX.COM", 55.90, 0, 0, "Lazer", "COMPRA"),
-                lanc("2026-09-20", "ESTORNO LOJA X", 30.00, 0, 0, "Outros", "CREDITO")));
+        byte[] pdf = pdf(null,
+                "Nubank - Vencimento 20/10/2026",
+                "14/09 MERCADO EXTRA 312,45",
+                "01/07 GELADEIRA NOVA 03/10 450,00",
+                "18/09 MAGAZINE LUIZA 01/06 199,90",
+                "10/09 NETFLIX.COM 55,90",
+                "20/09 ESTORNO LOJA X -30,00");
 
-        FaturaAnaliseResponse r = service.analisar(FAMILIA, PDF_FALSO, null);
+        FaturaAnaliseResponse r = service.analisar(FAMILIA, pdf, null);
 
+        assertEquals("Nubank", r.emissor());
         assertEquals(LocalDate.of(2026, 10, 20), r.vencimento());
         assertEquals(4, r.itens().size());
         assertEquals(1, r.creditos().size());
         assertEquals(FaturaService.NOVA_DESPESA, r.itens().get(0).acao());
+        assertEquals("Alimentação", r.itens().get(0).categoria());
         assertEquals(FaturaService.QUITAR_PARCELA, r.itens().get(1).acao());
         assertEquals(40L, r.itens().get(1).contaId());
         assertEquals(LocalDate.of(2026, 10, 20), r.itens().get(1).data()); // parcela > 1 entra no vencimento
         assertEquals(FaturaService.NOVA_PARCELADA, r.itens().get(2).acao());
-        assertEquals("Outros", r.itens().get(2).categoria());
         assertEquals(LocalDate.of(2026, 9, 18), r.itens().get(2).data()); // 1ª parcela entra na data da compra
         assertEquals(FaturaService.JA_IMPORTADA, r.itens().get(3).acao());
     }
@@ -139,16 +130,7 @@ class FaturaServiceTest {
 
     @Test
     void pdfComSenhaPedeSenhaEAbreComASenhaCerta() throws Exception {
-        byte[] protegido;
-        try (PDDocument doc = new PDDocument(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            doc.addPage(new PDPage());
-            StandardProtectionPolicy politica = new StandardProtectionPolicy("dono", "12345", new AccessPermission());
-            politica.setEncryptionKeyLength(128);
-            doc.protect(politica);
-            doc.save(out);
-            protegido = out.toByteArray();
-        }
-        lida = new FaturaExtraida("Itaú", "", 0, List.of());
+        byte[] protegido = pdf("12345", "10/09 PADARIA 12,50");
 
         ApiException semSenha = assertThrows(ApiException.class, () -> service.analisar(FAMILIA, protegido, null));
         assertEquals("PDF_PROTEGIDO", semSenha.getCode());
@@ -158,18 +140,41 @@ class FaturaServiceTest {
     }
 
     @Test
-    void recusaArquivoQueNaoEPdfNemImagem() {
+    void recusaArquivoQueNaoEPdf() {
         ApiException e = assertThrows(ApiException.class, () -> service.analisar(FAMILIA, "oi".getBytes(), null));
         assertEquals("ARQUIVO_INVALIDO", e.getCode());
     }
 
-    private static byte[] pdfEmBranco() {
+    @Test
+    void avisaQuandoOPdfNaoTemLancamentos() throws Exception {
+        byte[] semTexto = pdf(null, "Fatura escaneada sem lancamentos legiveis");
+        ApiException e = assertThrows(ApiException.class, () -> service.analisar(FAMILIA, semTexto, null));
+        assertEquals("SEM_LANCAMENTOS", e.getCode());
+    }
+
+    /** Gera um PDF com uma linha de texto por item (senha opcional). */
+    private static byte[] pdf(String senha, String... linhas) throws IOException {
         try (PDDocument doc = new PDDocument(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            doc.addPage(new PDPage());
+            PDPage pagina = new PDPage();
+            doc.addPage(pagina);
+            try (PDPageContentStream cs = new PDPageContentStream(doc, pagina)) {
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 10);
+                float y = 750;
+                for (String linha : linhas) {
+                    cs.beginText();
+                    cs.newLineAtOffset(50, y);
+                    cs.showText(linha);
+                    cs.endText();
+                    y -= 14;
+                }
+            }
+            if (senha != null) {
+                StandardProtectionPolicy politica = new StandardProtectionPolicy("dono", senha, new AccessPermission());
+                politica.setEncryptionKeyLength(128);
+                doc.protect(politica);
+            }
             doc.save(out);
             return out.toByteArray();
-        } catch (java.io.IOException e) {
-            throw new IllegalStateException(e);
         }
     }
 

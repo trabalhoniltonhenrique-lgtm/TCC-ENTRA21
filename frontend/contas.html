@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <!-- Importar fatura do cartão (leitura por IA + revisão antes de salvar) -->
+  <!-- Importar fatura do cartão em PDF (leitura + revisão antes de salvar) -->
   <div id="painelFatura" class="oculto bloco-fatura">
     <div class="card">
       <div class="fatura-topo">
@@ -34,10 +34,10 @@
       </div>
 
       <div id="faturaEnvio">
-        <p class="fatura-ajuda">Envie o PDF da fatura (ou uma foto legível). O sistema lê os lançamentos e mostra tudo
-          para você revisar. Nada é salvo antes da sua confirmação.</p>
+        <p class="fatura-ajuda">Envie o PDF da fatura baixado do app ou site do banco. O sistema lê os lançamentos e
+          mostra tudo para você revisar. Nada é salvo antes da sua confirmação.</p>
         <div class="fatura-envio-linha">
-          <input id="fArquivoFatura" type="file" accept="application/pdf,image/jpeg,image/png,image/webp">
+          <input id="fArquivoFatura" type="file" accept="application/pdf">
           <div id="campoSenhaFatura" class="oculto">
             <label for="fSenhaFatura">Senha do PDF</label>
             <input id="fSenhaFatura" type="password" autocomplete="off" placeholder="Geralmente parte do CPF">
