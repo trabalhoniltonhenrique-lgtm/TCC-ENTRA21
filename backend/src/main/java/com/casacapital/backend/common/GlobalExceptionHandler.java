@@ -1,6 +1,9 @@
 package com.casacapital.backend.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
@@ -39,6 +44,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        // Erros de requisição do próprio Spring (arquivo/rota inexistente, método não permitido, parâmetro
+        // faltando…) já trazem o status certo (404, 405, 400…): devolve esse status em vez de 500.
+        if (ex instanceof org.springframework.web.ErrorResponse erro && erro.getStatusCode().value() < 500) {
+            HttpStatusCode status = erro.getStatusCode();
+            String mensagem = switch (status.value()) {
+                case 404 -> "Recurso não encontrado.";
+                case 405 -> "Método não permitido para este endereço.";
+                case 415 -> "Formato de dados não suportado.";
+                default -> "Requisição inválida.";
+            };
+            return ResponseEntity.status(status)
+                    .body(ErrorResponse.of(status.value() == 404 ? "NOT_FOUND" : "REQUEST_ERROR", mensagem));
+        }
+        log.error("Erro inesperado", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of("INTERNAL_ERROR", "Ocorreu um erro inesperado."));
     }
