@@ -34,14 +34,14 @@ final class CategorizadorDespesa {
                 "CLUBE", "ACADEMIA", "SMART FIT", "BLUEFIT"));
         PALAVRAS.put("Vestuário", List.of("RENNER", "RIACHUELO", "C&A", "CEA ", "MARISA", "ZARA", "HERING",
                 "CENTAURO", "NETSHOES", "DAFITI", "SHEIN", "CALCADOS", "SAPATARIA", "MODA", "BOUTIQUE", "ROUPA",
-                "NIKE", "ADIDAS", "AREZZO", "VIVARA"));
+                "NIKE", "ADIDAS", "AREZZO", "VIVARA", "ROMMANEL", "PANDORA"));
         PALAVRAS.put("Contas & Serviços", List.of("ANUIDADE", "IOF", "JUROS", "MULTA", "ENCARGO", "TARIFA",
                 "SEGURO", "VIVO", "CLARO", "TIM ", "OI ", "NET ", "SKY", "INTERNET", "TELEFON", "ENERGIA", "CEMIG",
                 "ENEL", "LIGHT", "COPEL", "SABESP", "COPASA", "SANEAMENTO", "GOOGLE", "APPLE.COM", "MICROSOFT",
                 "AMAZON PRIME", "ICLOUD", "DROPBOX"));
         PALAVRAS.put("Moradia", List.of("CONDOMINIO", "ALUGUEL", "IMOBILIARIA", "LEROY", "TELHANORTE",
                 "MATERIAIS DE CONSTRUCAO", "MAT CONSTR", "CASA E CONSTRUCAO", "TOK STOK", "TOKSTOK", "ETNA",
-                "CAMICADO", "MOVEIS", "ELETRO", "COLCHAO"));
+                "CAMICADO", "BENOIT", "MOVEIS", "ELETRO", "COLCHAO"));
     }
 
     private CategorizadorDespesa() {

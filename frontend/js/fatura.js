@@ -190,13 +190,20 @@ function atualizarResumoFatura() {
   const novas = selecionados.filter(it => it.parcelaTotal && !it.contaId && it.parcelaAtual < it.parcelaTotal).length;
 
   // Confere a leitura: lançamentos − créditos deve bater com o total impresso na fatura
+  // (ou com a soma das compras impressa pelo banco, quando o total a pagar já desconta um pagamento antecipado)
   let conferencia = '';
-  if (faturaLida.total) {
+  if (faturaLida.total || faturaLida.totalLancamentos) {
     const lido = somaTodos - somaCred;
-    const diff = Math.abs(lido - Number(faturaLida.total));
-    conferencia = diff <= 0.05
-      ? `<span class="fatura-ok"><span class="ico ico-check-circle"></span> Soma dos lançamentos confere com o total da fatura</span>`
-      : `<span class="fatura-alerta"><span class="ico ico-alert-triangle"></span> Lançamentos somam ${fmt(lido)}, mas a fatura diz ${fmt(faturaLida.total)}. Confira se faltou algo.</span>`;
+    const bate = v => v != null && Math.abs(lido - Number(v)) <= 0.05;
+    if (bate(faturaLida.total)) {
+      conferencia = `<span class="fatura-ok"><span class="ico ico-check-circle"></span> Soma dos lançamentos confere com o total da fatura</span>`;
+    } else if (bate(faturaLida.totalLancamentos)) {
+      conferencia = `<span class="fatura-ok"><span class="ico ico-check-circle"></span> Soma dos lançamentos confere com as despesas do mês (${fmt(faturaLida.totalLancamentos)})` +
+        (faturaLida.total ? `. O total a pagar é menor porque parte da fatura já foi paga antes.` : '') + `</span>`;
+    } else {
+      const esperado = faturaLida.totalLancamentos ?? faturaLida.total;
+      conferencia = `<span class="fatura-alerta"><span class="ico ico-alert-triangle"></span> Lançamentos somam ${fmt(lido)}, mas a fatura diz ${fmt(esperado)}. Confira se faltou algo.</span>`;
+    }
   }
 
   document.getElementById('faturaResumo').innerHTML = `

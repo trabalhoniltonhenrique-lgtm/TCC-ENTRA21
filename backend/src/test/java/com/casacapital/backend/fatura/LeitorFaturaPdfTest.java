@@ -160,6 +160,50 @@ class LeitorFaturaPdfTest {
     }
 
     @Test
+    void leLayoutDoInter() {
+        // Datas "16 de jun. 2026", " - R$" como separador, "- + R$" no pagamento, rótulos com o valor na linha de baixo,
+        // e o total a pagar menor que as compras porque parte foi antecipada
+        FaturaLida f = LeitorFaturaPdf.ler(List.of("""
+                Total da sua fatura
+                R$ 63,40
+                Data de Vencimento
+                22/10/2026
+                Valor total financiado R$ 50,00
+                Faça o pagamento pela conta do Inter ou via Pix.
+                SR. CAIXA FAVOR NÃO ACEITAR PAGAMENTO APÓS O VENCIMENTO
+                BENEFICIÁRIO BANCO INTER S/A
+                """, """
+                Descritivo detalhado
+                Despesas do mês R$ 163,40
+                CARTÃO 2306****1111
+                Data Movimentação Beneficiário Valor
+                16 de jun. 2026 LOJAS BENOIT (Parcela 04 de 10) - R$ 100,00
+                22 de set. 2026 PAGAMENTO ON LINE - + R$ 100,00
+                21 de set. 2026 DL*UberRides - R$ 55,45
+                27 de set. 2026 IFD*IFOOD CLUB - R$ 7,95
+                Total CARTÃO 2306****1111 R$ 163,40
+                Próxima fatura
+                LOJAS BENOIT (Parcela 05 de 10) R$ 100,00
+                """), HOJE);
+
+        assertEquals("Inter", f.emissor()); // "SR. CAIXA" do boleto não conta
+        assertEquals(LocalDate.of(2026, 10, 22), f.vencimento());
+        assertEquals(new BigDecimal("63.40"), f.total()); // não o "valor total financiado"
+        assertEquals(new BigDecimal("163.40"), f.totalLancamentos());
+        assertEquals(3, f.lancamentos().size()); // o pagamento antecipado fica de fora
+
+        Lancamento benoit = f.lancamentos().get(0);
+        assertEquals(LocalDate.of(2026, 6, 16), benoit.data());
+        assertEquals("LOJAS BENOIT", benoit.descricao());
+        assertEquals(4, benoit.parcelaAtual());
+        assertEquals(10, benoit.parcelaTotal());
+        assertFalse(benoit.credito()); // " - R$" é separador, não sinal de menos
+
+        assertEquals("Transporte", f.lancamentos().get(1).categoria());
+        assertEquals("Alimentação", f.lancamentos().get(2).categoria());
+    }
+
+    @Test
     void semVencimentoUsaHojeComoReferencia() {
         FaturaLida f = LeitorFaturaPdf.ler(List.of("01/10 PADARIA PAO QUENTE 12,50"), HOJE);
         assertNull(f.vencimento());

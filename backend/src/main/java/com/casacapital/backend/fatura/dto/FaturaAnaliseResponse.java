@@ -13,17 +13,21 @@ public record FaturaAnaliseResponse(
         String emissor,
         LocalDate vencimento,
         BigDecimal total,
+        // Soma das compras impressa pelo banco ("Despesas do mês"); difere do total quando houve pagamento antecipado
+        BigDecimal totalLancamentos,
         List<ItemFatura> itens,
         List<ItemFatura> creditos,
         ContaConsumo conta
 ) {
     public static FaturaAnaliseResponse cartao(String emissor, LocalDate vencimento, BigDecimal total,
-                                               List<ItemFatura> itens, List<ItemFatura> creditos) {
-        return new FaturaAnaliseResponse("CARTAO", emissor, vencimento, total, itens, creditos, null);
+                                               BigDecimal totalLancamentos, List<ItemFatura> itens,
+                                               List<ItemFatura> creditos) {
+        return new FaturaAnaliseResponse("CARTAO", emissor, vencimento, total, totalLancamentos, itens, creditos, null);
     }
 
     public static FaturaAnaliseResponse contaConsumo(ContaConsumo conta) {
-        return new FaturaAnaliseResponse("CONTA_CONSUMO", null, conta.vencimento(), conta.valor(), List.of(), List.of(), conta);
+        return new FaturaAnaliseResponse("CONTA_CONSUMO", null, conta.vencimento(), conta.valor(), null,
+                List.of(), List.of(), conta);
     }
 
     /**

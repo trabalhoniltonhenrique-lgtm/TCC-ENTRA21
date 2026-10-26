@@ -96,7 +96,8 @@ public class FaturaService {
             }
         }
 
-        return FaturaAnaliseResponse.cartao(fatura.emissor(), vencimento, fatura.total(), itens, creditos);
+        return FaturaAnaliseResponse.cartao(fatura.emissor(), vencimento, fatura.total(), fatura.totalLancamentos(),
+                itens, creditos);
     }
 
     private FaturaAnaliseResponse analisarContaConsumo(Long familiaId, ContaLida lida) {
