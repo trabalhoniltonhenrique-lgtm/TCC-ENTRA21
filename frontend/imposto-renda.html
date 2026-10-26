@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Imposto de Renda</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/cores.js"></script>
+<script src="js/header.js"></script>
+<div class="container pagina-resumo">
+
+  <div class="metas-cabecalho cabecalho-resumo">
+    <div>
+      <h2><span class="ico ico-file-text"></span> Ajuda para o Imposto de Renda</h2>
+      <p>O que o sistema tem do ano para consultar na hora da declaração.</p>
+    </div>
+    <div class="cabecalho-acoes">
+      <select id="irAno" aria-label="Ano-calendário"></select>
+      <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Imprimir / PDF</button>
+    </div>
+  </div>
+
+  <div class="aviso-ir">
+    <span class="ico ico-alert-circle"></span>
+    <span>É uma <strong>ajuda para organizar</strong> a declaração, montada com o que foi lançado no sistema. Os valores oficiais
+      vêm dos <strong>informes de rendimentos</strong> (empregador, bancos, corretoras) e dos recibos. A classificação de
+      dedutível é uma orientação geral: confira as regras do ano no programa da Receita ou com um contador.</span>
+  </div>
+
+  <div id="irConteudo" class="resumo-conteudo"><p class="dica-planejamento">Carregando…</p></div>
+</div>
+<script src="js/imposto-renda.js"></script>
+<script src="js/relatorio-modulo.js"></script>
+</body>
+</html>

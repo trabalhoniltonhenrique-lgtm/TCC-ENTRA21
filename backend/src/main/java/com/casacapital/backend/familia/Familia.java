@@ -69,6 +69,10 @@ public class Familia {
     @Column(name = "cdi_anual", precision = 6, scale = 3)
     private java.math.BigDecimal cdiAnual;
 
+    /** Enviar o fechamento do mês por e-mail (todo dia 1) para os usuários da família. */
+    @Column(name = "fechamento_email", nullable = false)
+    private boolean fechamentoEmail = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

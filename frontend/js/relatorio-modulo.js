@@ -237,6 +237,64 @@
       },
     },
 
+    'fechamento.html': {
+      titulo: 'Fechamento do mês',
+      async montar() {
+        const r = window.__dadosFechamento;
+        if (!r) throw new Error('Aguarde o fechamento carregar.');
+        const varTxt = v => v == null ? '—' : (v > 0 ? '+' : '') + String(v).replace('.', ',') + '%';
+        return {
+          periodo: nomeMes(r.mes),
+          resumo: [
+            { rotulo: 'Receitas', valor: dinheiro(r.receitas) },
+            { rotulo: 'Despesas', valor: dinheiro(r.despesas) + (r.variacaoDespesasPct != null ? ' (' + varTxt(r.variacaoDespesasPct) + ')' : '') },
+            { rotulo: 'Saldo do mês', valor: dinheiro(r.saldo) },
+            ...(r.patrimonio ? [{ rotulo: 'Patrimônio', valor: dinheiro(r.patrimonio.total) }] : []),
+          ],
+          secoes: [
+            { titulo: 'Despesas por categoria', colunas: ['Categoria', 'No mês', 'Mês anterior', 'Variação'], direita: [1, 2, 3],
+              linhas: r.categorias.map(c => [c.categoria, dinheiro(c.valor), dinheiro(c.anterior), varTxt(c.variacaoPct)]) },
+            { titulo: 'Maiores despesas', colunas: ['Data', 'Descrição', 'Categoria', 'Valor'], direita: [3],
+              linhas: r.maioresDespesas.map(d => [data(d.data), d.nome, d.categoria, dinheiro(d.valor)]) },
+            { titulo: 'Orçamento', colunas: ['Categoria', 'Limite', 'Gasto', 'Situação'], direita: [1, 2],
+              linhas: r.orcamento.map(o => [o.categoria, dinheiro(o.limite), dinheiro(o.gasto), o.estourou ? 'Passou do limite' : 'Dentro do limite']) },
+            { titulo: 'Metas', colunas: ['Meta', 'Guardado no mês', 'Total', 'Objetivo', 'Progresso'], direita: [1, 2, 3, 4],
+              linhas: r.metas.map(m => [m.nome, dinheiro(m.aportadoNoMes), dinheiro(m.totalPoupado), dinheiro(m.valorAlvo), m.pct + '%']) },
+            { titulo: 'Assinaturas cobradas', colunas: ['Assinatura', 'Valor', 'Aumento'], direita: [1, 2],
+              linhas: r.assinaturas.itens.map(a => [a.nome, dinheiro(a.valor), varTxt(a.aumentoPct)]) },
+          ],
+        };
+      },
+    },
+
+    'imposto-renda.html': {
+      titulo: 'Imposto de Renda',
+      async montar() {
+        const r = window.__dadosIR;
+        if (!r) throw new Error('Aguarde o relatório carregar.');
+        const sit = { PROVAVEL: 'Provavelmente dedutível', NAO: 'Em geral não dedutível', CONFERIR: 'Conferir' };
+        const itens = d => d.itens.map(i => [data(i.data), i.descricao, i.pessoa, dinheiro(i.valor), sit[i.situacao]]);
+        const colItens = ['Data', 'Descrição', 'Pessoa', 'Valor', 'Situação'];
+        return {
+          periodo: 'Ano-calendário ' + r.ano + ' (declaração de ' + (r.ano + 1) + ')',
+          resumo: [
+            { rotulo: 'Rendimentos lançados', valor: dinheiro(r.rendimentos.total) },
+            { rotulo: 'Saúde provavelmente dedutível', valor: dinheiro(r.saude.totalProvavel) },
+            { rotulo: 'Educação provavelmente dedutível', valor: dinheiro(r.educacao.totalProvavel) },
+          ],
+          secoes: [
+            { titulo: 'Rendimentos por tipo', colunas: ['Tipo', 'Valor'], direita: [1], linhas: r.rendimentos.porCategoria.map(t => [t.nome, dinheiro(t.valor)]) },
+            { titulo: 'Rendimentos por pessoa', colunas: ['Pessoa', 'Valor'], direita: [1], linhas: r.rendimentos.porPessoa.map(t => [t.nome, dinheiro(t.valor)]) },
+            { titulo: 'Saúde', colunas: colItens, direita: [3], linhas: itens(r.saude) },
+            { titulo: 'Educação', colunas: colItens, direita: [3], linhas: itens(r.educacao) },
+            { titulo: 'Bens e direitos (aplicados até 31/12/' + r.ano + ')', colunas: ['Investimento', 'Tipo', 'Instituição', 'Aplicação', 'Valor aplicado', 'Valor atual'],
+              direita: [4, 5], linhas: r.bens.map(b => [b.nome, b.tipo, b.instituicao || '—', data(b.dataAplicacao), dinheiro(b.valorAplicado), dinheiro(b.valorAtual)]) },
+            { titulo: 'Observação', colunas: ['Atenção'], linhas: [['Ajuda para organizar a declaração com o que foi lançado no sistema. Os valores oficiais vêm dos informes de rendimentos e recibos; confira as regras do ano.']] },
+          ],
+        };
+      },
+    },
+
     'alertas.html': {
       titulo: 'Alertas de Limite',
       async montar() {

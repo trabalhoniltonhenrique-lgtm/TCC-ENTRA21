@@ -1663,3 +1663,49 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
   /* Textos pequenos ficam legíveis */
   .badge-plano-header-nav, .selo-assin, .tag-tipo-inv, .fluxo-itens em { font-size:11px; }
 }
+
+/* ── Fechamento do mês e Imposto de Renda ── */
+.pagina-resumo { padding-bottom:1.5rem; }
+.cabecalho-resumo { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:.75rem; }
+.cabecalho-resumo select { width:auto; margin:0; }
+.resumo-conteudo { padding:0 1.25rem; }
+.resumo-conteudo .resumo-topo { margin-bottom:.5rem; }
+.resumo-grade { padding:.75rem 0 0; }
+.resumo-grade > * { min-width:0; } /* tabelas largas rolam dentro do cartão, sem alargar a página */
+@media (min-width:900px) { .resumo-grade { grid-template-columns:1fr 1fr; } }
+.resumo-grade h3 { font-size:1rem; margin:0 0 .6rem; color:var(--texto-primario); }
+.lista-resumo { list-style:none; margin:0; padding:0; font-size:.86rem; }
+.lista-resumo li { display:flex; justify-content:space-between; align-items:center; gap:.75rem; padding:.4rem 0; border-top:1px solid var(--borda-leve); }
+.lista-resumo li span { color:var(--texto-secundario); min-width:0; }
+.lista-resumo li small { color:var(--texto-suave); font-size:.74rem; }
+.lista-resumo li strong { white-space:nowrap; color:var(--texto-primario); }
+.var-boa { color:var(--verde) !important; font-weight:600; }
+.var-ruim { color:var(--vermelho) !important; font-weight:600; }
+.var-neutra { color:var(--texto-suave); }
+.config-email-fechamento { margin:1rem 1.25rem 0; }
+.config-email-fechamento h3 { font-size:1rem; margin:0 0 .5rem; }
+.config-email-fechamento button { width:auto; margin-top:.4rem; }
+.aviso-ir { display:flex; gap:.6rem; align-items:flex-start; margin:0 1.25rem 1rem; padding:.75rem .9rem; border-radius:10px; font-size:.84rem;
+  background:var(--azul-claro); color:var(--texto-secundario); }
+.aviso-ir .ico { flex:0 0 auto; margin-top:2px; color:var(--azul); }
+.subtitulo-ir { font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--texto-suave); margin:.9rem 0 .3rem; }
+.resumo-topo-compacto { margin-bottom:.4rem; }
+.resumo-topo-compacto .num { font-size:1.15rem; }
+.tabela-ir-wrap { overflow-x:auto; border:1px solid var(--borda-leve); border-radius:10px; }
+.tabela-ir { width:100%; border-collapse:collapse; font-size:.82rem; min-width:520px; }
+.tabela-ir th { text-align:left; background:var(--bg-borda-leve); color:var(--texto-suave); font-weight:600; padding:.45rem .55rem; white-space:nowrap; }
+.tabela-ir td { padding:.4rem .55rem; border-top:1px solid var(--borda-leve); color:var(--texto-secundario); }
+.tabela-ir .dir { text-align:right; white-space:nowrap; }
+.sit-ir { display:inline-block; font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap; cursor:help; }
+.sit-provavel { background:color-mix(in srgb, var(--verde) 14%, transparent); color:var(--verde); }
+.sit-nao { background:color-mix(in srgb, var(--vermelho) 12%, transparent); color:var(--vermelho); }
+.sit-conferir { background:color-mix(in srgb, #F59E0B 18%, transparent); color:#B45309; }
+.atalhos-financas { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; }
+.atalho-financas { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; font-size:.86rem; font-weight:600;
+  border:1.5px solid var(--borda-leve); color:var(--azul); background:var(--bg-card); text-decoration:none; }
+.atalho-financas:hover { background:var(--bg-hover); }
+.aviso-fechamento { margin:0 1.25rem; padding:.65rem .9rem; border-radius:10px; font-size:.86rem; display:flex; flex-wrap:wrap; gap:.4rem; align-items:center;
+  background:var(--azul-claro); color:var(--texto-primario); border:1px solid color-mix(in srgb, var(--azul) 30%, transparent); }
+.aviso-fechamento a { margin-left:auto; font-weight:600; white-space:nowrap; }
+.aviso-assinaturas + .aviso-fechamento:not(.oculto) { margin-top:.5rem; }
+@media (max-width:640px) { .atalho-financas { min-height:40px; } .cabecalho-resumo select { width:100%; } }

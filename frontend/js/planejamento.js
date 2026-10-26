@@ -89,5 +89,18 @@
     else cardF.innerHTML = '<h2>Fluxo de caixa</h2><p class="dica-planejamento">Não foi possível calcular agora.</p>';
   }
 
+  // Do dia 1 ao 10, lembra que o fechamento do mês anterior está pronto
+  function avisoFechamento() {
+    const el = document.getElementById('avisoFechamento');
+    const hoje = new Date();
+    if (!el || hoje.getDate() > 10) return;
+    const ant = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 15);
+    const chave = `${ant.getFullYear()}-${String(ant.getMonth() + 1).padStart(2, '0')}`;
+    el.innerHTML = `<span class="ico ico-calendar-days"></span> <span>O fechamento de <strong>${nomeMesLongo(chave).toLowerCase()}</strong> está pronto.</span>
+      <a href="fechamento.html?mes=${chave}">Ver fechamento →</a>`;
+    el.classList.remove('oculto');
+  }
+
   document.addEventListener('casacapital-dados-carregados', carregar);
+  document.addEventListener('casacapital-dados-carregados', avisoFechamento);
 })();

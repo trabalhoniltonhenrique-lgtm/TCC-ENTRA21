@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Fechamento do mês</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/cores.js"></script>
+<script src="js/header.js"></script>
+<div class="container pagina-resumo">
+
+  <div class="metas-cabecalho cabecalho-resumo">
+    <div>
+      <h2><span class="ico ico-calendar-days"></span> Fechamento do mês</h2>
+      <p>Como foi o mês: entradas e saídas, onde o dinheiro foi, metas, assinaturas e patrimônio.</p>
+    </div>
+    <div class="cabecalho-acoes">
+      <select id="fechMes" aria-label="Mês do fechamento"></select>
+      <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Imprimir / PDF</button>
+    </div>
+  </div>
+
+  <div id="fechConteudo" class="resumo-conteudo"><p class="dica-planejamento">Carregando…</p></div>
+
+  <div class="card-box config-email-fechamento">
+    <h3><span class="ico ico-bell"></span> Receber por e-mail</h3>
+    <label class="fatura-check"><input type="checkbox" id="fechEmailAtivo">
+      <span>Enviar o fechamento do mês anterior por e-mail todo dia 1 (ou assim que o computador for ligado)</span></label>
+    <p id="fechEmailInfo" class="config-desc"></p>
+    <button id="btnEnviarFechamento" class="btn-secundario">Enviar este fechamento agora</button>
+  </div>
+</div>
+<script src="js/fechamento.js"></script>
+<script src="js/relatorio-modulo.js"></script>
+</body>
+</html>
