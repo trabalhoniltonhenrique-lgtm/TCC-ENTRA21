@@ -204,6 +204,55 @@ class LeitorFaturaPdfTest {
     }
 
     @Test
+    void leLayoutDaCaixa() {
+        // Letra D/C colada no valor, parcela "04 DE 05" sem a palavra parcela, anuidade sem data, "CARTÕES CAIXA"
+        FaturaLida f = LeitorFaturaPdf.ler(List.of("""
+                VENCIMENTO
+                23/09/2026
+                VALOR TOTAL DESTA FATURA
+                R$ 330,43
+                CARTÕES CAIXA - 00.360.305/0001-04
+                Demonstrativo
+                13/08 TOTAL DA FATURA ANTERIOR 1.543,54D
+                14/08 OBRIGADO PELO PAGAMENTO 1.543,54C
+                11/09 CASHBACK ANUIDADE GASTOS TIT 8,62C
+                Total 8,62 C
+                ANUIDADE DIFERENCIADA TIT 05/   12 17,25D
+                COMPRAS (Cartão 1116)
+                28/08 DL*UberRides SAO PAULO 87,67D
+                30/08 SUPERMERCADO SCHUTZE TIMBO 194,56D
+                Total COMPRAS 282,23D
+                COMPRAS PARCELADAS (Cartão 1116)
+                14/05 AMAZON MARKETPLACE        04 DE 05 SAO PAULO 39,57D
+                Valor total desta fatura R$ 330,43 D
+                """), HOJE);
+
+        assertEquals("Caixa", f.emissor());
+        assertEquals(LocalDate.of(2026, 9, 23), f.vencimento());
+        assertEquals(new BigDecimal("330.43"), f.total());
+        assertEquals(5, f.lancamentos().size()); // fatura anterior, pagamento e totais ficam de fora
+
+        Lancamento cashback = f.lancamentos().get(0);
+        assertTrue(cashback.credito()); // "C" depois do valor
+
+        Lancamento anuidade = f.lancamentos().get(1);
+        assertEquals("ANUIDADE DIFERENCIADA TIT", anuidade.descricao());
+        assertEquals(LocalDate.of(2026, 9, 23), anuidade.data()); // sem data: entra no vencimento
+        assertEquals(5, anuidade.parcelaAtual());
+        assertEquals(12, anuidade.parcelaTotal());
+        assertFalse(anuidade.credito());
+
+        assertFalse(f.lancamentos().get(2).credito()); // "D" depois do valor
+        Lancamento amazon = f.lancamentos().get(4);
+        assertEquals(4, amazon.parcelaAtual());
+        assertEquals(5, amazon.parcelaTotal());
+
+        BigDecimal soma = BigDecimal.ZERO;
+        for (Lancamento l : f.lancamentos()) soma = l.credito() ? soma.subtract(l.valor()) : soma.add(l.valor());
+        assertEquals(f.total(), soma);
+    }
+
+    @Test
     void semVencimentoUsaHojeComoReferencia() {
         FaturaLida f = LeitorFaturaPdf.ler(List.of("01/10 PADARIA PAO QUENTE 12,50"), HOJE);
         assertNull(f.vencimento());

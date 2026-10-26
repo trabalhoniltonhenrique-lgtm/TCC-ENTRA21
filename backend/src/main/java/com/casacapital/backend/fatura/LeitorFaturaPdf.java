@@ -32,26 +32,31 @@ final class LeitorFaturaPdf {
     private static final String MESES = "JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ";
     private static final String VALOR = "(\\d{1,3}(?:\\.\\d{3})*,\\d{2})";
 
-    // Data no início da linha, descrição, valor no fim. Sinal de menos colado no valor ("-912,34", "-R$ 25,48") ou "+"
-    // indicam crédito; já " - R$ 487,89" (traço com espaço antes do R$, como no Inter) é só separador.
+    // Data no início da linha, descrição, valor no fim. Sinal de menos colado no valor ("-912,34", "-R$ 25,48"), "+" ou a
+    // letra C depois do valor ("8,62C", Caixa) indicam crédito; " - R$ 487,89" (Inter) é só separador.
     private static final Pattern LINHA = Pattern.compile(
             "^(?<dia>\\d{1,2})\\s*(?:[/.-]\\s*(?<mesNum>\\d{1,2})|\\s(?:DE\\s)?(?<mesNome>" + MESES + ")[A-Z]*\\.?)"
                     + "(?:[/.-](?<ano>\\d{2,4})|\\s(?:DE\\s)?(?<ano2>20[2-9]\\d)(?=\\s))?\\s+(?<desc>.+?)\\s+"
                     + "(?:-\\s+(?=R\\$|\\+))?(?<mais>\\+\\s*)?(?<neg1>-\\s*)?(?:R\\$\\s*)?(?<neg2>-\\s*)?"
-                    + "(?<valor>\\d{1,3}(?:\\.\\d{3})*,\\d{2})(?<neg3>\\s*-)?\\s*(?:[DC])?$");
+                    + "(?<valor>\\d{1,3}(?:\\.\\d{3})*,\\d{2})(?<neg3>\\s*-)?\\s*(?<dc>[DC])?$");
+
+    // Tarifa sem data na linha (Caixa: "ANUIDADE DIFERENCIADA TIT 05/ 12 17,25D") — entra na data do vencimento
+    private static final Pattern TARIFA_SEM_DATA = Pattern.compile(
+            "^(?<desc>ANUIDADE\\b.*?)\\s+(?:R\\$\\s*)?(?<valor>\\d{1,3}(?:\\.\\d{3})*,\\d{2})\\s*(?<dc>[DC])?$");
 
     private static final Pattern VALOR_NO_FIM = Pattern.compile("\\s+(?:US\\$|U\\$|R\\$|USD|BRL)?\\s*-?" + VALOR + "$");
     private static final Pattern MOEDA_NO_FIM = Pattern.compile("\\s+(?:US\\$|U\\$|R\\$|USD|BRL)$");
 
     private static final Pattern[] PARCELA = {
             Pattern.compile("\\s*-?\\s*\\(?PARC(?:ELA)?\\.?\\s*(\\d{1,2})\\s*(?:/|DE)\\s*(\\d{1,2})\\b\\)?"),
+            Pattern.compile("\\s+(\\d{2})\\s+DE\\s+(\\d{2})(?=\\s)"),
             Pattern.compile("\\s*\\(?\\b(\\d{1,2})\\s*/\\s*(\\d{1,2})\\)?\\s*$"),
             Pattern.compile("\\s*\\(?\\b(\\d{1,2})\\s*/\\s*(\\d{1,2})\\)?\\s"),
     };
 
     // Linhas que não são compras: pagamento da fatura anterior, saldos, totais, limites…
     private static final Pattern IGNORAR = Pattern.compile(
-            "^PAGAMENTO\\b|^PAGTO\\b|PAGAMENTO (?:EFETUADO|RECEBIDO|DE FATURA|DA FATURA|OBRIGADO)|"
+            "^PAGAMENTO\\b|^PAGTO\\b|PAGAMENTO (?:EFETUADO|RECEBIDO|DE FATURA|DA FATURA|OBRIGADO)|OBRIGADO PELO PAGAMENTO|"
                     + "\\bSALDO\\b|\\bTOTAL\\b|\\bSUBTOTAL\\b|\\bLIMITE\\b|VENCIMENTO|FECHAMENTO|"
                     + "PAGAMENTO MINIMO|VALOR MINIMO|MELHOR DATA");
     private static final Pattern CREDITO = Pattern.compile("ESTORNO|CREDITO|DEVOLUCAO|CASHBACK|DESCONTO|REEMBOLSO|AJUSTE A CREDITO");
@@ -75,7 +80,7 @@ final class LeitorFaturaPdf {
 
     // Em ordem de preferência: "Total desta fatura" antes de "Total da fatura anterior", que é outra coisa
     private static final Pattern[] TOTAL = {
-            Pattern.compile("TOTAL DESTA FATURA[^0-9\\n]{0,40}" + VALOR),
+            Pattern.compile("TOTAL DESTA FATURA[^0-9]{0,40}" + VALOR),
             Pattern.compile("TOTAL DA SUA FATURA[^0-9]{0,40}" + VALOR), // o valor pode vir na linha de baixo
             Pattern.compile("(?:VALOR )?TOTAL DA FATURA(?! ANTERIOR)[^0-9\\n]{0,40}" + VALOR),
             Pattern.compile("(?:TOTAL A PAGAR|VALOR TOTAL(?! FINANCIADO))[^0-9\\n]{0,40}" + VALOR),
@@ -98,6 +103,7 @@ final class LeitorFaturaPdf {
             {"NUBANK", "Nubank"}, {"NU PAGAMENTOS", "Nubank"}, {"ITAU", "Itaú"}, {"BRADESCO", "Bradesco"},
             {"SANTANDER", "Santander"}, {"OUROCARD", "Banco do Brasil"}, {"BANCO DO BRASIL", "Banco do Brasil"},
             {"CAIXA ECONOMICA", "Caixa"}, {"CARTAO CAIXA", "Caixa"}, {"CAIXA CARTOES", "Caixa"},
+            {"CARTOES CAIXA", "Caixa"}, {"CAIXA.GOV", "Caixa"},
             {"BANCO INTER", "Inter"}, {"BANCOINTER", "Inter"}, {"CONTA INTER", "Inter"}, {"CARTAO INTER", "Inter"},
             {"DO INTER", "Inter"}, {"C6 BANK", "C6 Bank"}, {"BTG", "BTG Pactual"},
             {"XP INVESTIMENTOS", "XP"}, {"MERCADO PAGO", "Mercado Pago"}, {"PICPAY", "PicPay"},
@@ -169,7 +175,7 @@ final class LeitorFaturaPdf {
 
     private static Lancamento lancamento(String linha, String bruta, LocalDate referencia) {
         Matcher m = LINHA.matcher(linha);
-        if (!m.matches()) return null;
+        if (!m.matches()) return tarifaSemData(linha, bruta, referencia);
 
         LocalDate data = data(m.group("dia"), m.group("mesNum"), m.group("mesNome"),
                 m.group("ano") != null ? m.group("ano") : m.group("ano2"), referencia);
@@ -203,11 +209,31 @@ final class LeitorFaturaPdf {
         BigDecimal valor = new BigDecimal(m.group("valor").replace(".", "").replace(",", "."));
         if (valor.signum() == 0) return null;
         boolean negativo = m.group("mais") != null || m.group("neg1") != null || m.group("neg2") != null
-                || m.group("neg3") != null;
+                || m.group("neg3") != null || "C".equals(m.group("dc"));
         boolean credito = negativo || CREDITO.matcher(descricao).find();
 
         return new Lancamento(data, descricaoOriginal(bruta, descricao), valor, atual, total,
                 CategorizadorDespesa.sugerir(descricao), credito);
+    }
+
+    private static Lancamento tarifaSemData(String linha, String bruta, LocalDate referencia) {
+        Matcher m = TARIFA_SEM_DATA.matcher(linha);
+        if (!m.matches()) return null;
+        BigDecimal valor = new BigDecimal(m.group("valor").replace(".", "").replace(",", "."));
+        if (valor.signum() == 0) return null;
+        String descricao = m.group("desc");
+        int atual = 0, total = 0;
+        Matcher pm = PARCELA[2].matcher(descricao); // "05/ 12" no fim
+        if (pm.find()) {
+            int a = Integer.parseInt(pm.group(1)), t = Integer.parseInt(pm.group(2));
+            if (t >= 2 && a >= 1 && a <= t) {
+                atual = a;
+                total = t;
+                descricao = descricao.substring(0, pm.start()).trim();
+            }
+        }
+        return new Lancamento(referencia, descricaoOriginal(bruta, descricao), valor, atual, total,
+                "Contas & Serviços", "C".equals(m.group("dc")));
     }
 
     /** Devolve a descrição com acentos/maiúsculas como impressa, quando ela aparece na linha original. */
