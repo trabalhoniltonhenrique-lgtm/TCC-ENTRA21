@@ -17,6 +17,16 @@ public record ItemFatura(
         String categoria,
         String acao,
         Long contaId,
-        String aviso
+        String aviso,
+        // categoria veio do que a família escolheu para este estabelecimento em faturas anteriores
+        boolean categoriaLembrada
 ) {
+    public ItemFatura(LocalDate data, String descricao, BigDecimal valor, Integer parcelaAtual, Integer parcelaTotal,
+                      String categoria, String acao, Long contaId, String aviso) {
+        this(data, descricao, valor, parcelaAtual, parcelaTotal, categoria, acao, contaId, aviso, false);
+    }
+
+    public ItemFatura comCategoriaLembrada() {
+        return new ItemFatura(data, descricao, valor, parcelaAtual, parcelaTotal, categoria, acao, contaId, aviso, true);
+    }
 }

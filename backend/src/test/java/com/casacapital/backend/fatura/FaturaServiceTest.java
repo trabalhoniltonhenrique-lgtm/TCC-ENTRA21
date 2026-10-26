@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,6 +49,7 @@ class FaturaServiceTest {
     private ContaRepository contas;
     private DespesaRepository despesas;
     private FaturaService service;
+    private CategoriaAprendidaRepository aprendidas;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +60,9 @@ class FaturaServiceTest {
         when(contas.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(contas.findAllByFamiliaIdAndParcelaNumAndParcelaTotal(eq(FAMILIA), anyInt(), anyInt())).thenReturn(List.of());
         when(despesas.findAllByFamiliaIdAndData(eq(FAMILIA), any())).thenReturn(List.of());
-        service = new FaturaService(contas, despesas, familias);
+        aprendidas = mock(CategoriaAprendidaRepository.class);
+        when(aprendidas.findAllByFamiliaId(FAMILIA)).thenReturn(List.of());
+        service = new FaturaService(contas, despesas, familias, aprendidas);
     }
 
     @Test
@@ -93,6 +97,38 @@ class FaturaServiceTest {
         assertEquals(FaturaService.NOVA_PARCELADA, r.itens().get(2).acao());
         assertEquals(LocalDate.of(2026, 9, 18), r.itens().get(2).data()); // 1ª parcela entra na data da compra
         assertEquals(FaturaService.JA_IMPORTADA, r.itens().get(3).acao());
+    }
+
+    @Test
+    void lembraACategoriaEscolhidaParaOEstabelecimento() throws Exception {
+        CategoriaAprendida cooper = new CategoriaAprendida();
+        cooper.setChave("COOPER FILIAL");
+        cooper.setCategoria("Moradia");
+        when(aprendidas.findAllByFamiliaId(FAMILIA)).thenReturn(List.of(cooper));
+
+        FaturaAnaliseResponse r = service.analisar(FAMILIA, pdf(null,
+                "Vencimento 20/10/2026", "13/09 COOPER FILIAL TIMBO 58,84", "14/09 PADARIA CENTRO 12,00"), null);
+
+        assertEquals("Moradia", r.itens().get(0).categoria()); // a escolha da família vence a palavra-chave
+        assertTrue(r.itens().get(0).categoriaLembrada());
+        assertEquals("Alimentação", r.itens().get(1).categoria());
+        assertFalse(r.itens().get(1).categoriaLembrada());
+
+        service.importar(FAMILIA, new FaturaImportRequest(LocalDate.of(2026, 10, 20), null, List.of(
+                new FaturaImportRequest.Item(LocalDate.of(2026, 9, 13), "COOPER FILIAL TIMBO", new BigDecimal("58.84"), null, null, "Alimentação", null),
+                new FaturaImportRequest.Item(LocalDate.of(2026, 9, 14), "DL *UberRides Sao Paulo", new BigDecimal("12.00"), null, null, "Transporte", null))));
+        assertEquals("Alimentação", cooper.getCategoria()); // a nova escolha substitui a antiga
+        ArgumentCaptor<CategoriaAprendida> salvas = ArgumentCaptor.forClass(CategoriaAprendida.class);
+        verify(aprendidas, org.mockito.Mockito.times(2)).save(salvas.capture());
+        assertEquals("DL UBERRIDES", salvas.getAllValues().get(1).getChave());
+    }
+
+    @Test
+    void chaveDoEstabelecimentoIgnoraNumerosEPontuacao() {
+        assertEquals("DL UBERRIDES", FaturaService.chaveLoja("DL*UberRides SAO PAULO"));
+        assertEquals("DL UBERRIDES", FaturaService.chaveLoja("DL          *UberRides Sao Paulo"));
+        assertEquals("SUPERMERCADO SCHUTZE", FaturaService.chaveLoja("SUPERMERCADO SCHUTZE TIMBO"));
+        assertEquals("RAIA DROGASIL", FaturaService.chaveLoja("5321 Raia Drogasil - NuPay"));
     }
 
     @Test

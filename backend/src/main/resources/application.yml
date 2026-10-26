@@ -56,6 +56,9 @@ casacapital:
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:720}
   # URL base usada para montar o link de redefinição de senha enviado por e-mail.
   frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:8080}
+  # Pasta dos backups diários (criada pelo instalador; o backup em si é feito por uma tarefa agendada do Windows)
+  backup:
+    dir: ${BACKUP_DIR:}
 
 logging:
   level:

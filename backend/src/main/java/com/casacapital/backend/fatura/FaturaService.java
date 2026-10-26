@@ -32,9 +32,11 @@ import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,12 +56,14 @@ public class FaturaService {
     private final ContaRepository contaRepository;
     private final DespesaRepository despesaRepository;
     private final FamiliaRepository familiaRepository;
+    private final CategoriaAprendidaRepository aprendidas;
 
     public FaturaService(ContaRepository contaRepository, DespesaRepository despesaRepository,
-                         FamiliaRepository familiaRepository) {
+                         FamiliaRepository familiaRepository, CategoriaAprendidaRepository aprendidas) {
         this.contaRepository = contaRepository;
         this.despesaRepository = despesaRepository;
         this.familiaRepository = familiaRepository;
+        this.aprendidas = aprendidas;
     }
 
     // ── 1) Leitura + comparação com o que já está cadastrado (não grava nada) ──
@@ -84,16 +88,21 @@ public class FaturaService {
         Set<Long> despesasUsadas = new HashSet<>();
         List<ItemFatura> itens = new ArrayList<>();
         List<ItemFatura> creditos = new ArrayList<>();
+        Map<String, String> lembradas = new HashMap<>();
+        aprendidas.findAllByFamiliaId(familiaId).forEach(a -> lembradas.put(a.getChave(), a.getCategoria()));
 
         for (Lancamento l : fatura.lancamentos()) {
+            String lembrada = lembradas.get(chaveLoja(l.descricao()));
+            String categoria = lembrada != null ? lembrada : l.categoria();
             if (l.credito()) {
-                creditos.add(new ItemFatura(l.data(), l.descricao(), l.valor(), null, null, l.categoria(), null, null, null));
-            } else if (l.parcelaTotal() >= 2 && l.parcelaTotal() <= MAX_PARCELAS) {
-                itens.add(analisarParcela(familiaId, l.descricao(), l.valor(), l.parcelaAtual(), l.parcelaTotal(),
-                        l.categoria(), l.data(), dataPadrao, contasUsadas));
-            } else {
-                itens.add(analisarAVista(familiaId, l.descricao(), l.valor(), l.data(), l.categoria(), despesasUsadas));
+                creditos.add(new ItemFatura(l.data(), l.descricao(), l.valor(), null, null, categoria, null, null, null));
+                continue;
             }
+            ItemFatura item = l.parcelaTotal() >= 2 && l.parcelaTotal() <= MAX_PARCELAS
+                    ? analisarParcela(familiaId, l.descricao(), l.valor(), l.parcelaAtual(), l.parcelaTotal(),
+                            categoria, l.data(), dataPadrao, contasUsadas)
+                    : analisarAVista(familiaId, l.descricao(), l.valor(), l.data(), categoria, despesasUsadas);
+            itens.add(lembrada != null ? item.comCategoriaLembrada() : item);
         }
 
         return FaturaAnaliseResponse.cartao(fatura.emissor(), vencimento, fatura.total(), fatura.totalLancamentos(),
@@ -209,6 +218,7 @@ public class FaturaService {
         BigDecimal total = BigDecimal.ZERO;
         long grupoBase = System.currentTimeMillis();
         String cartao = req.cartao() == null || req.cartao().isBlank() ? null : req.cartao().trim();
+        lembrarCategorias(familiaId, familia, req.itens());
 
         for (int i = 0; i < req.itens().size(); i++) {
             FaturaImportRequest.Item item = req.itens().get(i);
@@ -270,6 +280,45 @@ public class FaturaService {
         }
 
         return new FaturaImportResponse(despesas, parcelamentos, quitadas, total);
+    }
+
+    /** Guarda a categoria escolhida para cada estabelecimento, para as próximas faturas já virem com ela. */
+    private void lembrarCategorias(Long familiaId, Familia familia, List<FaturaImportRequest.Item> itens) {
+        Map<String, CategoriaAprendida> existentes = new HashMap<>();
+        aprendidas.findAllByFamiliaId(familiaId).forEach(a -> existentes.put(a.getChave(), a));
+        for (FaturaImportRequest.Item item : itens) {
+            String chave = chaveLoja(item.descricao());
+            if (chave.length() < 3) continue;
+            CategoriaAprendida a = existentes.get(chave);
+            if (a == null) {
+                a = new CategoriaAprendida();
+                a.setFamilia(familia);
+                a.setChave(chave);
+                existentes.put(chave, a);
+            }
+            a.setCategoria(item.categoria());
+            a.setAtualizadoEm(LocalDate.now());
+            aprendidas.save(a);
+        }
+    }
+
+    /**
+     * Estabelecimento normalizado: as duas primeiras palavras, sem números nem pontuação
+     * ("DL*UberRides SAO PAULO" e "DL *UberRides" -> "DL UBERRIDES"; "SUPERMERCADO SCHUTZE TIMBO" -> "SUPERMERCADO SCHUTZE").
+     */
+    static String chaveLoja(String descricao) {
+        String texto = Normalizer.normalize(descricao == null ? "" : descricao, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toUpperCase(Locale.ROOT).replaceAll("[^A-Z]+", " ").trim();
+        String[] palavras = texto.isEmpty() ? new String[0] : texto.split(" ");
+        StringBuilder chave = new StringBuilder();
+        int usadas = 0;
+        for (String p : palavras) {
+            if (p.length() < 2) continue;
+            if (chave.length() > 0) chave.append(' ');
+            chave.append(p);
+            if (++usadas == 2) break;
+        }
+        return chave.length() > 40 ? chave.substring(0, 40) : chave.toString();
     }
 
     /** Marca a parcela como paga e lança a despesa ligada a ela (mesma regra de ContaService.marcarPago). */

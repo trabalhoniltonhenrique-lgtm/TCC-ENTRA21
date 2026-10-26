@@ -24,8 +24,12 @@ try {
     }
 
     foreach ($pasta in @([Environment]::GetFolderPath("CommonDesktopDirectory"), [Environment]::GetFolderPath("CommonPrograms"))) {
-        if ($pasta) { Remove-Item (Join-Path $pasta "CasaCapital.url") -ErrorAction SilentlyContinue }
+        if ($pasta) {
+            Remove-Item (Join-Path $pasta "CasaCapital.url") -ErrorAction SilentlyContinue
+            Remove-Item (Join-Path $pasta "CasaCapital - Restaurar backup.lnk") -ErrorAction SilentlyContinue
+        }
     }
+    Unregister-ScheduledTask -TaskName "CasaCapital - Backup diario" -Confirm:$false -ErrorAction SilentlyContinue
 
     # Se este script estiver rodando de dentro da pasta instalada, sai dela antes de apagar
     Set-Location $env:TEMP
@@ -33,7 +37,7 @@ try {
 
     Write-Host ""
     Write-Host "CasaCapital removido." -ForegroundColor Green
-    Write-Host "Logs e chave de sessao ficaram em $env:ProgramData\CasaCapital (pode apagar se quiser)." -ForegroundColor Gray
+    Write-Host "Logs, chave de sessao e backups diarios ficaram em $env:ProgramData\CasaCapital (pode apagar se quiser)." -ForegroundColor Gray
     Write-Host "O banco de dados 'casacapital' no MySQL foi mantido." -ForegroundColor Gray
 } catch {
     Write-Host "ERRO: $($_.Exception.Message)" -ForegroundColor Red

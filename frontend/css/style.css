@@ -1515,3 +1515,54 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .projecao-config .dica { flex:1 1 100%; font-size:.76rem; color:var(--texto-suave); }
 .card-investimento .projecao-inv { color:var(--texto-secundario) !important; }
 .card-investimento .projecao-inv strong { color:var(--verde); white-space:nowrap; }
+.fatura-aviso.aviso-lembrada { color:var(--azul); }
+
+/* ── Início: patrimônio e fluxo de caixa ── */
+@media (min-width:900px) { .cards-planejamento { grid-template-columns:1fr 1.4fr; } }
+.patrimonio-total { font-size:1.9rem; font-weight:800; color:var(--texto-primario); margin:.25rem 0 .1rem; }
+.patrimonio-total.negativo { color:var(--vermelho); }
+.patrimonio-variacao { font-size:.82rem; font-weight:600; margin-bottom:.6rem; }
+.patrimonio-variacao.positiva { color:var(--verde); }
+.patrimonio-variacao.negativa { color:var(--vermelho); }
+.patrimonio-composicao { display:flex; flex-direction:column; gap:.3rem; font-size:.86rem; margin:.5rem 0 .75rem; }
+.patrimonio-composicao div { display:flex; justify-content:space-between; gap:1rem; color:var(--texto-secundario); }
+.patrimonio-composicao strong { color:var(--texto-primario); }
+.patrimonio-grafico { display:flex; align-items:flex-end; gap:6px; height:110px; padding-top:.5rem; border-top:1px solid var(--borda-leve); }
+.barra-patrimonio { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
+.barra-patrimonio .coluna { width:100%; max-width:28px; height:var(--altura); background:var(--azul); border-radius:4px 4px 0 0; }
+.barra-patrimonio .coluna.negativa { background:var(--vermelho); }
+.barra-patrimonio span { font-size:.62rem; color:var(--texto-suave); margin-top:3px; white-space:nowrap; }
+.dica-planejamento { font-size:.76rem; color:var(--texto-suave); margin:.6rem 0; }
+.fluxo-alerta, .fluxo-ok { font-size:.85rem; padding:.55rem .75rem; border-radius:8px; margin:.4rem 0 .75rem; }
+.fluxo-alerta { background:color-mix(in srgb, var(--vermelho) 12%, transparent); color:var(--vermelho); }
+.fluxo-ok { background:color-mix(in srgb, var(--verde) 12%, transparent); color:var(--verde); }
+.fluxo-cabecalho, .fluxo-mes summary { display:grid; grid-template-columns:.8fr 1fr 1fr 1fr 1.1fr; gap:.5rem; align-items:center; }
+.fluxo-cabecalho { font-size:.72rem; font-weight:600; color:var(--texto-suave); padding:0 .5rem .3rem; text-align:right; }
+.fluxo-cabecalho span:first-child { text-align:left; }
+.fluxo-mes { border-top:1px solid var(--borda-leve); }
+.fluxo-mes summary { list-style:none; cursor:pointer; padding:.45rem .5rem; font-size:.85rem; text-align:right; border-radius:6px; }
+.fluxo-mes summary::-webkit-details-marker { display:none; }
+.fluxo-mes summary:hover { background:var(--bg-hover); }
+.fluxo-mes summary .mes { text-align:left; font-weight:600; color:var(--texto-primario); }
+.fluxo-mes summary .mes::before { content:'▸ '; color:var(--texto-suave); }
+.fluxo-mes[open] summary .mes::before { content:'▾ '; }
+.fluxo-mes summary .entrada { color:var(--verde); }
+.fluxo-mes summary .saida { color:var(--texto-secundario); }
+.fluxo-mes summary .saldo { font-weight:700; color:var(--texto-primario); }
+.fluxo-mes summary .saldo.negativo { color:var(--vermelho); }
+.fluxo-itens { list-style:none; margin:0 0 .5rem; padding:0 .5rem 0 1.4rem; font-size:.8rem; }
+.fluxo-itens li { display:flex; justify-content:space-between; gap:1rem; padding:2px 0; color:var(--texto-secundario); }
+.fluxo-itens em { font-style:normal; font-size:.68rem; padding:0 6px; border-radius:999px; background:var(--azul-claro); color:var(--azul); }
+.fluxo-sem-contas { font-size:.78rem; color:var(--texto-suave); margin:0 0 .5rem 1.4rem; }
+@media (max-width:560px) {
+  .fluxo-cabecalho, .fluxo-mes summary { grid-template-columns:.7fr 1fr 1fr 1.1fr; }
+  .fluxo-cabecalho span:nth-child(4), .fluxo-mes summary span:nth-child(4) { display:none; }
+}
+
+/* ── Configurações: backup automático ── */
+.status-backup { font-size:.88rem; padding:.65rem .85rem; border-radius:8px; margin:.25rem 0 .6rem; background:var(--bg-borda-leve); color:var(--texto-secundario); }
+.status-backup.ok { background:color-mix(in srgb, var(--verde) 12%, transparent); color:var(--verde); }
+.status-backup.erro { background:color-mix(in srgb, var(--vermelho) 12%, transparent); color:var(--vermelho); }
+.status-backup .ico { vertical-align:-2px; }
+.status-backup div { margin-top:.3rem; font-size:.8rem; }
+.config-secao code { font-size:.8rem; background:var(--bg-borda-leve); padding:1px 5px; border-radius:4px; }

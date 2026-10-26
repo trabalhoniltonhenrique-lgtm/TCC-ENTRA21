@@ -218,6 +218,18 @@
       </div>
     </div>
 
+    <!-- Backup automático (feito todo dia por uma tarefa agendada do Windows) -->
+    <div class="config-secao">
+      <h3><span class="ico ico-database"></span> Backup automático</h3>
+      <div id="statusBackup" class="status-backup">Verificando…</div>
+      <p class="config-desc">
+        Todo dia ao meio-dia (ou assim que o computador for ligado) o sistema guarda uma cópia do banco de dados em
+        <code>C:\ProgramData\CasaCapital\backups</code> e mantém os últimos 30 dias.
+        Para voltar a um backup, use o atalho <strong>CasaCapital - Restaurar backup</strong> no Menu Iniciar do Windows
+        (pede permissão de administrador e guarda uma cópia do estado atual antes de restaurar).
+      </p>
+    </div>
+
     <!-- Botão salvar -->
     <div class="config-acoes-finais">
       <button id="btnSalvarConfigPagina"><span class="ico ico-save"></span> Salvar Configurações</button>
@@ -233,5 +245,6 @@
 </div>
 
 <script src="js/configuracoes.js"></script>
+<script src="js/backup-status.js"></script>
 </body>
 </html>

@@ -134,8 +134,10 @@ FLUSH PRIVILEGES;
     Copy-Item (Join-Path $origemApp "casacapital.jar") $destino -Force
     Copy-Item (Join-Path $origemApp "CasaCapital.exe") $destino -Force
     Copy-Item (Join-Path $origemApp "desinstalar.ps1") $destino -Force
+    Copy-Item (Join-Path $origemApp "backup.ps1") $destino -Force
+    Copy-Item (Join-Path $origemApp "restaurar-backup.ps1") $destino -Force
 
-    foreach ($pasta in @($dados, "$dados\logs", "$dados\tmp")) {
+    foreach ($pasta in @($dados, "$dados\logs", "$dados\tmp", "$dados\backups")) {
         New-Item -ItemType Directory -Force -Path $pasta | Out-Null
     }
 
@@ -179,13 +181,20 @@ FLUSH PRIVILEGES;
   <env name="MAIL_USERNAME" value="$(X $cfg["MAIL_USERNAME"])"/>
   <env name="MAIL_PASSWORD" value="$(X $cfg["MAIL_PASSWORD"])"/>
   <env name="JWT_SECRET" value="$(X $jwt)"/>
+  <env name="BACKUP_DIR" value="$(X "$dados\backups")"/>
 </service>
 "@
     $xmlArquivo = Join-Path $destino "CasaCapital.xml"
     [IO.File]::WriteAllText($xmlArquivo, $xml, (New-Object Text.UTF8Encoding($false)))
 
-    # O XML e o jwt.secret tem senhas: so Administradores e SYSTEM podem ler
-    foreach ($arquivo in @($xmlArquivo, $arquivoJwt)) {
+    # Credenciais do backup diario (formato de opcoes do MySQL)
+    $cnfBackup = Join-Path $dados "backups\mysql.cnf"
+    function Q($v) { '"' + ([string]$v).Replace('\', '\\').Replace('"', '\"') + '"' }
+    [IO.File]::WriteAllText($cnfBackup, "[client]`r`nuser=$(Q $dbUser)`r`npassword=$(Q $dbPass)`r`nhost=localhost`r`n",
+        (New-Object Text.UTF8Encoding($false)))
+
+    # O XML, o jwt.secret e as credenciais do backup tem senhas: so Administradores e SYSTEM podem ler
+    foreach ($arquivo in @($xmlArquivo, $arquivoJwt, $cnfBackup)) {
         icacls $arquivo /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" | Out-Null
     }
 
@@ -214,13 +223,39 @@ FLUSH PRIVILEGES;
         throw "O servico nao respondeu. Veja os logs em $dados\logs (casacapital.log e CasaCapital.err.log)."
     }
 
-    # --- 7) Atalhos ---------------------------------------------------------
+    # --- 7) Backup automatico diario --------------------------------------
+    Passo "Configurando backup automatico diario"
+    $tarefa = "CasaCapital - Backup diario"
+    $acao = New-ScheduledTaskAction -Execute "powershell.exe" `
+        -Argument "-NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$destino\backup.ps1`""
+    $gatilho = New-ScheduledTaskTrigger -Daily -At "12:00"
+    # StartWhenAvailable: se o computador estiver desligado ao meio-dia, faz o backup assim que ligar
+    $opcoes = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 1) `
+        -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+    $usuario = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+    Register-ScheduledTask -TaskName $tarefa -Action $acao -Trigger $gatilho -Settings $opcoes -Principal $usuario `
+        -Description "Copia diaria do banco do CasaCapital para $dados\backups (mantem 30 dias)." -Force | Out-Null
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$destino\backup.ps1"
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  Backup diario agendado (12:00) e primeiro backup feito em $dados\backups." -ForegroundColor Green
+    } else {
+        Write-Host "  AVISO: o backup diario foi agendado, mas o primeiro backup falhou. Veja $dados\logs\backup.log." -ForegroundColor Yellow
+    }
+
+    # --- 8) Atalhos ---------------------------------------------------------
     Passo "Criando atalhos"
     $conteudoAtalho = "[InternetShortcut]`r`nURL=$url`r`n"
     $areaTrabalho = [Environment]::GetFolderPath("CommonDesktopDirectory")
     $menuIniciar  = [Environment]::GetFolderPath("CommonPrograms")
     foreach ($pasta in @($areaTrabalho, $menuIniciar)) {
         if ($pasta) { Set-Content -Path (Join-Path $pasta "CasaCapital.url") -Value $conteudoAtalho -Encoding ASCII }
+    }
+    if ($menuIniciar) {
+        $atalho = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $menuIniciar "CasaCapital - Restaurar backup.lnk"))
+        $atalho.TargetPath = "powershell.exe"
+        $atalho.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$destino\restaurar-backup.ps1`""
+        $atalho.Description = "Restaura o banco do CasaCapital a partir de um backup diario"
+        $atalho.Save()
     }
 
     Write-Host ""

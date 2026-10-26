@@ -164,7 +164,8 @@ function tipoItemFatura(it) {
   const tipo = it.parcelaTotal ? `Parcela ${it.parcelaAtual}/${it.parcelaTotal}` : 'À vista';
   const classe = it.acao === 'JA_IMPORTADA' ? 'aviso-dup' : it.acao === 'QUITAR_PARCELA' ? 'aviso-quitar' : '';
   return `<div class="fatura-tipo">${tipo}</div>` +
-    (it.aviso ? `<div class="fatura-aviso ${classe}">${escFatura(it.aviso)}</div>` : '');
+    (it.aviso ? `<div class="fatura-aviso ${classe}">${escFatura(it.aviso)}</div>` : '') +
+    (it.categoriaLembrada ? `<div class="fatura-aviso aviso-lembrada" title="Você escolheu esta categoria para este estabelecimento numa fatura anterior">Categoria lembrada</div>` : '');
 }
 
 function renderItensFatura() {
