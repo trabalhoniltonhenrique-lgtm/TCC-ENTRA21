@@ -1445,11 +1445,8 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .selecionar-todas label { display:flex; align-items:center; gap:8px; margin:0; font-weight:600; cursor:pointer; }
 .selecionar-todas input { width:18px; height:18px; margin:0; accent-color:var(--verde); }
 .selecionar-todas .dica { font-size:.76rem; color:var(--texto-suave); }
-.barra-lote { position:sticky; bottom:1rem; z-index:20; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
-  gap:.6rem 1rem; margin-top:.75rem; padding:.75rem 1rem; border-radius:12px; background:var(--bg-card);
-  box-shadow:0 6px 24px var(--sombra); border:2px solid var(--verde); font-size:.9rem; color:var(--texto-primario); }
-.barra-lote-acoes { display:flex; gap:.5rem; flex-wrap:wrap; }
-.barra-lote-acoes button { width:auto; margin:0; padding:9px 16px; display:inline-flex; align-items:center; gap:6px; }
+.lote-opcoes { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-left:auto; color:var(--texto-primario); }
+.lote-opcoes .btn-lote { width:auto; margin:0; padding:7px 14px; font-size:.85rem; display:inline-flex; align-items:center; gap:6px; }
 
 /* ── Contas: aba Cartões ── */
 .chips-cartao { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:.75rem; }

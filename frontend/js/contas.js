@@ -295,13 +295,16 @@ const caixaSelecao = (c, rotulo) => `<label class="sel-conta" title="Selecionar 
     <input type="checkbox" data-action="selecionar" data-id="${c.id}" ${selecionadas.has(c.id) ? 'checked' : ''}
       aria-label="Selecionar ${escC(c.descricao)}">${rotulo ? `<span>${rotulo}</span>` : ''}</label>`;
 
-function atualizarBarraLote() {
-  const barra = document.getElementById('barraLote');
+// Opções do lote, na linha "Selecionar todas": só aparecem quando há contas selecionadas
+function opcoesLote() {
   const lista = contas.filter(c => selecionadas.has(c.id) && !c.pago);
-  barra.classList.toggle('oculto', lista.length === 0);
+  if (!lista.length) return '';
   const total = lista.reduce((a, c) => a + c.valor, 0);
-  document.getElementById('loteInfo').innerHTML =
-    `<strong>${lista.length}</strong> conta${lista.length !== 1 ? 's' : ''} selecionada${lista.length !== 1 ? 's' : ''} · <strong>${fmt(total)}</strong>`;
+  return `<div class="lote-opcoes">
+      <span><strong>${lista.length}</strong> selecionada${lista.length !== 1 ? 's' : ''} · <strong>${fmt(total)}</strong></span>
+      <button class="btn-verde btn-lote" data-action="pagar-lote"><span class="ico ico-check"></span> Marcar como pagas</button>
+      <button class="btn-secundario btn-lote" data-action="limpar-lote">Limpar seleção</button>
+    </div>`;
 }
 
 async function pagarSelecionadas() {
@@ -309,8 +312,8 @@ async function pagarSelecionadas() {
   if (!lista.length) return;
   const total = lista.reduce((a, c) => a + c.valor, 0);
   if (!confirm(`Marcar ${lista.length} conta(s) como paga(s), somando ${fmt(total)}?\n\nCada uma será lançada nas Despesas.`)) return;
-  const btn = document.getElementById('btnPagarLote');
-  btn.disabled = true;
+  const btn = document.querySelector('[data-action="pagar-lote"]');
+  if (btn) btn.disabled = true;
   try {
     const pagas = await api.post('/contas/marcar-pago', { ids: lista.map(c => c.id) });
     selecionadas.clear();
@@ -318,8 +321,7 @@ async function pagarSelecionadas() {
     mostrarToast(`${pagas.length} conta(s) marcada(s) como paga(s) e lançada(s) nas Despesas!`);
   } catch (e) {
     alert(e.message);
-  } finally {
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -452,7 +454,6 @@ function renderContas() {
   `;
 
   atualizarAbasFiltro();
-  atualizarBarraLote();
   if (!filtroAtivo) {
     lista.innerHTML = `<div class="contas-recolhidas">
       Selecione uma opção acima para ver as contas.
@@ -523,10 +524,11 @@ function renderContas() {
     ...Object.values(grupos).map(ps => ps.filter(p => !p.pago).sort((a, b) => a.vencimento.localeCompare(b.vencimento))[0]).filter(Boolean),
   ];
   const todasMarcadas = selecionaveis.length > 0 && selecionaveis.every(c => selecionadas.has(c.id));
-  const barraSelecao = selecionaveis.length ? `<div class="selecionar-todas">
-      <label><input type="checkbox" data-action="selecionar-todas" data-ids="${selecionaveis.map(c => c.id).join(',')}" ${todasMarcadas ? 'checked' : ''}>
+  const barraSelecao = selecionaveis.length || selecionadas.size ? `<div class="selecionar-todas">
+      ${selecionaveis.length ? `<label><input type="checkbox" data-action="selecionar-todas" data-ids="${selecionaveis.map(c => c.id).join(',')}" ${todasMarcadas ? 'checked' : ''}>
         Selecionar todas em aberto (${selecionaveis.length})</label>
-      <span class="dica">Nas compras parceladas, entra só a próxima parcela.</span>
+      <span class="dica">Nas compras parceladas, entra só a próxima parcela.</span>` : ''}
+      ${opcoesLote()}
     </div>` : '';
 
   lista.innerHTML = chipsCartao + barraSelecao + blocos.map(b => b.render()).join('');
@@ -574,6 +576,8 @@ document.addEventListener('DOMContentLoaded', function () {
       renderContas();
       return;
     }
+    if (acao === 'pagar-lote')  { pagarSelecionadas(); return; }
+    if (acao === 'limpar-lote') { selecionadas.clear(); renderContas(); return; }
     if (acao === 'filtro-cartao') { setFiltroCartao(acaoEl.getAttribute('data-cartao')); return; }
     if (acao === 'stop-propagation') { e.stopPropagation(); return; }
     if (acao !== 'toggle-grupo') e.stopPropagation();
@@ -584,9 +588,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (acao === 'excluir')      excluirConta(Number(id));
     if (acao === 'toggle-grupo') toggleGrupoParcela(Number(id));
   });
-
-  document.getElementById('btnPagarLote').addEventListener('click', pagarSelecionadas);
-  document.getElementById('btnLimparLote').addEventListener('click', () => { selecionadas.clear(); renderContas(); });
 
   aplicarUnidadeMoedaContas().then(carregarContas);
 });
