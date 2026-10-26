@@ -1467,6 +1467,7 @@ function renderResumoMetasDashboard() {
 // ── Init ──
 window.onload = async function () {
   if (!estaAutenticado()) { location.href = 'index.html'; return; }
+  if (ehDependente()) return; // header.js leva o filho para a área dele
 
   try {
     await carregarTudo();

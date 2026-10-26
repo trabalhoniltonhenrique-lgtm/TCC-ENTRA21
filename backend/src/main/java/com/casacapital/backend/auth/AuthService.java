@@ -10,6 +10,7 @@ import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
 import com.casacapital.backend.familia.dto.FamiliaResponse;
 import com.casacapital.backend.security.JwtService;
+import com.casacapital.backend.usuario.PerfilUsuario;
 import com.casacapital.backend.usuario.Usuario;
 import com.casacapital.backend.usuario.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,12 +65,12 @@ public class AuthService {
 
         String token = jwtService.gerarToken(usuario.getId(), familia.getId(), usuario.getEmail(), familia.getPlano());
         return new AuthResponse(token, usuario.getId(), usuario.getNome(), usuario.getEmail(),
-                FamiliaResponse.from(familia));
+                FamiliaResponse.from(familia), PerfilUsuario.RESPONSAVEL.name(), null);
     }
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest req) {
-        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(req.email())
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(req.email().trim())
                 .orElseThrow(BadCredentialsException::new);
 
         if (!passwordEncoder.matches(req.senha(), usuario.getSenhaHash())) {
@@ -77,16 +78,21 @@ public class AuthService {
         }
 
         Familia familia = usuario.getFamilia();
-        String token = jwtService.gerarToken(usuario.getId(), familia.getId(), usuario.getEmail(), familia.getPlano());
+        Long membroId = usuario.getMembro() != null ? usuario.getMembro().getId() : null;
+        String token = jwtService.gerarToken(usuario.getId(), familia.getId(), usuario.getEmail(), familia.getPlano(),
+                usuario.getPerfil(), membroId);
         return new AuthResponse(token, usuario.getId(), usuario.getNome(), usuario.getEmail(),
-                FamiliaResponse.from(familia));
+                FamiliaResponse.from(familia), usuario.getPerfil().name(), membroId);
     }
 
     @Transactional
     public void esqueciSenha(String email) {
         // Sempre retorna sem erro, mesmo se o e-mail não existir, para não revelar quais
         // e-mails estão cadastrados na base (evita enumeração de contas).
-        usuarioRepository.findByEmailIgnoreCase(email).ifPresent(usuario -> {
+        // o login do filho não é um e-mail: a senha dele é trocada pelos pais na tela Mesada
+        usuarioRepository.findByEmailIgnoreCase(email)
+                .filter(usuario -> usuario.getPerfil() == PerfilUsuario.RESPONSAVEL)
+                .ifPresent(usuario -> {
             String token = gerarTokenAleatorio();
             Instant expiraEm = Instant.now().plus(EXPIRACAO_TOKEN_RESET_MINUTOS, ChronoUnit.MINUTES);
             passwordResetTokenRepository.save(new PasswordResetToken(usuario, token, expiraEm));

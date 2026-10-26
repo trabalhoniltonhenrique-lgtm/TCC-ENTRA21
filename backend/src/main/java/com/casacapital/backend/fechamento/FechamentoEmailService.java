@@ -2,6 +2,7 @@ package com.casacapital.backend.fechamento;
 
 import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
+import com.casacapital.backend.usuario.PerfilUsuario;
 import com.casacapital.backend.usuario.Usuario;
 import com.casacapital.backend.usuario.UsuarioRepository;
 import org.slf4j.Logger;
@@ -78,7 +79,7 @@ public class FechamentoEmailService {
     /** Envia o fechamento do mês para os usuários da família e registra o envio. Devolve quantos e-mails saíram. */
     @Transactional
     public int enviar(Familia familia, YearMonth mes) {
-        List<String> destinos = usuarios.findAllByFamiliaId(familia.getId()).stream()
+        List<String> destinos = usuarios.findAllByFamiliaIdAndPerfil(familia.getId(), PerfilUsuario.RESPONSAVEL).stream()
                 .map(Usuario::getEmail).filter(e -> e != null && e.contains("@")).toList();
         if (destinos.isEmpty()) return 0;
         FechamentoResponse r = fechamento.gerar(familia.getId(), mes);

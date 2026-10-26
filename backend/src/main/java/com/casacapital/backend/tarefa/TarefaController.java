@@ -1,5 +1,6 @@
 package com.casacapital.backend.tarefa;
 
+import com.casacapital.backend.common.ResourceNotFoundException;
 import com.casacapital.backend.security.SecurityUser;
 import com.casacapital.backend.tarefa.dto.TarefaRequest;
 import com.casacapital.backend.tarefa.dto.TarefaResponse;
@@ -22,7 +23,10 @@ public class TarefaController {
 
     @GetMapping
     public List<TarefaResponse> listar(@AuthenticationPrincipal SecurityUser user) {
-        return service.listar(user.familiaId()).stream().map(TarefaResponse::from).toList();
+        // o filho vê só as tarefas dele
+        return service.listar(user.familiaId()).stream()
+                .filter(t -> !user.dependente() || (t.getMembro() != null && t.getMembro().getId().equals(user.membroId())))
+                .map(TarefaResponse::from).toList();
     }
 
     @PostMapping
@@ -39,6 +43,12 @@ public class TarefaController {
 
     @PostMapping("/{id}/concluir")
     public TarefaResponse concluir(@AuthenticationPrincipal SecurityUser user, @PathVariable Long id) {
+        if (user.dependente()) {
+            var t = service.buscar(user.familiaId(), id);
+            if (t.getMembro() == null || !t.getMembro().getId().equals(user.membroId())) {
+                throw new ResourceNotFoundException("Tarefa não encontrada.");
+            }
+        }
         return TarefaResponse.from(service.concluir(user.familiaId(), id));
     }
 

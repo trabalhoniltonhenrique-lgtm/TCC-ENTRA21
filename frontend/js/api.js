@@ -21,6 +21,24 @@ function estaAutenticado() {
   return !!getToken();
 }
 
+// Perfil gravado no token pelo servidor: RESPONSAVEL (pais) ou DEPENDENTE (filho).
+// Só decide a tela a mostrar; quem barra o acesso de verdade é o servidor.
+function perfilDoToken() {
+  try {
+    const payload = getToken().split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(payload)).perfil || 'RESPONSAVEL';
+  } catch { return 'RESPONSAVEL'; }
+}
+
+function ehDependente() {
+  return estaAutenticado() && perfilDoToken() === 'DEPENDENTE';
+}
+
+// Tela inicial depois do login: o filho vai para a área dele
+function paginaInicial() {
+  return ehDependente() ? 'minha-area.html' : 'dashboard.html';
+}
+
 function irParaLogin() {
   limparSessao();
   if (!['index.html', 'cadastro.html', 'home.html', 'esqueci-senha.html', 'redefinir-senha.html', ''].includes(location.pathname.split('/').pop())) {
@@ -48,6 +66,11 @@ async function apiRequest(method, path, body) {
   if (res.status === 401) {
     irParaLogin();
     throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
+  if (res.status === 403 && ehDependente() && location.pathname.split('/').pop() !== 'minha-area.html') {
+    location.href = 'minha-area.html';
+    throw new Error('Esta parte do sistema é dos responsáveis.');
   }
 
   if (!res.ok) {

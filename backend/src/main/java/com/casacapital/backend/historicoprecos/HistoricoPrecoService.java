@@ -33,9 +33,23 @@ public class HistoricoPrecoService {
 
     @Transactional
     public void registrar(Familia familia, String nomeProduto, BigDecimal precoUnitario) {
-        if (nomeProduto == null || precoUnitario == null || precoUnitario.signum() <= 0) return;
+        registrar(familia, nomeProduto, precoUnitario, java.time.LocalDate.now());
+    }
+
+    /** Com a data da compra (ex.: data de emissão da nota fiscal). */
+    @Transactional
+    public void registrar(Familia familia, String nomeProduto, BigDecimal precoUnitario, java.time.LocalDate data) {
+        if (nomeProduto == null || nomeProduto.isBlank() || precoUnitario == null || precoUnitario.signum() <= 0) return;
         historicoPrecoRepository.save(new HistoricoPreco(
-                familia, HistoricoPreco.chave(nomeProduto), java.time.LocalDate.now(), precoUnitario));
+                familia, HistoricoPreco.chave(nomeProduto), data != null ? data : java.time.LocalDate.now(), precoUnitario));
+    }
+
+    /** Último preço registrado do produto, para comparar com uma compra nova. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<HistoricoPreco> ultimo(Long familiaId, String nomeProduto) {
+        List<HistoricoPreco> lista = historicoPrecoRepository
+                .findAllByFamiliaIdAndProdutoChaveOrderByDataAsc(familiaId, HistoricoPreco.chave(nomeProduto));
+        return lista.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(lista.get(lista.size() - 1));
     }
 
     @Transactional(readOnly = true)

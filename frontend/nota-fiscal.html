@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Nota fiscal do mercado</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/cores.js"></script>
+<script src="js/header.js"></script>
+<div class="container pagina-resumo">
+
+  <div class="metas-cabecalho cabecalho-resumo">
+    <div>
+      <h2><span class="ico ico-note"></span> Nota fiscal do mercado</h2>
+      <p>Leia o QR code da nota: cada item vai para o Histórico de Preços e para a Despensa, e o total vira uma despesa.</p>
+    </div>
+  </div>
+
+  <!-- Passo 1: foto ou link -->
+  <div class="card-box" id="passoLer">
+    <h3>1. Ler o QR code</h3>
+    <div class="nfce-entrada">
+      <label class="btn-foto-nfce" for="nfceFoto"><span class="ico ico-upload"></span> Tirar foto do QR code</label>
+      <input id="nfceFoto" type="file" accept="image/*" capture="environment" class="oculto">
+      <span class="nfce-ou">ou</span>
+      <form id="formLinkNfce" class="nfce-link">
+        <input id="nfceLink" type="url" placeholder="Cole o link do QR code (https://...gov.br/...)" autocomplete="off">
+        <button type="submit">Ler link</button>
+      </form>
+    </div>
+    <p class="dica-planejamento">No celular, o botão abre a câmera: fotografe só o QR code, de perto e sem reflexo. Também dá para ler o
+      QR com a câmera do celular, copiar o link e colar aqui.</p>
+    <p id="nfceStatus" class="nfce-status oculto" role="status"></p>
+  </div>
+
+  <!-- Passo 1b: o site da Fazenda pediu "não sou um robô" -->
+  <div class="card-box oculto" id="passoColar">
+    <h3>O site da Fazenda pediu uma verificação</h3>
+    <p class="nfce-explica">O site da Secretaria da Fazenda pede a confirmação <strong>"não sou um robô"</strong> antes de mostrar a nota,
+      e o sistema não pode fazer isso por você. São três toques:</p>
+    <ol class="nfce-passos">
+      <li><a id="nfceAbrirLink" href="#" target="_blank" rel="noopener noreferrer" class="atalho-financas"><span class="ico ico-note"></span> Abrir a nota no site da Fazenda</a> e faça a verificação.</li>
+      <li>Na página da nota, use <strong>Selecionar tudo</strong> e <strong>Copiar</strong> (no computador: Ctrl+A e Ctrl+C).</li>
+      <li>Volte aqui e cole no campo abaixo.</li>
+    </ol>
+    <form id="formTextoNfce">
+      <textarea id="nfceTexto" rows="6" placeholder="Cole aqui o texto da página da nota"></textarea>
+      <button type="submit">Ler o texto colado</button>
+    </form>
+  </div>
+
+  <!-- Passo 2: revisão -->
+  <div class="card-box oculto" id="passoRevisar">
+    <h3>2. Conferir e importar</h3>
+    <div id="nfceAvisoRepetida" class="fluxo-alerta oculto"></div>
+    <div class="nfce-cabecalho-nota">
+      <label>Mercado<input id="nfceEmitente" maxlength="160"></label>
+      <label>Data da compra<input id="nfceData" type="date"></label>
+      <label>Total pago (R$)<input id="nfceTotal" type="number" min="0.01" step="0.01"></label>
+    </div>
+    <div class="nfce-marcar-todos">
+      <label><input type="checkbox" id="nfceTodosPreco" checked> Guardar preço de todos</label>
+      <label><input type="checkbox" id="nfceTodosDespensa" checked> Pôr todos na despensa</label>
+    </div>
+    <div id="nfceItens" class="nfce-itens"></div>
+    <div class="nfce-despesa">
+      <label class="nfce-check"><input type="checkbox" id="nfceLancarDespesa" checked> Lançar uma despesa com o total</label>
+      <select id="nfceCategoriaDespesa" aria-label="Categoria da despesa"></select>
+    </div>
+    <div class="acoes-form-mesada">
+      <button id="btnImportarNfce"><span class="ico ico-save"></span> Importar nota</button>
+      <button id="btnCancelarNfce" class="btn-secundario">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="nfceResultado" class="card-box oculto"></div>
+
+  <div class="card-box">
+    <h3>Notas importadas</h3>
+    <ul id="nfceHistorico" class="lista-resumo"><li class="dica-planejamento">Carregando…</li></ul>
+  </div>
+</div>
+<script src="js/nota-fiscal.js"></script>
+</body>
+</html>

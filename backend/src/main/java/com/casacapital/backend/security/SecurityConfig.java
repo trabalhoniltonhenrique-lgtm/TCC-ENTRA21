@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 @Configuration
@@ -35,7 +36,14 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        // O filho (dependente) só alcança a própria mesada, as próprias tarefas e a lista de
+                        // compras; os controllers ainda escopam pelo membro do login.
+                        .requestMatchers(HttpMethod.GET, "/api/familia/me", "/api/tarefas", "/api/compras")
+                            .hasAnyRole("RESPONSAVEL", "DEPENDENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/tarefas/*/concluir", "/api/compras")
+                            .hasAnyRole("RESPONSAVEL", "DEPENDENTE")
+                        .requestMatchers("/api/mesada/minha", "/api/mesada/minha/**").hasRole("DEPENDENTE")
+                        .requestMatchers("/api/**").hasRole("RESPONSAVEL")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

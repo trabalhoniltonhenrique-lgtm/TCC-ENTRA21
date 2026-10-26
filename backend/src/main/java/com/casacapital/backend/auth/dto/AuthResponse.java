@@ -7,6 +7,8 @@ public record AuthResponse(
         Long usuarioId,
         String nome,
         String email,
-        FamiliaResponse familia
+        FamiliaResponse familia,
+        String perfil,
+        Long membroId
 ) {
 }

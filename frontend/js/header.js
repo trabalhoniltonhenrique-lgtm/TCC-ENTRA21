@@ -8,6 +8,13 @@
     return;
   }
 
+  // O filho (perfil dependente) só tem a área dele
+  const dependente = ehDependente();
+  if (dependente && pagina !== 'minha-area.html') {
+    location.replace('minha-area.html');
+    return;
+  }
+
   let familia;
   try {
     familia = await api.get('/familia/me');
@@ -19,12 +26,15 @@
   if (window.aplicarCorFamilia) aplicarCorFamilia(familia.corPrimaria);
   const isPremium = familia.plano === 'PREMIUM';
 
-  const itens = [
+  const itens = dependente ? [
+    { href: 'minha-area.html', label: '<span class="ico ico-coins"></span> Minha área' },
+  ] : [
     { href: 'dashboard.html', label: '<span class="ico ico-dashboard"></span> Início' },
     { href: 'financas.html',  label: '<span class="ico ico-wallet"></span> Finanças' },
     { href: 'contas.html',    label: '<span class="ico ico-clipboard"></span> Contas' },
     { href: 'metas.html',     label: '<span class="ico ico-trophy"></span> Metas' },
     { href: 'familia.html',   label: '<span class="ico ico-users"></span> Família' },
+    { href: 'mesada.html',    label: '<span class="ico ico-coins"></span> Mesada' },
     { href: 'compras.html',   label: '<span class="ico ico-cart"></span> Compras' },
     { href: 'dispensa.html',  label: '<span class="ico ico-package"></span> Dispensa' },
     { href: 'historico-precos.html', label: '<span class="ico ico-tag"></span> Histórico de Preços' },
@@ -36,7 +46,7 @@
     { href: 'configuracoes.html', label: '<span class="ico ico-settings"></span> Config' },
   ];
 
-  const badge = isPremium
+  const badge = dependente ? '' : isPremium
     ? '<span class="badge-plano-header-nav premium"><span class="ico ico-star"></span> PREMIUM</span>'
     : '<span class="badge-plano-header-nav essencial">ESSENCIAL</span>';
 

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Minha área</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/cores.js"></script>
+<script src="js/header.js"></script>
+<div class="container pagina-resumo">
+
+  <div class="metas-cabecalho cabecalho-resumo">
+    <div>
+      <h2 id="saudacao"><span class="ico ico-coins"></span> Minha área</h2>
+      <p>Sua mesada, suas tarefas e a lista de compras da casa.</p>
+    </div>
+  </div>
+
+  <div class="cards resumo-grade">
+    <div class="card-box" id="cardMinhaMesada"><p class="dica-planejamento">Carregando…</p></div>
+
+    <div class="card-box">
+      <h3><span class="ico ico-check-square"></span> Minhas tarefas</h3>
+      <ul id="minhasTarefas" class="lista-tarefas-filho"><li class="dica-planejamento">Carregando…</li></ul>
+    </div>
+
+    <div class="card-box">
+      <h3><span class="ico ico-cart"></span> Lista de compras</h3>
+      <form id="formCompraFilho" class="form-mesada form-linha">
+        <label class="campo-largo">Pedir para comprar<input id="compraFilhoNome" maxlength="160" required placeholder="Ex: leite, pão, caderno"></label>
+        <div class="acoes-form-mesada"><button type="submit">Adicionar</button></div>
+      </form>
+      <ul id="listaComprasFilho" class="lista-resumo"></ul>
+    </div>
+  </div>
+</div>
+<script src="js/minha-area.js"></script>
+</body>
+</html>

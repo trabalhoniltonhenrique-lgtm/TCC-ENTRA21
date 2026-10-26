@@ -98,11 +98,17 @@
 			<artifactId>pdfbox</artifactId>
 			<version>3.0.8</version>
 		</dependency>
-		<!-- QR code do endereço do sistema na rede de casa (Configurações > Usar no celular) -->
+		<!-- QR code: endereço do sistema na rede de casa e leitura do QR da nota fiscal -->
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
 			<version>3.5.4</version>
+		</dependency>
+		<!-- Nota fiscal do mercado (NFC-e): leitura da página de consulta da SEFAZ -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.18.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

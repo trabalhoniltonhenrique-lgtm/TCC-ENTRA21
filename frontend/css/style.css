@@ -1709,3 +1709,94 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .aviso-fechamento a { margin-left:auto; font-weight:600; white-space:nowrap; }
 .aviso-assinaturas + .aviso-fechamento:not(.oculto) { margin-top:.5rem; }
 @media (max-width:640px) { .atalho-financas { min-height:40px; } .cabecalho-resumo select { width:100%; } }
+
+/* ── Mesada (pais) e Minha área (filho) ── */
+.lista-mesadas .resumo-grade { align-items:start; }
+.cartao-mesada-topo { display:flex; justify-content:space-between; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.cartao-mesada-topo h3 { margin:0; display:flex; align-items:center; gap:.45rem; }
+.ponto-membro { width:12px; height:12px; border-radius:50%; display:inline-block; flex:0 0 auto; }
+.selo-login { font-size:.74rem; padding:2px 9px; border-radius:999px; background:var(--azul-claro); color:var(--azul); font-weight:600; }
+.saldo-mesada { font-size:1.9rem; font-weight:800; color:var(--verde); margin:.5rem 0 .1rem; }
+.saldo-mesada.negativo { color:var(--vermelho); }
+.sub-mesada { font-size:.84rem; color:var(--texto-suave); margin:0 0 .6rem; }
+.mesada-mes { display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; font-size:.82rem; color:var(--texto-secundario); margin-bottom:.6rem; }
+.mesada-mes strong { color:var(--texto-primario); }
+.meta-mesada { margin:.4rem 0 .6rem; }
+.meta-mesada-txt { display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; font-size:.82rem; margin-bottom:.3rem; color:var(--texto-secundario); }
+.secao-mesada { border-top:1px solid var(--borda-leve); padding:.45rem 0; }
+.secao-mesada > summary { cursor:pointer; font-size:.88rem; font-weight:600; color:var(--azul); padding:.25rem 0; list-style-position:inside; }
+.form-mesada { display:grid; grid-template-columns:1fr 1fr; gap:.5rem .75rem; margin-top:.5rem; }
+.form-mesada label { display:flex; flex-direction:column; gap:.2rem; font-size:.78rem; color:var(--texto-secundario); min-width:0; }
+.form-mesada input, .form-mesada select { margin:0; }
+.form-mesada .campo-largo, .form-mesada .acoes-form-mesada, .form-mesada .dica-planejamento, .form-mesada .check-mesada { grid-column:1 / -1; }
+.form-mesada .check-mesada { flex-direction:row; align-items:center; gap:.4rem; }
+.form-mesada .check-mesada input { width:auto; }
+.acoes-form-mesada { display:flex; gap:.5rem; flex-wrap:wrap; }
+.acoes-form-mesada button { width:auto; flex:1 1 140px; margin:0; }
+.form-mesada.form-linha { grid-template-columns:1fr auto; align-items:end; margin-bottom:.5rem; }
+.form-mesada.form-linha .campo-largo, .form-mesada.form-linha .acoes-form-mesada { grid-column:auto; }
+.extrato-mesada { list-style:none; margin:.4rem 0 0; padding:0; font-size:.84rem; max-height:320px; overflow-y:auto; }
+.extrato-mesada li { display:flex; align-items:center; gap:.5rem; padding:.4rem 0; border-top:1px solid var(--borda-leve); }
+.extrato-mesada li > span { flex:1; min-width:0; display:flex; flex-direction:column; color:var(--texto-primario); overflow-wrap:anywhere; }
+.extrato-mesada li small { color:var(--texto-suave); font-size:.72rem; }
+.extrato-mesada li strong { white-space:nowrap; }
+.extrato-mesada .btn-sm { width:auto; margin:0; padding:4px 8px; }
+.extrato-mesada .espaco-btn { width:38px; flex:0 0 auto; }
+.btn-icone-perigo { background:transparent; color:var(--vermelho); border:1px solid color-mix(in srgb, var(--vermelho) 35%, transparent); }
+.btn-icone-perigo:hover { background:color-mix(in srgb, var(--vermelho) 12%, transparent); }
+.lista-tarefas-filho { list-style:none; margin:0; padding:0; }
+.lista-tarefas-filho li { border-top:1px solid var(--borda-leve); padding:.5rem 0; }
+.lista-tarefas-filho label { display:flex; gap:.6rem; align-items:flex-start; cursor:pointer; font-size:.9rem; }
+.lista-tarefas-filho input { width:22px; height:22px; margin:0; flex:0 0 auto; }
+.lista-tarefas-filho li.feita span { text-decoration:line-through; color:var(--texto-suave); }
+.lista-tarefas-filho small { color:var(--texto-suave); font-size:.74rem; }
+@media (max-width:640px) {
+  .form-mesada { grid-template-columns:1fr; }
+  .form-mesada.form-linha { grid-template-columns:1fr; }
+  .saldo-mesada { font-size:1.6rem; }
+}
+
+/* ── Nota fiscal do mercado (NFC-e) ── */
+.nfce-entrada { display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin:.5rem 0; }
+.btn-foto-nfce { display:inline-flex; align-items:center; gap:.45rem; padding:12px 18px; border-radius:10px; background:var(--azul); color:var(--branco);
+  font-weight:600; cursor:pointer; min-height:44px; }
+.btn-foto-nfce:hover { background:var(--azul-escuro); }
+.nfce-ou { color:var(--texto-suave); font-size:.85rem; }
+.nfce-link { display:flex; gap:.5rem; flex:1 1 320px; min-width:0; }
+.nfce-link input { margin:0; flex:1; min-width:0; }
+.nfce-link button { width:auto; margin:0; padding:10px 16px; white-space:nowrap; }
+.nfce-status { margin:.5rem 0 0; padding:.55rem .8rem; border-radius:8px; background:var(--azul-claro); color:var(--texto-primario); font-size:.86rem; }
+.nfce-status.erro { background:color-mix(in srgb, var(--vermelho) 12%, transparent); color:var(--vermelho); }
+.nfce-explica { font-size:.88rem; color:var(--texto-secundario); }
+.nfce-passos { font-size:.88rem; color:var(--texto-primario); padding-left:1.2rem; margin:.5rem 0 .8rem; display:grid; gap:.45rem; }
+.nfce-passos .atalho-financas { margin-right:.25rem; }
+#formTextoNfce textarea { width:100%; box-sizing:border-box; font-family:inherit; font-size:.85rem; padding:10px; border-radius:8px;
+  border:1px solid var(--borda-leve); background:var(--bg-card); color:var(--texto-primario); resize:vertical; }
+.nfce-cabecalho-nota { display:grid; grid-template-columns:2fr 1fr 1fr; gap:.5rem .75rem; margin:.5rem 0; }
+.nfce-cabecalho-nota label { display:flex; flex-direction:column; gap:.2rem; font-size:.78rem; color:var(--texto-secundario); min-width:0; }
+.nfce-cabecalho-nota input { margin:0; }
+.nfce-marcar-todos { display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; font-size:.84rem; margin:.4rem 0; }
+.nfce-marcar-todos label, .nfce-check { display:inline-flex; align-items:center; gap:.35rem; cursor:pointer; }
+.nfce-marcar-todos input, .nfce-check input, .nfce-item-opcoes input[type=checkbox] { width:18px; height:18px; margin:0; }
+.nfce-itens { display:grid; gap:.5rem; margin:.4rem 0 .8rem; }
+.nfce-item { border:1px solid var(--borda-leve); border-radius:10px; padding:.55rem .7rem; }
+.nfce-item-topo { display:flex; align-items:center; gap:.6rem; }
+.nfce-item-topo .nfce-nome { flex:1; min-width:0; margin:0; font-weight:600; }
+.nfce-item-topo strong { white-space:nowrap; }
+.nfce-item-info { font-size:.78rem; color:var(--texto-suave); margin:.3rem 0; overflow-wrap:anywhere; }
+.nfce-novo { color:var(--azul); }
+.nfce-item-opcoes { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem .9rem; font-size:.82rem; }
+.nfce-item-opcoes label { display:inline-flex; align-items:center; gap:.3rem; cursor:pointer; }
+.nfce-item-opcoes .nfce-qtd { width:70px; margin:0; }
+.nfce-item-opcoes .nfce-cat { width:auto; margin:0; }
+.nfce-despesa { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1rem; margin:.4rem 0 .8rem; font-size:.88rem; }
+.nfce-despesa select { width:auto; margin:0; }
+@media (max-width:640px) {
+  .nfce-cabecalho-nota { grid-template-columns:1fr 1fr; }
+  .nfce-cabecalho-nota label:first-child { grid-column:1 / -1; }
+  .nfce-link { flex-basis:100%; }
+  .btn-foto-nfce { width:100%; justify-content:center; }
+  .nfce-ou { width:100%; text-align:center; }
+  .nfce-item-topo { flex-wrap:wrap; }
+  .nfce-item-topo .nfce-nome { flex-basis:100%; }
+}

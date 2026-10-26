@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Mesada</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/cores.js"></script>
+<script src="js/header.js"></script>
+<div class="container pagina-resumo">
+
+  <div class="metas-cabecalho cabecalho-resumo">
+    <div>
+      <h2><span class="ico ico-coins"></span> Mesada dos filhos</h2>
+      <p>Valor de cada mês, extras, gastos, objetivo e o login de cada filho.</p>
+    </div>
+  </div>
+
+  <div class="aviso-ir">
+    <span class="ico ico-lock"></span>
+    <span>Com o <strong>login do filho</strong>, ele entra com usuário e senha e vê <strong>só a área dele</strong>: a mesada,
+      as tarefas dele e a lista de compras. As finanças da casa ficam bloqueadas pelo servidor.</span>
+  </div>
+
+  <div id="listaMesadas" class="lista-mesadas"><p class="dica-planejamento">Carregando…</p></div>
+</div>
+<script src="js/mesada.js"></script>
+</body>
+</html>

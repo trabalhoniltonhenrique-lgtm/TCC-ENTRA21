@@ -1,6 +1,7 @@
 package com.casacapital.backend.security;
 
 import com.casacapital.backend.familia.PlanoFamilia;
+import com.casacapital.backend.usuario.PerfilUsuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -28,6 +29,11 @@ public class JwtService {
     }
 
     public String gerarToken(Long usuarioId, Long familiaId, String email, PlanoFamilia plano) {
+        return gerarToken(usuarioId, familiaId, email, plano, PerfilUsuario.RESPONSAVEL, null);
+    }
+
+    public String gerarToken(Long usuarioId, Long familiaId, String email, PlanoFamilia plano,
+                             PerfilUsuario perfil, Long membroId) {
         Instant agora = Instant.now();
         Instant expiraEm = agora.plus(properties.expirationMinutes(), ChronoUnit.MINUTES);
 
@@ -36,6 +42,8 @@ public class JwtService {
                 .claim("familiaId", familiaId)
                 .claim("email", email)
                 .claim("plano", plano.name())
+                .claim("perfil", perfil.name())
+                .claim("membroId", membroId)
                 .issuedAt(Date.from(agora))
                 .expiration(Date.from(expiraEm))
                 .signWith(key)
@@ -55,7 +63,13 @@ public class JwtService {
             String email = claims.get("email", String.class);
             PlanoFamilia plano = PlanoFamilia.valueOf(claims.get("plano", String.class));
 
-            return Optional.of(new SecurityUser(usuarioId, familiaId, email, plano));
+            // tokens emitidos antes dos perfis não têm a claim: são de responsável
+            String perfilClaim = claims.get("perfil", String.class);
+            PerfilUsuario perfil = perfilClaim != null ? PerfilUsuario.valueOf(perfilClaim) : PerfilUsuario.RESPONSAVEL;
+            Long membroId = claims.get("membroId", Long.class);
+            if (perfil == PerfilUsuario.DEPENDENTE && membroId == null) return Optional.empty();
+
+            return Optional.of(new SecurityUser(usuarioId, familiaId, email, plano, perfil, membroId));
         } catch (JwtException | IllegalArgumentException ex) {
             return Optional.empty();
         }

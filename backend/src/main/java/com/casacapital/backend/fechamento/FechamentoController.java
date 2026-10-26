@@ -4,6 +4,7 @@ import com.casacapital.backend.common.ApiException;
 import com.casacapital.backend.familia.Familia;
 import com.casacapital.backend.familia.FamiliaRepository;
 import com.casacapital.backend.security.SecurityUser;
+import com.casacapital.backend.usuario.PerfilUsuario;
 import com.casacapital.backend.usuario.Usuario;
 import com.casacapital.backend.usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,7 @@ public class FechamentoController {
     public Map<String, Object> preferencias(@AuthenticationPrincipal SecurityUser user) {
         Familia f = familias.findById(user.familiaId()).orElseThrow();
         return Map.of("emailAtivo", f.isFechamentoEmail(), "emailConfigurado", emailConfigurado,
-                "destinatarios", usuarios.findAllByFamiliaId(user.familiaId()).stream().map(Usuario::getEmail).toList());
+                "destinatarios", usuarios.findAllByFamiliaIdAndPerfil(user.familiaId(), PerfilUsuario.RESPONSAVEL).stream().map(Usuario::getEmail).toList());
     }
 
     @PutMapping("/preferencias")

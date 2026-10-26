@@ -1,8 +1,11 @@
 package com.casacapital.backend.usuario;
 
 import com.casacapital.backend.familia.Familia;
+import com.casacapital.backend.membro.MembroFamilia;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,6 +43,15 @@ public class Usuario {
 
     @Column(name = "senha_hash", nullable = false, length = 60)
     private String senhaHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PerfilUsuario perfil = PerfilUsuario.RESPONSAVEL;
+
+    /** Só no dependente: o membro da família a quem o login pertence. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "membro_id")
+    private MembroFamilia membro;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

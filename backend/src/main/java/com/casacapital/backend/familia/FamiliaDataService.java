@@ -8,6 +8,7 @@ import com.casacapital.backend.dispensa.ItemDispensaRepository;
 import com.casacapital.backend.historicoprecos.HistoricoPrecoRepository;
 import com.casacapital.backend.membro.MembroFamiliaRepository;
 import com.casacapital.backend.meta.MetaRepository;
+import com.casacapital.backend.nfce.NfceImportadaRepository;
 import com.casacapital.backend.orcamento.OrcamentoMensalRepository;
 import com.casacapital.backend.receita.ReceitaRepository;
 import com.casacapital.backend.tarefa.TarefaRepository;
@@ -29,6 +30,7 @@ public class FamiliaDataService {
     private final OrcamentoMensalRepository orcamentoMensalRepository;
     private final MetaRepository metaRepository;
     private final MembroFamiliaRepository membroFamiliaRepository;
+    private final NfceImportadaRepository nfceImportadaRepository;
 
     public FamiliaDataService(ReceitaRepository receitaRepository, DespesaRepository despesaRepository,
                                ContaRepository contaRepository, CompraRepository compraRepository,
@@ -36,7 +38,8 @@ public class FamiliaDataService {
                                HistoricoPrecoRepository historicoPrecoRepository, TarefaRepository tarefaRepository,
                                AlertaLimiteRepository alertaLimiteRepository,
                                OrcamentoMensalRepository orcamentoMensalRepository, MetaRepository metaRepository,
-                               MembroFamiliaRepository membroFamiliaRepository) {
+                               MembroFamiliaRepository membroFamiliaRepository,
+                               NfceImportadaRepository nfceImportadaRepository) {
         this.receitaRepository = receitaRepository;
         this.despesaRepository = despesaRepository;
         this.contaRepository = contaRepository;
@@ -48,6 +51,7 @@ public class FamiliaDataService {
         this.orcamentoMensalRepository = orcamentoMensalRepository;
         this.metaRepository = metaRepository;
         this.membroFamiliaRepository = membroFamiliaRepository;
+        this.nfceImportadaRepository = nfceImportadaRepository;
     }
 
     @Transactional
@@ -61,7 +65,9 @@ public class FamiliaDataService {
         tarefaRepository.deleteAll(tarefaRepository.findAllByFamiliaId(familiaId));
         alertaLimiteRepository.deleteAll(alertaLimiteRepository.findAllByFamiliaId(familiaId));
         metaRepository.deleteAll(metaRepository.findAllByFamiliaIdFetchAportes(familiaId));
+        // apagar o membro apaga, pelo banco, o login de filho, a mesada e o extrato dele
         membroFamiliaRepository.deleteAll(membroFamiliaRepository.findAllByFamiliaIdOrderByNomeAsc(familiaId));
+        nfceImportadaRepository.deleteAll(nfceImportadaRepository.findAllByFamiliaId(familiaId));
         // Orçamentos não têm um finder "todos os meses"; removidos mês a mês seria caro,
         // então aqui usamos uma deleção em lote diretamente pela família.
         orcamentoMensalRepository.deleteAllByFamiliaId(familiaId);

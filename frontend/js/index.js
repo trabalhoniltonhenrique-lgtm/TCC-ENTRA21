@@ -15,7 +15,7 @@ async function entrar() {
   document.getElementById('loginErro').classList.add('oculto');
 
   if (!email || !senha) {
-    mostrarErroLogin('Informe e-mail e senha.');
+    mostrarErroLogin('Informe o e-mail (ou o usuário) e a senha.');
     return;
   }
 
@@ -24,7 +24,7 @@ async function entrar() {
   try {
     const resp = await api.post('/auth/login', { email, senha });
     setToken(resp.token);
-    location.href = 'dashboard.html';
+    location.href = paginaInicial();
   } catch (erro) {
     mostrarErroLogin(erro.message || 'Não foi possível entrar. Verifique seus dados.');
     btn.disabled = false;
@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Se já está logado, pula direto para o dashboard.
+  // Se já está logado, pula direto para a tela inicial.
   if (estaAutenticado()) {
-    location.href = 'dashboard.html';
+    location.href = paginaInicial();
   }
 });
