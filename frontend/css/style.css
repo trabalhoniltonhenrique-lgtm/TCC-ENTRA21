@@ -1582,7 +1582,7 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .status-backup.erro { background:color-mix(in srgb, var(--vermelho) 12%, transparent); color:var(--vermelho); }
 .status-backup .ico { vertical-align:-2px; }
 .status-backup div { margin-top:.3rem; font-size:.8rem; }
-.config-secao code { font-size:.8rem; background:var(--bg-borda-leve); padding:1px 5px; border-radius:4px; }
+.config-secao code { overflow-wrap:anywhere; font-size:.8rem; background:var(--bg-borda-leve); padding:1px 5px; border-radius:4px; }
 
 /* ── Assinaturas (Finanças) e aviso no Início ── */
 .total-assinaturas { font-size:.9rem; color:var(--texto-secundario); margin:.2rem 0 .6rem; }
@@ -1616,3 +1616,50 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .url-celular { font-size:1.15rem; font-weight:700; color:var(--azul); word-break:break-all; margin:.15rem 0; }
 .passos-celular { font-size:.86rem; color:var(--texto-secundario); margin:.4rem 0 .6rem 1.1rem; padding:0; line-height:1.6; }
 .status-backup.aviso { background:var(--bg-borda-leve); color:var(--texto-secundario); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Ajustes de celular (até 640px) — revisão de responsividade
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Campo com letra < 16px faz o iPhone dar zoom ao tocar */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea { font-size:16px !important; }
+
+  /* Alvos de toque de pelo menos ~36px */
+  .btn-sm { min-height:36px; min-width:38px; }
+  .btn-limpar-filtro, .btn-add-aporte, .comp-periodo-btn, .btn-relatorio-modulo, .btn-copiar-mes,
+  .btn-importar-fatura, .chip-cartao, .lote-opcoes .btn-lote { min-height:38px; }
+  .cor-familia-op { width:36px; height:36px; }
+  header:not(.sidebar) nav a { padding:9px 12px; }
+
+  /* Cartões de conta: os botões descem para uma linha própria quando não cabem */
+  .conta-card { flex-wrap:wrap; row-gap:.5rem; }
+  .conta-card .conta-info { flex:1 1 150px; }
+  .conta-acoes { flex:1 1 100%; justify-content:flex-end; }
+  .grupo-linha-topo { flex-wrap:wrap; }
+  .parcela-linha { flex-wrap:wrap; row-gap:.35rem; }
+  .parcela-linha .desc { flex:1 1 100%; }
+  .parcela-linha .valor { margin-left:auto; }
+
+  /* Investimentos e assinaturas: valores embaixo das informações */
+  .card-investimento .acoes { margin-left:auto; }
+  .item-assinatura { flex-wrap:wrap; }
+  .item-assinatura .info { flex:1 1 100%; }
+  .item-assinatura .valor { margin-left:auto; }
+
+  /* Despensa e Família: o nome ocupa a linha de cima; controles e botões descem quando não cabem */
+  .dispensa-item { flex-wrap:wrap; row-gap:.45rem; }
+  .dispensa-item .info { flex:1 1 100%; }
+  .dispensa-item .status-badge { margin-right:auto; }
+  .membro-card { flex-wrap:wrap; row-gap:.5rem; }
+  .membro-info { flex:1 1 150px; }
+  .membro-acoes { margin-left:auto; }
+
+  /* Botões redondos/pequenos das listas */
+  .btn-marcar-comprado, .qtd-btn { width:36px; height:36px; min-width:36px; }
+  .btn-concluir-tarefa, .kanban-cartao .btn-concluir-tarefa { width:34px; height:34px; }
+  .btn-excluir-cartao { min-width:34px; min-height:34px; }
+  .btn-icone-fatura { min-width:38px; min-height:38px; }
+
+  /* Textos pequenos ficam legíveis */
+  .badge-plano-header-nav, .selo-assin, .tag-tipo-inv, .fluxo-itens em { font-size:11px; }
+}
