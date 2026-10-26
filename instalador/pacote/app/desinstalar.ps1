@@ -30,6 +30,7 @@ try {
         }
     }
     Unregister-ScheduledTask -TaskName "CasaCapital - Backup diario" -Confirm:$false -ErrorAction SilentlyContinue
+    Get-NetFirewallRule -DisplayName "CasaCapital - rede local" -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 
     # Se este script estiver rodando de dentro da pasta instalada, sai dela antes de apagar
     Set-Location $env:TEMP

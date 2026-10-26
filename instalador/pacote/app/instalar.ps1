@@ -223,7 +223,31 @@ FLUSH PRIVILEGES;
         throw "O servico nao respondeu. Veja os logs em $dados\logs (casacapital.log e CasaCapital.err.log)."
     }
 
-    # --- 7) Backup automatico diario --------------------------------------
+    # --- 7) Acesso pelo celular (rede de casa) ------------------------------
+    Passo "Acesso pelo celular (rede Wi-Fi de casa)"
+    $regraRede = "CasaCapital - rede local"
+    Get-NetFirewallRule -DisplayName $regraRede -ErrorAction SilentlyContinue | Remove-NetFirewallRule
+    $acessoRede = if ($cfg["ACESSO_REDE_LOCAL"]) { $cfg["ACESSO_REDE_LOCAL"].Trim().ToUpper() } else { "SIM" }
+    if ($acessoRede -eq "SIM") {
+        # So rede Privada e so aparelhos da mesma rede local
+        New-NetFirewallRule -DisplayName $regraRede -Direction Inbound -Action Allow -Protocol TCP -LocalPort $porta `
+            -Profile Private -RemoteAddress LocalSubnet `
+            -Description "Permite abrir o CasaCapital no celular pela rede de casa (porta $porta)." | Out-Null
+        $ips = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object {
+            $_.IPAddress -match '^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)' -and
+            $_.InterfaceAlias -notmatch 'vEthernet|VirtualBox|VMware|WSL|Docker|Loopback|Bluetooth' }
+        foreach ($ip in $ips) { Write-Host "  No celular (mesmo Wi-Fi): http://$($ip.IPAddress):$porta" -ForegroundColor Green }
+        $publicas = @(Get-NetConnectionProfile -ErrorAction SilentlyContinue | Where-Object { $_.NetworkCategory -eq "Public" })
+        foreach ($rede in $publicas) {
+            Write-Host "  AVISO: a rede '$($rede.Name)' esta como PUBLICA no Windows, entao o celular ainda NAO consegue abrir." -ForegroundColor Yellow
+            Write-Host "         Se for a rede da sua casa: Configuracoes > Rede e Internet > Wi-Fi > '$($rede.Name)' >" -ForegroundColor Yellow
+            Write-Host "         Tipo de perfil de rede: Privada." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  Acesso pela rede desativado (ACESSO_REDE_LOCAL=NAO no configuracao.ini)." -ForegroundColor Gray
+    }
+
+    # --- 8) Backup automatico diario --------------------------------------
     Passo "Configurando backup automatico diario"
     $tarefa = "CasaCapital - Backup diario"
     $acao = New-ScheduledTaskAction -Execute "powershell.exe" `
@@ -242,7 +266,7 @@ FLUSH PRIVILEGES;
         Write-Host "  AVISO: o backup diario foi agendado, mas o primeiro backup falhou. Veja $dados\logs\backup.log." -ForegroundColor Yellow
     }
 
-    # --- 8) Atalhos ---------------------------------------------------------
+    # --- 9) Atalhos ---------------------------------------------------------
     Passo "Criando atalhos"
     $conteudoAtalho = "[InternetShortcut]`r`nURL=$url`r`n"
     $areaTrabalho = [Environment]::GetFolderPath("CommonDesktopDirectory")

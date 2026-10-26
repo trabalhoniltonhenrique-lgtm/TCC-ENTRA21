@@ -49,8 +49,9 @@
   const html = `
     <header class="sidebar">
       <h1>${nomeExibido} ${badge}</h1>
+      <button id="btnMenuCelular" class="btn-menu-celular" aria-expanded="false" aria-controls="menuPrincipal">☰ Menu</button>
       <nav>
-        <ul>
+        <ul id="menuPrincipal">
           ${navLinks}
           <li class="menu-sair"><a href="#" id="linkSair"><span class="ico ico-logout"></span> Sair</a></li>
         </ul>
@@ -73,6 +74,17 @@
     script.insertAdjacentHTML('afterend', html);
   } else {
     document.body.insertAdjacentHTML('afterbegin', html);
+  }
+
+  // Celular: o menu fica recolhido atrás do botão "☰ Menu"
+  const btnMenu = document.getElementById('btnMenuCelular');
+  if (btnMenu) {
+    btnMenu.addEventListener('click', function () {
+      const header = btnMenu.closest('header');
+      const aberto = header.classList.toggle('menu-aberto');
+      btnMenu.setAttribute('aria-expanded', aberto);
+      btnMenu.textContent = aberto ? '✕ Fechar' : '☰ Menu';
+    });
   }
 
   const themeBtn = document.getElementById('themeToggleBtn');

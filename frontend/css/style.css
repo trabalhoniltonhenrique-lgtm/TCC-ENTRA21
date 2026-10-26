@@ -239,6 +239,23 @@ body.tem-sidebar {
   }
 }
 
+/* Celular: só o nome da família e o botão "☰ Menu"; a lista abre por cima do conteúdo, em duas colunas */
+.btn-menu-celular { display:none; }
+@media (max-width: 640px) {
+  header.sidebar { position:sticky; top:0; z-index:50; flex-wrap:nowrap; padding:.6rem .9rem; }
+  header.sidebar h1 { flex:1; min-width:0; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .btn-menu-celular { display:inline-flex; width:auto; margin:0; padding:8px 14px; font-size:.9rem; font-weight:600;
+    background:rgba(255,255,255,.15); color:#fff; border:none; border-radius:8px; }
+  header.sidebar nav { display:none; }
+  header.sidebar.menu-aberto { flex-wrap:wrap; }
+  header.sidebar.menu-aberto nav { display:flex; flex:1 1 100%; flex-direction:column; align-items:stretch; gap:.5rem;
+    max-height:calc(100vh - 70px); overflow-y:auto; padding-top:.4rem; }
+  header.sidebar.menu-aberto nav ul { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+  header.sidebar.menu-aberto nav a { padding:10px 12px; }
+  header.sidebar.menu-aberto .menu-sair { margin:0; grid-column:1/-1; }
+  header.sidebar .theme-toggle { align-self:flex-end; }
+}
+
 /* ── Header simples (sem sidebar) usado em páginas como planos.html ── */
 header:not(.sidebar) {
   background: var(--azul-escuro);
@@ -1566,3 +1583,36 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .status-backup .ico { vertical-align:-2px; }
 .status-backup div { margin-top:.3rem; font-size:.8rem; }
 .config-secao code { font-size:.8rem; background:var(--bg-borda-leve); padding:1px 5px; border-radius:4px; }
+
+/* ── Assinaturas (Finanças) e aviso no Início ── */
+.total-assinaturas { font-size:.9rem; color:var(--texto-secundario); margin:.2rem 0 .6rem; }
+.total-assinaturas strong { font-size:1.35rem; color:var(--texto-primario); }
+.lista-assinaturas, .lista-ignoradas { list-style:none; margin:0; padding:0; }
+.item-assinatura { display:flex; align-items:center; gap:.75rem; padding:.55rem 0; border-top:1px solid var(--borda-leve); }
+.item-assinatura .info { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.item-assinatura .info strong { font-size:.9rem; color:var(--texto-primario); }
+.item-assinatura .info span:not(.selo-assin) { font-size:.76rem; color:var(--texto-suave); }
+.item-assinatura .valor { font-weight:700; color:var(--texto-primario); white-space:nowrap; }
+.item-assinatura .valor small { font-weight:400; font-size:.72rem; color:var(--texto-suave); }
+.item-assinatura.inativa { opacity:.6; }
+.item-assinatura button, .lista-ignoradas button { width:auto; margin:0; }
+.item-assinatura .titulo { display:flex; flex-wrap:wrap; align-items:center; gap:2px 4px; }
+#cardAssinaturas .dica-assinaturas { font-size:.76rem; color:var(--texto-suave); }
+.selo-assin { display:inline-block; font-size:.66rem; font-weight:700; padding:1px 7px; border-radius:999px; margin-left:4px; vertical-align:1px; }
+.selo-assin.aumento { background:color-mix(in srgb, var(--vermelho) 14%, transparent); color:var(--vermelho); }
+.selo-assin.nova { background:var(--azul-claro); color:var(--azul); }
+.selo-assin.provavel { background:var(--bg-borda-leve); color:var(--texto-suave); }
+.assinaturas-paradas { margin-top:.6rem; font-size:.82rem; }
+.assinaturas-paradas summary { cursor:pointer; color:var(--texto-secundario); }
+.lista-ignoradas li { display:flex; justify-content:space-between; align-items:center; gap:.5rem; padding:.35rem 0; font-size:.8rem; color:var(--texto-secundario); }
+.dica-assinaturas { font-size:.76rem; color:var(--texto-suave); margin:.6rem 0 0; }
+.aviso-assinaturas { margin:0 1.25rem; padding:.65rem .9rem; border-radius:10px; font-size:.86rem; display:flex; flex-wrap:wrap; gap:.4rem; align-items:center;
+  background:color-mix(in srgb, #F59E0B 14%, var(--bg-card)); color:var(--texto-primario); border:1px solid color-mix(in srgb, #F59E0B 40%, transparent); }
+.aviso-assinaturas a { margin-left:auto; font-weight:600; white-space:nowrap; }
+
+/* ── Configurações: usar no celular ── */
+.endereco-celular { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin:.4rem 0 .6rem; }
+.qr-celular { width:148px; height:148px; border-radius:8px; border:1px solid var(--borda-leve); background:#fff; flex:0 0 auto; }
+.url-celular { font-size:1.15rem; font-weight:700; color:var(--azul); word-break:break-all; margin:.15rem 0; }
+.passos-celular { font-size:.86rem; color:var(--texto-secundario); margin:.4rem 0 .6rem 1.1rem; padding:0; line-height:1.6; }
+.status-backup.aviso { background:var(--bg-borda-leve); color:var(--texto-secundario); }

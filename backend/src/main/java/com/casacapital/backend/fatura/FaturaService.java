@@ -306,7 +306,7 @@ public class FaturaService {
      * Estabelecimento normalizado: as duas primeiras palavras, sem números nem pontuação
      * ("DL*UberRides SAO PAULO" e "DL *UberRides" -> "DL UBERRIDES"; "SUPERMERCADO SCHUTZE TIMBO" -> "SUPERMERCADO SCHUTZE").
      */
-    static String chaveLoja(String descricao) {
+    public static String chaveLoja(String descricao) {
         String texto = Normalizer.normalize(descricao == null ? "" : descricao, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "").toUpperCase(Locale.ROOT).replaceAll("[^A-Z]+", " ").trim();
         String[] palavras = texto.isEmpty() ? new String[0] : texto.split(" ");

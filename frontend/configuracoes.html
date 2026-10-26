@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
   <link rel="stylesheet" href="css/style.css">
   <title>CasaCapital — Configurações</title>
 </head>
@@ -218,6 +226,21 @@
       </div>
     </div>
 
+    <!-- Usar no celular (pela rede Wi-Fi de casa) -->
+    <div class="config-secao">
+      <h3><span class="ico ico-monitor"></span> Usar no celular</h3>
+      <div id="redeCelular" class="rede-celular">Verificando…</div>
+      <ol class="passos-celular">
+        <li>Conecte o celular no <strong>mesmo Wi-Fi</strong> deste computador.</li>
+        <li>Aponte a câmera para o QR code (ou digite o endereço no navegador do celular) e entre com o seu login.</li>
+        <li>Para virar um "app": no iPhone, toque em <strong>Compartilhar → Adicionar à Tela de Início</strong>;
+          no Android, no menu <strong>⋮ → Adicionar à tela inicial</strong>.</li>
+      </ol>
+      <p class="config-desc">Não abriu? No Windows, a rede de casa precisa estar como <strong>Privada</strong>
+        (Configurações → Rede e Internet → Wi-Fi → sua rede → Tipo de perfil de rede: Privada).
+        Por segurança, o sistema não fica acessível em redes públicas nem fora da sua casa.</p>
+    </div>
+
     <!-- Backup automático (feito todo dia por uma tarefa agendada do Windows) -->
     <div class="config-secao">
       <h3><span class="ico ico-database"></span> Backup automático</h3>
@@ -246,5 +269,6 @@
 
 <script src="js/configuracoes.js"></script>
 <script src="js/backup-status.js"></script>
+<script src="js/rede-celular.js"></script>
 </body>
 </html>
