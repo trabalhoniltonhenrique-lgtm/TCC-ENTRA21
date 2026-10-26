@@ -101,9 +101,19 @@
       titulo: 'Metas, Orçamento e Investimentos',
       async montar() {
         const mes = mesAtual();
-        const [metas, itens, despesas, invs] = await Promise.all([
+        const [metas, itens, despesas, invs, cdi] = await Promise.all([
           api.get('/metas'), api.get('/orcamentos/' + mes), api.get('/despesas'), api.get('/investimentos'),
+          api.get('/investimentos/cdi'),
         ]);
+        // mesma conta da tela: taxa equivalente ao mês x valor atual (estimativa bruta)
+        const porMes = i => {
+          if (i.taxa == null) return null;
+          const t = Number(i.taxa) / 100;
+          const m = i.tipoTaxa === 'MES' ? t : i.tipoTaxa === 'ANO' ? Math.pow(1 + t, 1 / 12) - 1
+            : i.tipoTaxa === 'CDI' && cdi.cdiAnual != null ? Math.pow(1 + (Number(cdi.cdiAnual) / 100) * t, 1 / 12) - 1 : null;
+          return m == null ? null : Number(i.valorAtual) * m;
+        };
+        const unidade = { MES: '% a.m.', ANO: '% a.a.', CDI: '% CDI' };
         const linha = m => [m.nome, dinheiro(m.valorAlvo), dinheiro(m.totalPoupado), dinheiro(Math.max(0, m.valorAlvo - m.totalPoupado)),
           pct(Number(m.totalPoupado), Number(m.valorAlvo)), data(m.prazo)];
         const colunas = ['Meta', 'Objetivo', 'Poupado', 'Falta', 'Progresso', 'Prazo'];
@@ -131,9 +141,11 @@
             },
             {
               titulo: 'Carteira de investimentos — aplicado ' + dinheiro(aplicado) + ', rendimento ' + dinheiro(atual - aplicado),
-              colunas: ['Investimento', 'Tipo', 'Instituição', 'Aplicado', 'Atual', 'Meta', 'Vencimento'], direita: [3, 4],
+              colunas: ['Investimento', 'Tipo', 'Instituição', 'Aplicado', 'Atual', 'Rentab.', '≈ Rend./mês', 'Meta', 'Vencimento'],
+              direita: [3, 4, 5, 6],
               linhas: invs.map(i => [i.nome, i.tipo, i.instituicao || '—', dinheiro(i.valorAplicado), dinheiro(i.valorAtual),
-                i.metaNome || '—', data(i.vencimento)]),
+                i.taxa != null ? String(i.taxa).replace('.', ',') + ' ' + (unidade[i.tipoTaxa] || '') : '—',
+                porMes(i) != null ? dinheiro(porMes(i)) : '—', i.metaNome || '—', data(i.vencimento)]),
             },
           ],
         };

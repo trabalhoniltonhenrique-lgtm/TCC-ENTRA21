@@ -54,6 +54,13 @@ public class Investimento {
     @Column(name = "valor_atual", nullable = false, precision = 14, scale = 2)
     private BigDecimal valorAtual;
 
+    /** Rentabilidade informada (para projeções): valor + unidade (MES, ANO ou CDI). Null = sem projeção. */
+    @Column(precision = 9, scale = 4)
+    private BigDecimal taxa;
+
+    @Column(name = "tipo_taxa", length = 10)
+    private String tipoTaxa;
+
     @Column(name = "data_aplicacao")
     private LocalDate dataAplicacao;
 

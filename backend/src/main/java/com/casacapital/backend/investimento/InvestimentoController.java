@@ -1,5 +1,6 @@
 package com.casacapital.backend.investimento;
 
+import com.casacapital.backend.investimento.dto.CdiRequest;
 import com.casacapital.backend.investimento.dto.InvestimentoRequest;
 import com.casacapital.backend.investimento.dto.InvestimentoResponse;
 import com.casacapital.backend.investimento.dto.ValorAtualRequest;
@@ -42,6 +43,17 @@ public class InvestimentoController {
     public InvestimentoResponse atualizarValor(@AuthenticationPrincipal SecurityUser user, @PathVariable Long id,
                                                @Valid @RequestBody ValorAtualRequest req) {
         return InvestimentoResponse.from(service.atualizarValor(user.familiaId(), id, req.valorAtual()));
+    }
+
+    /** CDI em % ao ano usado nas projeções dos investimentos em "% do CDI". */
+    @GetMapping("/cdi")
+    public CdiRequest cdi(@AuthenticationPrincipal SecurityUser user) {
+        return new CdiRequest(service.cdiAnual(user.familiaId()));
+    }
+
+    @PutMapping("/cdi")
+    public CdiRequest definirCdi(@AuthenticationPrincipal SecurityUser user, @Valid @RequestBody CdiRequest req) {
+        return new CdiRequest(service.definirCdiAnual(user.familiaId(), req.cdiAnual()));
     }
 
     @DeleteMapping("/{id}")

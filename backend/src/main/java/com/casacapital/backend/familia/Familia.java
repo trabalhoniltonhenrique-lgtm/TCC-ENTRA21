@@ -65,6 +65,10 @@ public class Familia {
     @Column(name = "cor_primaria", length = 7)
     private String corPrimaria;
 
+    /** CDI em % ao ano, informado pela família, para projetar investimentos em "% do CDI". */
+    @Column(name = "cdi_anual", precision = 6, scale = 3)
+    private java.math.BigDecimal cdiAnual;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

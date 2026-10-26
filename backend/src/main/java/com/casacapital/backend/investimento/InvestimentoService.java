@@ -24,6 +24,8 @@ public class InvestimentoService {
             "Poupança", "CDB", "LCI / LCA", "Tesouro Direto", "Fundos", "Ações", "FIIs", "ETFs",
             "Previdência", "Criptomoedas", "Outros");
 
+    public static final Set<String> TIPOS_TAXA = Set.of("MES", "ANO", "CDI");
+
     private final InvestimentoRepository repository;
     private final FamiliaRepository familiaRepository;
     private final MetaRepository metaRepository;
@@ -73,6 +75,19 @@ public class InvestimentoService {
         return i;
     }
 
+    @Transactional(readOnly = true)
+    public BigDecimal cdiAnual(Long familiaId) {
+        return familiaRepository.findById(familiaId).map(f -> f.getCdiAnual()).orElse(null);
+    }
+
+    @Transactional
+    public BigDecimal definirCdiAnual(Long familiaId, BigDecimal cdiAnual) {
+        var familia = familiaRepository.findById(familiaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Família não encontrada."));
+        familia.setCdiAnual(cdiAnual);
+        return cdiAnual;
+    }
+
     @Transactional
     public void excluir(Long familiaId, Long id) {
         repository.delete(buscar(familiaId, id));
@@ -95,6 +110,17 @@ public class InvestimentoService {
         i.setInstituicao(vazioParaNull(req.instituicao()));
         i.setValorAplicado(req.valorAplicado());
         i.setValorAtual(req.valorAtual());
+        if (req.taxa() == null) {
+            i.setTaxa(null);
+            i.setTipoTaxa(null);
+        } else {
+            if (!TIPOS_TAXA.contains(req.tipoTaxa())) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "TIPO_TAXA_INVALIDO",
+                        "Informe se a rentabilidade é % ao mês, % ao ano ou % do CDI.");
+            }
+            i.setTaxa(req.taxa());
+            i.setTipoTaxa(req.tipoTaxa());
+        }
         i.setDataAplicacao(req.dataAplicacao());
         i.setVencimento(req.vencimento());
         i.setObs(vazioParaNull(req.obs()));

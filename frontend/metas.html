@@ -106,6 +106,17 @@
             <input id="invAtual" type="number" min="0" step="0.01" placeholder="Saldo hoje, no app do banco">
           </div>
           <div>
+            <label for="invTaxa">Rentabilidade (para projeção)</label>
+            <div class="campo-taxa">
+              <input id="invTaxa" type="number" min="0" step="0.01" placeholder="Ex.: 1 ou 110">
+              <select id="invTipoTaxa" aria-label="Unidade da rentabilidade">
+                <option value="MES">% ao mês</option>
+                <option value="ANO">% ao ano</option>
+                <option value="CDI">% do CDI</option>
+              </select>
+            </div>
+          </div>
+          <div>
             <label for="invDataAplicacao">Data da aplicação</label>
             <input id="invDataAplicacao" type="date">
           </div>

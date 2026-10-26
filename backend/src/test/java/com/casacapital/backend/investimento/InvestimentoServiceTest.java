@@ -49,7 +49,7 @@ class InvestimentoServiceTest {
 
     private static InvestimentoRequest req(String tipo, String atual, Long metaId) {
         return new InvestimentoRequest("CDB Banco X", tipo, "Banco X", new BigDecimal("5000.00"), new BigDecimal(atual),
-                LocalDate.of(2026, 1, 10), LocalDate.of(2028, 1, 10), " ", metaId);
+                new BigDecimal("110"), "CDI", LocalDate.of(2026, 1, 10), LocalDate.of(2028, 1, 10), " ", metaId);
     }
 
     @Test
@@ -58,6 +58,22 @@ class InvestimentoServiceTest {
         assertEquals(reserva, i.getMeta());
         assertEquals(LocalDate.now(), i.getAtualizadoEm());
         assertNull(i.getObs()); // campo em branco vira null
+    }
+
+    @Test
+    void guardaRentabilidadeERecusaUnidadeInvalida() {
+        Investimento i = service.criar(1L, req("CDB", "5230.15", null));
+        assertEquals(new BigDecimal("110"), i.getTaxa());
+        assertEquals("CDI", i.getTipoTaxa());
+
+        InvestimentoRequest semUnidade = new InvestimentoRequest("MXRF11", "FIIs", "XP", new BigDecimal("50"), new BigDecimal("50"),
+                new BigDecimal("1"), "SEMANA", null, null, null, null);
+        ApiException e = assertThrows(ApiException.class, () -> service.criar(1L, semUnidade));
+        assertEquals("TIPO_TAXA_INVALIDO", e.getCode());
+
+        InvestimentoRequest semTaxa = new InvestimentoRequest("MXRF11", "FIIs", "XP", new BigDecimal("50"), new BigDecimal("50"),
+                null, "MES", null, null, null, null);
+        assertNull(service.criar(1L, semTaxa).getTipoTaxa()); // sem taxa, sem unidade
     }
 
     @Test
