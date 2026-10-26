@@ -23,7 +23,6 @@
     { href: 'dashboard.html', label: '<span class="ico ico-dashboard"></span> Início' },
     { href: 'financas.html',  label: '<span class="ico ico-wallet"></span> Finanças' },
     { href: 'contas.html',    label: '<span class="ico ico-clipboard"></span> Contas' },
-    { href: 'orcamento.html', label: '<span class="ico ico-target"></span> Orçamento' },
     { href: 'metas.html',     label: '<span class="ico ico-trophy"></span> Metas' },
     { href: 'familia.html',   label: '<span class="ico ico-users"></span> Família' },
     { href: 'compras.html',   label: '<span class="ico ico-cart"></span> Compras' },

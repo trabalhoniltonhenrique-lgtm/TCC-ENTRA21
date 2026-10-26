@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/app.js"></script>
-  <title>CasaCapital — Metas de Economia</title>
+  <title>CasaCapital — Metas</title>
 </head>
 <body>
 <script src="js/api.js"></script>
@@ -16,36 +16,121 @@
   <!-- Cabeçalho -->
   <div class="metas-cabecalho">
     <div>
-      <h2><span class="ico ico-trophy"></span> Metas de Economia</h2>
-      <p>Defina objetivos e acompanhe o progresso da sua família.</p>
+      <h2><span class="ico ico-trophy"></span> Metas</h2>
+      <p>Objetivos de economia, orçamento do mês e carteira de investimentos da família.</p>
     </div>
     <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Relatório</button>
   </div>
 
-  <!-- Formulário -->
-  <div class="bloco-form-meta">
-    <div class="card">
-      <h2>+ Nova Meta</h2>
-      <div class="grid-form-meta">
-        <div class="full">
-          <label>Nome da meta *</label>
-          <input id="metaNome" placeholder="Ex: Viagem de férias, Reserva de emergência...">
-        </div>
-        <div>
-          <label data-moeda-label="Valor alvo ({moeda}) *">Valor alvo (R$) *</label>
-          <input id="metaValor" type="number" placeholder="5000" min="0" step="0.01">
-        </div>
-        <div>
-          <label>Prazo (opcional)</label>
-          <input id="metaPrazo" type="date">
-        </div>
-      </div>
-      <button id="btnCriarMeta">Criar Meta</button>
-    </div>
+  <!-- Abas -->
+  <div class="abas-metas" role="tablist" aria-label="Seções de Metas">
+    <button class="aba-metas" role="tab" data-aba="metas"><span class="ico ico-trophy"></span> Metas</button>
+    <button class="aba-metas" role="tab" data-aba="orcamento"><span class="ico ico-target"></span> Orçamento do mês</button>
+    <button class="aba-metas" role="tab" data-aba="investimentos"><span class="ico ico-trending-up"></span> Investimentos</button>
   </div>
 
-  <!-- Lista de metas -->
-  <div class="lista-metas-wrap" id="listaMetas"></div>
+  <!-- ── Aba: Metas ── -->
+  <section id="painel-metas" class="painel-metas" role="tabpanel">
+    <div class="bloco-form-meta">
+      <div class="card">
+        <h2>+ Nova Meta</h2>
+        <div class="grid-form-meta">
+          <div class="full">
+            <label>Nome da meta *</label>
+            <input id="metaNome" placeholder="Ex: Viagem de férias, Reserva de emergência...">
+          </div>
+          <div>
+            <label data-moeda-label="Valor alvo ({moeda}) *">Valor alvo (R$) *</label>
+            <input id="metaValor" type="number" placeholder="5000" min="0" step="0.01">
+          </div>
+          <div>
+            <label>Prazo (opcional)</label>
+            <input id="metaPrazo" type="date">
+          </div>
+        </div>
+        <p class="dica-metas">Para a meta avançar com seus investimentos, ligue-os a ela na aba <strong>Investimentos</strong>.</p>
+        <button id="btnCriarMeta">Criar Meta</button>
+      </div>
+    </div>
+    <div class="lista-metas-wrap" id="listaMetas"></div>
+  </section>
+
+  <!-- ── Aba: Orçamento do mês ── -->
+  <section id="painel-orcamento" class="painel-metas oculto" role="tabpanel">
+    <div class="orcamento-cabecalho">
+      <p id="labelMesOrc"></p>
+      <button id="btnCopiarMes" class="btn-secundario btn-copiar-mes">
+        <span class="ico ico-clipboard"></span> Copiar mês anterior
+      </button>
+    </div>
+    <div class="bloco-form-orcamento">
+      <div class="card">
+        <h2>+ Definir limite por categoria</h2>
+        <div class="linha-form-orcamento">
+          <select id="orcCat"></select>
+          <input id="orcLimite" type="number" placeholder="Limite mensal (R$)" data-moeda-label="Limite mensal ({moeda})" min="0" step="0.01">
+          <button id="btnSalvarOrcamento">Salvar</button>
+        </div>
+      </div>
+    </div>
+    <div class="lista-orcamentos-wrap" id="listaOrcamentos"></div>
+  </section>
+
+  <!-- ── Aba: Investimentos ── -->
+  <section id="painel-investimentos" class="painel-metas oculto" role="tabpanel">
+    <div class="resumo-investimentos" id="resumoInvestimentos"></div>
+
+    <div class="bloco-form-meta">
+      <div class="card">
+        <h2 id="tituloFormInv">+ Novo investimento</h2>
+        <div class="grid-form-investimento">
+          <div class="full">
+            <label for="invNome">Nome *</label>
+            <input id="invNome" maxlength="120" placeholder="Ex.: CDB 110% CDI, Tesouro Selic 2029, PETR4">
+          </div>
+          <div>
+            <label for="invTipo">Tipo *</label>
+            <select id="invTipo"></select>
+          </div>
+          <div>
+            <label for="invInstituicao">Instituição</label>
+            <input id="invInstituicao" maxlength="60" list="listaInstituicoes" placeholder="Ex.: Nubank, Inter, XP">
+            <datalist id="listaInstituicoes"></datalist>
+          </div>
+          <div>
+            <label for="invAplicado" data-moeda-label="Valor aplicado ({moeda}) *">Valor aplicado (R$) *</label>
+            <input id="invAplicado" type="number" min="0" step="0.01" placeholder="0,00">
+          </div>
+          <div>
+            <label for="invAtual" data-moeda-label="Valor atual ({moeda}) *">Valor atual (R$) *</label>
+            <input id="invAtual" type="number" min="0" step="0.01" placeholder="Saldo hoje, no app do banco">
+          </div>
+          <div>
+            <label for="invDataAplicacao">Data da aplicação</label>
+            <input id="invDataAplicacao" type="date">
+          </div>
+          <div>
+            <label for="invVencimento">Vencimento</label>
+            <input id="invVencimento" type="date">
+          </div>
+          <div>
+            <label for="invMeta">Ligado à meta</label>
+            <select id="invMeta"></select>
+          </div>
+          <div>
+            <label for="invObs">Observação</label>
+            <input id="invObs" maxlength="255" placeholder="Opcional">
+          </div>
+        </div>
+        <div class="form-conta-acoes">
+          <button id="btnSalvarInvestimento">Adicionar investimento</button>
+          <button id="btnCancelarInvestimento" class="btn-secundario oculto">Cancelar edição</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lista-investimentos-wrap" id="listaInvestimentos"></div>
+  </section>
 
 </div>
 <script src="js/metas.js"></script>

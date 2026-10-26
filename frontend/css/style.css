@@ -1456,3 +1456,50 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .chip-cartao:hover { background:var(--bg-hover); }
 .chip-cartao.ativo { background:var(--azul); color:#fff; border-color:var(--azul); }
 .chip-cartao.ativo span { color:rgba(255,255,255,.85); }
+
+/* ── Metas: abas (Metas | Orçamento do mês | Investimentos) ── */
+.abas-metas { display:flex; flex-wrap:wrap; gap:.4rem; padding:0 1.25rem 1rem; border-bottom:1px solid var(--borda-leve); margin-bottom:1rem; }
+.aba-metas { width:auto; margin:0; padding:9px 16px; border-radius:10px 10px 0 0; font-size:.9rem; font-weight:600;
+  background:transparent; color:var(--texto-secundario); border:none; border-bottom:3px solid transparent;
+  display:inline-flex; align-items:center; gap:6px; }
+.aba-metas:hover { background:var(--bg-hover); color:var(--texto-primario); }
+.aba-metas.ativo { color:var(--azul); border-bottom-color:var(--azul); background:transparent; }
+.painel-metas .orcamento-cabecalho { padding-top:0; }
+.dica-metas { font-size:.8rem; color:var(--texto-suave); margin:.6rem 0 0; }
+.composicao-meta { font-size:.78rem; color:var(--texto-suave); margin:.15rem 0 .35rem; }
+.composicao-meta .invs-meta { display:block; }
+
+/* ── Metas: carteira de investimentos ── */
+.resumo-investimentos { padding:0 1.25rem; }
+.resumo-investimentos .resumo-topo { margin-bottom:.85rem; }
+.distribuicao-carteira { margin-bottom:1rem; max-width:none; }
+.distribuicao-carteira h3 { font-size:.95rem; margin:0 0 .6rem; color:var(--texto-primario); }
+.linha-distribuicao { display:grid; grid-template-columns:130px 1fr 150px; align-items:center; gap:.75rem; font-size:.85rem; margin-bottom:.4rem; }
+.linha-distribuicao .barra-fundo-meta { margin:0; }
+.linha-distribuicao .valor { text-align:right; font-weight:600; color:var(--texto-primario); }
+.linha-distribuicao .valor small { color:var(--texto-suave); font-weight:400; margin-left:4px; }
+.grid-form-investimento { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:.5rem .75rem; }
+.grid-form-investimento .full { grid-column:1/-1; }
+.grid-form-investimento label { font-size:.78rem; color:var(--texto-suave); font-weight:600; display:block; margin-bottom:3px; }
+.grid-form-investimento input, .grid-form-investimento select { margin:0; }
+.lista-investimentos-wrap { padding:0 1.25rem 1.25rem; }
+.card-investimento { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; background:var(--bg-card); border-radius:12px;
+  padding:.9rem 1.1rem; margin-bottom:.65rem; box-shadow:0 2px 8px var(--sombra-leve); border-left:4px solid var(--azul); }
+.card-investimento .info { flex:1; min-width:220px; display:flex; flex-direction:column; gap:2px; }
+.card-investimento .info strong { font-size:.93rem; color:var(--texto-primario); }
+.card-investimento .info span { font-size:.8rem; color:var(--texto-suave); }
+.card-investimento .meta-ligada { color:var(--azul) !important; font-weight:600; }
+.card-investimento .atualizado { font-size:.72rem !important; }
+.tag-tipo-inv { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; font-size:.7rem; font-weight:600;
+  background:var(--azul-claro); color:var(--azul); vertical-align:middle; }
+.card-investimento .valores { text-align:right; min-width:150px; }
+.card-investimento .valores .atual { font-size:1.05rem; font-weight:700; color:var(--texto-primario); }
+.card-investimento .valores .aplicado { font-size:.78rem; color:var(--texto-suave); }
+.card-investimento .valores .ganho { font-size:.8rem; font-weight:600; color:var(--verde); }
+.card-investimento .valores .perda { font-size:.8rem; font-weight:600; color:var(--vermelho); }
+.card-investimento .acoes { display:flex; gap:.35rem; }
+@media (max-width:640px) {
+  .linha-distribuicao { grid-template-columns:90px 1fr; }
+  .linha-distribuicao .valor { grid-column:1/-1; text-align:left; }
+  .card-investimento .valores { text-align:left; }
+}

@@ -3,47 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/app.js"></script>
-  <title>CasaCapital — Orçamento Mensal</title>
+  <!-- O Orçamento agora é uma aba de Metas; mantém links e favoritos antigos funcionando -->
+  <meta http-equiv="refresh" content="0; url=metas.html#orcamento">
+  <script>location.replace('metas.html#orcamento');</script>
+  <title>CasaCapital — Orçamento</title>
 </head>
 <body>
-<script src="js/api.js"></script>
-<script src="js/cores.js"></script>
-<script src="js/header.js"></script>
-<div class="container orcamento-container">
-
-  <!-- Cabeçalho -->
-  <div class="orcamento-cabecalho">
-    <div>
-      <h2><span class="ico ico-target"></span> Orçamento Mensal</h2>
-      <p id="labelMesOrc"></p>
-    </div>
-    <div class="cabecalho-acoes">
-      <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Relatório</button>
-      <button id="btnCopiarMes" class="btn-secundario btn-copiar-mes">
-        <span class="ico ico-clipboard"></span> Copiar mês anterior
-      </button>
-    </div>
-  </div>
-
-  <!-- Formulário -->
-  <div class="bloco-form-orcamento">
-    <div class="card">
-      <h2>+ Definir limite por categoria</h2>
-      <div class="linha-form-orcamento">
-        <select id="orcCat"></select>
-        <input id="orcLimite" type="number" placeholder="Limite mensal (R$)" data-moeda-label="Limite mensal ({moeda})" min="0" step="0.01">
-        <button id="btnSalvarOrcamento">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Lista de orçamentos -->
-  <div class="lista-orcamentos-wrap" id="listaOrcamentos"></div>
-
-</div>
-<script src="js/orcamento.js"></script>
-<script src="js/relatorio-modulo.js"></script>
+  <p>O Orçamento agora fica em <a href="metas.html#orcamento">Metas → Orçamento do mês</a>.</p>
 </body>
 </html>

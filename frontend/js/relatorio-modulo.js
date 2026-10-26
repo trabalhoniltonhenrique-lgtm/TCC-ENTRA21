@@ -97,44 +97,44 @@
       },
     },
 
-    'orcamento.html': {
-      titulo: 'Orçamento Mensal',
+    'metas.html': {
+      titulo: 'Metas, Orçamento e Investimentos',
       async montar() {
         const mes = mesAtual();
-        const [itens, despesas] = await Promise.all([api.get('/orcamentos/' + mes), api.get('/despesas')]);
-        const gastos = gastosPorCategoria(despesas, mes);
-        const totalLimite = soma(itens, 'limite');
-        const totalGasto = itens.reduce((a, o) => a + (gastos[o.categoria] || 0), 0);
-        return {
-          periodo: nomeMes(mes),
-          resumo: [{ rotulo: 'Orçado', valor: dinheiro(totalLimite) }, { rotulo: 'Gasto', valor: dinheiro(totalGasto) }, { rotulo: 'Disponível', valor: dinheiro(totalLimite - totalGasto) }],
-          secoes: [{
-            titulo: 'Limites por categoria', colunas: ['Categoria', 'Limite', 'Gasto', 'Disponível', 'Uso'], direita: [1, 2, 3, 4],
-            linhas: itens.map(o => {
-              const g = gastos[o.categoria] || 0;
-              return [o.categoria, dinheiro(o.limite), dinheiro(g), dinheiro(o.limite - g), pct(g, Number(o.limite))];
-            }),
-          }],
-        };
-      },
-    },
-
-    'metas.html': {
-      titulo: 'Metas de Economia',
-      async montar() {
-        const metas = await api.get('/metas');
+        const [metas, itens, despesas, invs] = await Promise.all([
+          api.get('/metas'), api.get('/orcamentos/' + mes), api.get('/despesas'), api.get('/investimentos'),
+        ]);
         const linha = m => [m.nome, dinheiro(m.valorAlvo), dinheiro(m.totalPoupado), dinheiro(Math.max(0, m.valorAlvo - m.totalPoupado)),
           pct(Number(m.totalPoupado), Number(m.valorAlvo)), data(m.prazo)];
         const colunas = ['Meta', 'Objetivo', 'Poupado', 'Falta', 'Progresso', 'Prazo'];
+        const gastos = gastosPorCategoria(despesas, mes);
+        const totalLimite = soma(itens, 'limite');
+        const totalGasto = itens.reduce((a, o) => a + (gastos[o.categoria] || 0), 0);
+        const aplicado = soma(invs, 'valorAplicado');
+        const atual = soma(invs, 'valorAtual');
         return {
+          periodo: nomeMes(mes),
           resumo: [
-            { rotulo: 'Metas', valor: String(metas.length) },
-            { rotulo: 'Total poupado', valor: dinheiro(soma(metas, 'totalPoupado')) },
-            { rotulo: 'Objetivo total', valor: dinheiro(soma(metas, 'valorAlvo')) },
+            { rotulo: 'Total poupado nas metas', valor: dinheiro(soma(metas, 'totalPoupado')) },
+            { rotulo: 'Orçamento do mês (gasto / orçado)', valor: dinheiro(totalGasto) + ' / ' + dinheiro(totalLimite) },
+            { rotulo: 'Carteira (valor atual)', valor: dinheiro(atual) },
           ],
           secoes: [
-            { titulo: 'Em andamento', colunas, direita: [1, 2, 3, 4], linhas: metas.filter(m => !m.concluida).map(linha) },
-            { titulo: 'Concluídas', colunas, direita: [1, 2, 3, 4], linhas: metas.filter(m => m.concluida).map(linha) },
+            { titulo: 'Metas em andamento', colunas, direita: [1, 2, 3, 4], linhas: metas.filter(m => !m.concluida).map(linha) },
+            { titulo: 'Metas concluídas', colunas, direita: [1, 2, 3, 4], linhas: metas.filter(m => m.concluida).map(linha) },
+            {
+              titulo: 'Orçamento do mês — limites por categoria', colunas: ['Categoria', 'Limite', 'Gasto', 'Disponível', 'Uso'], direita: [1, 2, 3, 4],
+              linhas: itens.map(o => {
+                const g = gastos[o.categoria] || 0;
+                return [o.categoria, dinheiro(o.limite), dinheiro(g), dinheiro(o.limite - g), pct(g, Number(o.limite))];
+              }),
+            },
+            {
+              titulo: 'Carteira de investimentos — aplicado ' + dinheiro(aplicado) + ', rendimento ' + dinheiro(atual - aplicado),
+              colunas: ['Investimento', 'Tipo', 'Instituição', 'Aplicado', 'Atual', 'Meta', 'Vencimento'], direita: [3, 4],
+              linhas: invs.map(i => [i.nome, i.tipo, i.instituicao || '—', dinheiro(i.valorAplicado), dinheiro(i.valorAtual),
+                i.metaNome || '—', data(i.vencimento)]),
+            },
           ],
         };
       },

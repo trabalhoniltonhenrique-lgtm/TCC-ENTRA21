@@ -1338,7 +1338,7 @@ async function renderResumoOrcamentoDashboard() {
   card.innerHTML = `
     <div class="cabecalho-resumo-orc">
       <h2 class="sem-margem"><span class="ico ico-target"></span> Orçamento do Mês</h2>
-      <a href="orcamento.html" class="link-ver-todas">Gerenciar →</a>
+      <a href="metas.html#orcamento" class="link-ver-todas">Gerenciar →</a>
     </div>
     <div class="linha-valores-orcamento">
       <span>${fmt(totalGasto)} de ${fmt(totalLimite)}</span>
@@ -1353,7 +1353,9 @@ async function renderResumoOrcamentoDashboard() {
 // ── PLANEJAMENTO FINANCEIRO: Metas de Economia ──
 // ══════════════════════════════════════════════
 
+// Aportes + valor atual dos investimentos ligados (calculado pelo servidor em totalPoupado)
 function totalPoupadoMeta(meta) {
+  if (meta.totalPoupado != null) return Number(meta.totalPoupado);
   return (meta.aportes || []).reduce((a, b) => a + b.valor, 0);
 }
 
@@ -1415,6 +1417,11 @@ function renderMetas() {
         <span class="poupado-meta">${fmt(poupado)}</span>
         <span>de ${fmt(m.valorAlvo)}</span>
       </div>
+      ${Number(m.totalInvestimentos) > 0 ? `<div class="composicao-meta">
+        Aportes ${fmt(m.totalAportes)} + investimentos ${fmt(m.totalInvestimentos)}
+        ${(window.carteiraInvestimentos || []).filter(i => i.metaId === m.id).length ? `<span class="invs-meta">(${(window.carteiraInvestimentos || [])
+          .filter(i => i.metaId === m.id).map(i => i.nome.replace(/[&<>"']/g, '')).join(', ')})</span>` : ''}
+      </div>` : ''}
       <div class="barra-fundo-meta">
         <div class="barra-progresso-meta ${completa ? 'meta-completa' : ''}" style="--largura:${pct}%;"></div>
       </div>
