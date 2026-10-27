@@ -12,4 +12,7 @@ public interface NfceImportadaRepository extends JpaRepository<NfceImportada, Lo
     List<NfceImportada> findTop20ByFamiliaIdOrderByImportadaEmDesc(Long familiaId);
 
     List<NfceImportada> findAllByFamiliaId(Long familiaId);
+
+    /** Última nota do mesmo CNPJ: o nome que a família deu ao mercado. */
+    Optional<NfceImportada> findFirstByFamiliaIdAndCnpjOrderByImportadaEmDesc(Long familiaId, String cnpj);
 }

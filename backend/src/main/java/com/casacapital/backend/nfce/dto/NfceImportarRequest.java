@@ -18,6 +18,7 @@ import java.util.List;
 public record NfceImportarRequest(
         @NotNull @Pattern(regexp = "\\d{44}", message = "chave de acesso inválida") String chave,
         @Size(max = 160) String emitente,
+        @Size(max = 18) String cnpj,
         LocalDate dataEmissao,
         @NotNull @DecimalMin("0.01") BigDecimal total,
         @NotEmpty @Size(max = 300) List<@Valid Item> itens,
@@ -27,6 +28,7 @@ public record NfceImportarRequest(
 ) {
     public record Item(
             @NotBlank @Size(max = 160) String nome,
+            @Size(max = 60) String codigo,
             @NotNull @DecimalMin("0.01") BigDecimal valorUnitario,
             boolean registrarPreco,
             boolean despensa,

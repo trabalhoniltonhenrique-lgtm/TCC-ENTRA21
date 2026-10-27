@@ -40,6 +40,9 @@ public class NfceImportada {
     @Column(length = 160)
     private String emitente;
 
+    @Column(length = 18)
+    private String cnpj;
+
     @Column(name = "data_emissao")
     private LocalDate dataEmissao;
 

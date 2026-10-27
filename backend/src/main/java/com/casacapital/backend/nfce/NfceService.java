@@ -133,12 +133,13 @@ public class NfceService {
         }
         Familia familia = familias.getReferenceById(familiaId);
         LocalDate data = req.dataEmissao() != null ? req.dataEmissao() : LocalDate.now();
+        String mercado = req.emitente() != null && !req.emitente().isBlank() ? req.emitente().trim() : null;
 
         int precos = 0, naDespensa = 0;
         for (NfceImportarRequest.Item item : req.itens()) {
             String nome = item.nome().trim();
             if (item.registrarPreco()) {
-                historico.registrar(familia, nome, item.valorUnitario(), data);
+                historico.registrar(familia, nome, item.valorUnitario(), data, mercado, gtin(item.codigo()));
                 precos++;
             }
             if (item.despensa()) {
@@ -163,6 +164,7 @@ public class NfceService {
         reg.setFamilia(familia);
         reg.setChave(req.chave());
         reg.setEmitente(req.emitente());
+        reg.setCnpj(req.cnpj());
         reg.setDataEmissao(req.dataEmissao());
         reg.setTotal(req.total());
         reg.setItens(req.itens().size());
@@ -220,7 +222,11 @@ public class NfceService {
                     anterior.map(HistoricoPreco::getPreco).orElse(null),
                     anterior.map(HistoricoPreco::getData).orElse(null));
         }).toList();
-        return new NfceLeituraResponse(link, false, nota.chave(), nota.emitente(), nota.cnpj(), nota.dataEmissao(), nota.total(),
+        // mesmo CNPJ de uma nota anterior: usa o nome que a família deu ao mercado naquela vez
+        String emitente = nota.cnpj() == null ? nota.emitente() : importadas
+                .findFirstByFamiliaIdAndCnpjOrderByImportadaEmDesc(familiaId, nota.cnpj())
+                .map(NfceImportada::getEmitente).filter(n -> n != null && !n.isBlank()).orElse(nota.emitente());
+        return new NfceLeituraResponse(link, false, nota.chave(), emitente, nota.cnpj(), nota.dataEmissao(), nota.total(),
                 importadaEm, itens);
     }
 
@@ -241,5 +247,22 @@ public class NfceService {
         if (i.unidade() != null && UNIDADES_A_GRANEL.contains(i.unidade())) return 1;
         int q = i.quantidade().setScale(0, RoundingMode.HALF_UP).intValue();
         return Math.max(1, Math.min(999, q));
+    }
+
+    /**
+     * Código de barras (GTIN-8/12/13/14) quando o "código" da nota é um, com dígito verificador certo.
+     * Muitos mercados põem ali um código interno, que não serve para comparar com outro mercado.
+     */
+    static String gtin(String codigo) {
+        if (codigo == null) return null;
+        String d = codigo.replaceAll("\\D", "");
+        if (!(d.length() == 8 || d.length() == 12 || d.length() == 13 || d.length() == 14) || d.chars().allMatch(c -> c == '0')) {
+            return null;
+        }
+        int soma = 0;
+        for (int i = d.length() - 2, peso = 3; i >= 0; i--, peso = peso == 3 ? 1 : 3) soma += (d.charAt(i) - '0') * peso;
+        int dv = (10 - soma % 10) % 10;
+        if (dv != d.charAt(d.length() - 1) - '0') return null;
+        return d.length() == 14 ? d : "0".repeat(14 - d.length()) + d; // guarda sempre com 14 dígitos
     }
 }

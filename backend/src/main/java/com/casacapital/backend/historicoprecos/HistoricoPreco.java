@@ -41,6 +41,14 @@ public class HistoricoPreco {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal preco;
 
+    /** Mercado da compra (nome do emitente da nota fiscal); vazio nas compras registradas à mão. */
+    @Column(length = 160)
+    private String mercado;
+
+    /** Código de barras (GTIN/EAN) vindo da nota fiscal, quando é um código válido. */
+    @Column(name = "codigo_barras", length = 14)
+    private String codigoBarras;
+
     public HistoricoPreco(Familia familia, String produtoChave, LocalDate data, BigDecimal preco) {
         this.familia = familia;
         this.produtoChave = produtoChave;

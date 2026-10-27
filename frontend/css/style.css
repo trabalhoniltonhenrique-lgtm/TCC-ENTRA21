@@ -1851,3 +1851,34 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
   .comp-info { flex-basis:calc(100% - 80px); }
   .comp-acoes { width:100%; justify-content:flex-end; }
 }
+
+/* ── Comparar mercados ── */
+a.btn-secundario.btn-relatorio-modulo { background:var(--bg-card); color:var(--azul); border:1.5px solid var(--azul); border-radius:8px;
+  font-weight:600; text-decoration:none; }
+a.btn-secundario.btn-relatorio-modulo:hover { background:var(--bg-hover); }
+.dica-campo { font-size:.72rem; color:var(--texto-suave); font-weight:400; }
+.merc-mercados { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:.6rem; margin-bottom:1rem; }
+.merc-nome-box { font-size:1.05rem !important; overflow-wrap:anywhere; }
+.merc-destaque { display:flex; gap:.5rem; align-items:flex-start; }
+.merc-totais { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:.6rem; margin:.5rem 0; }
+.merc-total { border:1.5px solid var(--borda-leve); border-radius:12px; padding:.7rem .85rem; min-width:0; }
+.merc-total.melhor { border-color:var(--verde); background:color-mix(in srgb, var(--verde) 7%, transparent); }
+.merc-total-nome { font-weight:700; color:var(--texto-primario); overflow-wrap:anywhere; }
+.merc-total-valor { font-size:1.45rem; font-weight:800; color:var(--azul-escuro); margin:.15rem 0; }
+.merc-total.melhor .merc-total-valor { color:var(--verde); }
+.merc-total-sub { font-size:.76rem; color:var(--texto-suave); }
+.merc-detalhe-lista { margin:.4rem 0; }
+.merc-detalhe-lista > summary { cursor:pointer; font-weight:600; color:var(--azul); font-size:.88rem; padding:.3rem 0; }
+.merc-busca { margin:.2rem 0 .5rem; }
+.merc-itens { list-style:none; margin:0; padding:0; }
+.merc-itens li { padding:.55rem 0; border-top:1px solid var(--borda-leve); display:flex; flex-wrap:wrap; gap:.35rem .8rem; align-items:center; }
+.merc-item-nome { flex:1 1 220px; min-width:0; display:flex; flex-direction:column; overflow-wrap:anywhere; font-size:.88rem; }
+.merc-item-nome small { color:var(--texto-suave); font-size:.74rem; }
+.merc-chips { display:flex; flex-wrap:wrap; gap:.35rem; }
+.merc-chip { display:inline-flex; align-items:baseline; gap:.35rem; padding:3px 9px; border-radius:999px; font-size:.78rem;
+  border:1px solid var(--borda-leve); color:var(--texto-secundario); max-width:100%; }
+.merc-chip-nome { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px; }
+.merc-chip strong { color:var(--texto-primario); white-space:nowrap; }
+.merc-chip.barato { border-color:var(--verde); background:color-mix(in srgb, var(--verde) 10%, transparent); }
+.merc-chip.barato strong { color:var(--verde); }
+.merc-chip small { font-size:.68rem; color:var(--texto-suave); }

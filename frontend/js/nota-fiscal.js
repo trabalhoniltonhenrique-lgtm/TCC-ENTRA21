@@ -98,6 +98,7 @@
   async function importar() {
     const itens = [...document.querySelectorAll('.nfce-item')].map(div => ({
       nome: div.querySelector('.nfce-nome').value.trim(),
+      codigo: nota.itens[div.dataset.i].codigo || null,
       valorUnitario: Number(nota.itens[div.dataset.i].valorUnitario),
       registrarPreco: div.querySelector('.nfce-preco').checked,
       despensa: div.querySelector('.nfce-despensa').checked,
@@ -111,7 +112,8 @@
     btn.disabled = true;
     try {
       const r = await api.post('/nfce/importar', {
-        chave: nota.chave, emitente: $('nfceEmitente').value.trim() || null, dataEmissao: $('nfceData').value || null,
+        chave: nota.chave, emitente: $('nfceEmitente').value.trim() || null, cnpj: nota.cnpj || null,
+        dataEmissao: $('nfceData').value || null,
         total, itens, lancarDespesa: $('nfceLancarDespesa').checked, categoriaDespesa: $('nfceCategoriaDespesa').value,
       });
       $('nfceResultado').innerHTML = `
@@ -124,6 +126,7 @@
         <div class="atalhos-financas">
           <a href="dispensa.html" class="atalho-financas"><span class="ico ico-package"></span> Ver despensa</a>
           <a href="historico-precos.html" class="atalho-financas"><span class="ico ico-tag"></span> Ver histórico de preços</a>
+          <a href="mercados.html" class="atalho-financas"><span class="ico ico-chart-bar"></span> Comparar mercados</a>
           <a href="nota-fiscal.html" class="atalho-financas"><span class="ico ico-note"></span> Ler outra nota</a>
         </div>`;
       mostrar('nfceResultado');

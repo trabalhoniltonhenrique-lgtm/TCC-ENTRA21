@@ -39,9 +39,19 @@ public class HistoricoPrecoService {
     /** Com a data da compra (ex.: data de emissão da nota fiscal). */
     @Transactional
     public void registrar(Familia familia, String nomeProduto, BigDecimal precoUnitario, java.time.LocalDate data) {
+        registrar(familia, nomeProduto, precoUnitario, data, null, null);
+    }
+
+    /** Compra pela nota fiscal: guarda também o mercado e o código de barras, para comparar mercados. */
+    @Transactional
+    public void registrar(Familia familia, String nomeProduto, BigDecimal precoUnitario, java.time.LocalDate data,
+                          String mercado, String codigoBarras) {
         if (nomeProduto == null || nomeProduto.isBlank() || precoUnitario == null || precoUnitario.signum() <= 0) return;
-        historicoPrecoRepository.save(new HistoricoPreco(
-                familia, HistoricoPreco.chave(nomeProduto), data != null ? data : java.time.LocalDate.now(), precoUnitario));
+        HistoricoPreco h = new HistoricoPreco(
+                familia, HistoricoPreco.chave(nomeProduto), data != null ? data : java.time.LocalDate.now(), precoUnitario);
+        h.setMercado(mercado != null && !mercado.isBlank() ? mercado.trim() : null);
+        h.setCodigoBarras(codigoBarras);
+        historicoPrecoRepository.save(h);
     }
 
     /** Último preço registrado do produto, para comparar com uma compra nova. */

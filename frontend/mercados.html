@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tela inicial do celular (ícone e nome do app) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="theme-color" content="#1E3A8A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CasaCapital">
+  <link rel="stylesheet" href="css/style.css">
+  <title>CasaCapital — Comparar mercados</title>
+</head>
+<body>
+<script src="js/api.js"></script>
+<script src="js/cores.js"></script>
+<script src="js/header.js"></script>
+<div class="container pagina-resumo">
+
+  <div class="metas-cabecalho cabecalho-resumo">
+    <div>
+      <h2><span class="ico ico-chart-bar"></span> Qual mercado é mais barato</h2>
+      <p>Comparação feita com os preços das notas fiscais importadas pelo QR code.</p>
+    </div>
+    <div class="cabecalho-acoes">
+      <a href="nota-fiscal.html" class="btn-secundario btn-relatorio-modulo"><span class="ico ico-note"></span> Ler nota do mercado</a>
+    </div>
+  </div>
+
+  <div id="mercConteudo" class="resumo-conteudo"><p class="dica-planejamento">Carregando…</p></div>
+</div>
+<script src="js/mercados.js"></script>
+</body>
+</html>
