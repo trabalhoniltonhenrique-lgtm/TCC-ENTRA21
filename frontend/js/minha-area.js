@@ -68,7 +68,18 @@
       : '<li class="dica-planejamento">A lista está vazia.</li>';
   }
 
+  function renderCompromissos(lista) {
+    const ul = document.getElementById('meusCompromissos');
+    const futuros = lista.filter(c => new Date(c.inicio) >= new Date(Date.now() - 3600000));
+    ul.innerHTML = futuros.length ? futuros.slice(0, 10).map(c => {
+      const ini = new Date(c.inicio);
+      return `<li><span>${esc(c.titulo)}${c.local ? ` <small>${esc(c.local)}</small>` : ''}</span>
+        <strong>${ini.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })} ${ini.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong></li>`;
+    }).join('') : '<li class="dica-planejamento">Nenhum compromisso agendado para você.</li>';
+  }
+
   async function carregar() {
+    api.get('/compromissos').then(renderCompromissos).catch(() => { document.getElementById('meusCompromissos').innerHTML = ''; });
     const [m, t, c] = await Promise.allSettled([api.get('/mesada/minha'), api.get('/tarefas'), api.get('/compras')]);
     if (m.status === 'fulfilled') renderMesada(m.value);
     else document.getElementById('cardMinhaMesada').innerHTML = `<p class="dica-planejamento">Não foi possível carregar a mesada: ${esc(m.reason.message)}</p>`;

@@ -1800,3 +1800,54 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
   .nfce-item-topo { flex-wrap:wrap; }
   .nfce-item-topo .nfce-nome { flex-basis:100%; }
 }
+
+/* ── Compromissos (aba em Tarefas) e alerta ── */
+.abas-tarefas { padding:0; margin:0 0 1rem; }
+.cont-aba { display:inline-block; min-width:20px; padding:1px 6px; border-radius:999px; background:var(--azul); color:var(--branco); font-size:.72rem; margin-left:4px; }
+.form-compromisso { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:.5rem .75rem; margin-top:.75rem; }
+.form-compromisso label { display:flex; flex-direction:column; gap:.2rem; font-size:.78rem; color:var(--texto-secundario); min-width:0; }
+.form-compromisso input, .form-compromisso select { margin:0; }
+.form-compromisso .campo-largo { grid-column:span 2; }
+.form-compromisso .acoes-form-mesada { grid-column:1 / -1; }
+.btn-notif-sistema { width:auto; font-size:.84rem; padding:8px 14px; }
+.lista-compromissos { display:grid; gap:.75rem; }
+.comp-grupo { max-width:none; padding:1.1rem 1.25rem; }
+#btnTestarAlerta { width:auto; margin:0; padding:9px 16px; font-size:.85rem; display:inline-flex; align-items:center; gap:6px; }
+#painel-tarefas .tarefas-form-card, #painel-compromissos .tarefas-form-card { margin-top:0; }
+.comp-grupo h3 { font-size:.95rem; color:var(--azul-escuro); margin:0 0 .4rem; }
+.comp-passados > summary { cursor:pointer; font-weight:600; color:var(--texto-secundario); }
+.comp-item { display:flex; gap:.8rem; align-items:flex-start; padding:.6rem 0; border-top:1px solid var(--borda-leve); }
+.comp-item.passou { opacity:.6; }
+.comp-hora { display:flex; flex-direction:column; align-items:center; min-width:64px; padding:.35rem .4rem; border-radius:8px; background:var(--azul-claro); color:var(--azul); }
+.comp-hora strong { font-size:1.05rem; }
+.comp-hora small { font-size:.7rem; text-transform:capitalize; }
+.comp-info { flex:1; min-width:0; overflow-wrap:anywhere; }
+.comp-det { display:flex; flex-wrap:wrap; gap:.2rem .9rem; font-size:.78rem; color:var(--texto-suave); margin-top:.2rem; }
+.comp-obs { font-size:.8rem; color:var(--texto-secundario); margin-top:.25rem; }
+.comp-acoes { display:flex; gap:.35rem; }
+.comp-acoes .btn-sm { width:auto; margin:0; padding:6px 9px; }
+.alerta-comp-fundo { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:rgba(15, 23, 42, .55); }
+.alerta-comp-fundo.oculto { display:none; }
+.alerta-comp-caixa { width:100%; max-width:440px; max-height:calc(100vh - 32px); overflow-y:auto; background:var(--bg-card); border-radius:16px;
+  padding:1.25rem; box-shadow:0 20px 50px rgba(0,0,0,.35); border-top:6px solid var(--laranja, #F59E0B); text-align:center; }
+.alerta-comp-caixa h3 { margin:.3rem 0 .8rem; color:var(--texto-primario); font-size:1.1rem; }
+.alerta-comp-sino { width:64px; height:64px; margin:0 auto; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:color-mix(in srgb, #F59E0B 18%, transparent); color:#D97706; font-size:1.9rem; animation:sino-balanca 1s ease-in-out infinite; }
+@keyframes sino-balanca { 0%,100% { transform:rotate(0); } 20% { transform:rotate(-14deg); } 40% { transform:rotate(12deg); } 60% { transform:rotate(-8deg); } 80% { transform:rotate(5deg); } }
+@media (prefers-reduced-motion: reduce) { .alerta-comp-sino { animation:none; } }
+.alerta-comp-item { text-align:left; padding:.8rem; border-radius:12px; background:var(--bg-hover, rgba(0,0,0,.03)); margin-bottom:.6rem; overflow-wrap:anywhere; }
+.alerta-comp-titulo { display:block; font-size:1.1rem; color:var(--texto-primario); }
+.alerta-comp-hora { font-size:.9rem; color:var(--azul); margin:.2rem 0; }
+.alerta-comp-hora.atrasado { color:var(--vermelho); }
+.alerta-comp-det { font-size:.84rem; color:var(--texto-secundario); margin-top:.15rem; }
+.alerta-comp-acoes { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.6rem; }
+.alerta-comp-acoes button { width:auto; flex:1 1 auto; margin:0; padding:10px 12px; min-height:44px; }
+.alerta-comp-som { margin:.4rem 0 0; font-size:.84rem; color:var(--texto-suave); cursor:pointer; text-decoration:underline; }
+@media (max-width:640px) {
+  .form-compromisso { grid-template-columns:1fr 1fr; }
+  .form-compromisso .campo-largo { grid-column:1 / -1; }
+  .comp-item { flex-wrap:wrap; }
+  .comp-info { flex-basis:calc(100% - 80px); }
+  .comp-acoes { width:100%; justify-content:flex-end; }
+}

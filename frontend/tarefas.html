@@ -20,6 +20,13 @@
 <script src="js/cores.js"></script>
 <script src="js/header.js"></script>
 <div class="container">
+  <!-- Abas: tarefas do dia a dia x compromissos com data e hora -->
+  <div class="abas-metas abas-tarefas" role="tablist" aria-label="Seções de Tarefas">
+    <button class="aba-metas" role="tab" data-aba-tarefas="tarefas"><span class="ico ico-check-square"></span> Tarefas do dia a dia</button>
+    <button class="aba-metas" role="tab" data-aba-tarefas="compromissos"><span class="ico ico-calendar-days"></span> Compromissos <span id="contCompromissos" class="cont-aba oculto"></span></button>
+  </div>
+
+  <section id="painel-tarefas" role="tabpanel">
   <div class="card tarefas-form-card">
     <div class="titulo-com-acao">
       <h2><span class="ico ico-check-square"></span> Tarefas Familiares</h2>
@@ -47,8 +54,46 @@
     </div>
   </div>
   <div id="kanbanTarefas" class="kanban-tarefas"></div>
+  </section>
+
+  <section id="painel-compromissos" class="oculto" role="tabpanel">
+    <div class="card tarefas-form-card">
+      <div class="titulo-com-acao">
+        <h2><span class="ico ico-calendar-days"></span> Compromissos</h2>
+        <button id="btnTestarAlerta" class="btn-secundario"><span class="ico ico-bell"></span> Testar alerta</button>
+      </div>
+      <p class="tarefas-intro">Consultas, reuniões, aniversários... Na hora escolhida, o sistema toca um som e mostra o aviso em
+        qualquer tela que estiver aberta, no computador ou no celular.</p>
+      <form id="formCompromisso" class="form-compromisso">
+        <input type="hidden" id="compId">
+        <label class="campo-largo">Compromisso *<input id="compTitulo" maxlength="160" required placeholder="Ex: Dentista do João"></label>
+        <label>Data *<input id="compData" type="date" required></label>
+        <label>Hora *<input id="compHora" type="time" required></label>
+        <label>Avisar<select id="compAntecedencia">
+          <option value="0">Na hora</option>
+          <option value="5">5 minutos antes</option>
+          <option value="15" selected>15 minutos antes</option>
+          <option value="30">30 minutos antes</option>
+          <option value="60">1 hora antes</option>
+          <option value="120">2 horas antes</option>
+          <option value="1440">1 dia antes</option>
+          <option value="2880">2 dias antes</option>
+        </select></label>
+        <label>Responsável<select id="compMembro"><option value="">Família toda</option></select></label>
+        <label class="campo-largo">Local<input id="compLocal" maxlength="160" placeholder="Opcional"></label>
+        <label class="campo-largo">Observação<input id="compObs" maxlength="2000" placeholder="Opcional"></label>
+        <div class="acoes-form-mesada">
+          <button type="submit" id="btnSalvarCompromisso">+ Agendar</button>
+          <button type="button" id="btnCancelarEdicao" class="btn-secundario oculto">Cancelar edição</button>
+        </div>
+      </form>
+      <p id="avisoSomCompromisso" class="dica-planejamento"></p>
+    </div>
+    <div id="listaCompromissos" class="lista-compromissos"></div>
+  </section>
 </div>
 <script src="js/tarefas.js"></script>
+<script src="js/compromissos.js"></script>
 <script src="js/relatorio-modulo.js"></script>
 </body>
 </html>

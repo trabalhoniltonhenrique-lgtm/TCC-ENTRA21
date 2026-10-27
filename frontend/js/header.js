@@ -113,5 +113,12 @@
     });
   }
 
+  // Alerta sonoro e visual dos compromissos, em todas as telas
+  if (!window.CasaAlertas) {
+    const alertaScript = document.createElement('script');
+    alertaScript.src = 'js/alerta-compromissos.js';
+    document.head.appendChild(alertaScript);
+  }
+
   document.dispatchEvent(new CustomEvent('familia-carregada', { detail: familia }));
 })();

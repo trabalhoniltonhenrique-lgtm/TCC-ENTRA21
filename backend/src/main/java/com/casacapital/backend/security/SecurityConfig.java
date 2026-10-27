@@ -36,11 +36,13 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        // O filho (dependente) só alcança a própria mesada, as próprias tarefas e a lista de
+                        // O filho (dependente) só alcança a própria mesada, as próprias tarefas e compromissos e a lista de
                         // compras; os controllers ainda escopam pelo membro do login.
-                        .requestMatchers(HttpMethod.GET, "/api/familia/me", "/api/tarefas", "/api/compras")
+                        .requestMatchers(HttpMethod.GET, "/api/familia/me", "/api/tarefas", "/api/compras",
+                                "/api/compromissos", "/api/compromissos/alertas")
                             .hasAnyRole("RESPONSAVEL", "DEPENDENTE")
-                        .requestMatchers(HttpMethod.POST, "/api/tarefas/*/concluir", "/api/compras")
+                        .requestMatchers(HttpMethod.POST, "/api/tarefas/*/concluir", "/api/compras",
+                                "/api/compromissos/*/ciente", "/api/compromissos/*/adiar")
                             .hasAnyRole("RESPONSAVEL", "DEPENDENTE")
                         .requestMatchers("/api/mesada/minha", "/api/mesada/minha/**").hasRole("DEPENDENTE")
                         .requestMatchers("/api/**").hasRole("RESPONSAVEL")

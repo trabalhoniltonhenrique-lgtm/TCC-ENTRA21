@@ -2,6 +2,7 @@ package com.casacapital.backend.familia;
 
 import com.casacapital.backend.alerta.AlertaLimiteRepository;
 import com.casacapital.backend.compra.CompraRepository;
+import com.casacapital.backend.compromisso.CompromissoRepository;
 import com.casacapital.backend.conta.ContaRepository;
 import com.casacapital.backend.despesa.DespesaRepository;
 import com.casacapital.backend.dispensa.ItemDispensaRepository;
@@ -31,6 +32,7 @@ public class FamiliaDataService {
     private final MetaRepository metaRepository;
     private final MembroFamiliaRepository membroFamiliaRepository;
     private final NfceImportadaRepository nfceImportadaRepository;
+    private final CompromissoRepository compromissoRepository;
 
     public FamiliaDataService(ReceitaRepository receitaRepository, DespesaRepository despesaRepository,
                                ContaRepository contaRepository, CompraRepository compraRepository,
@@ -39,7 +41,8 @@ public class FamiliaDataService {
                                AlertaLimiteRepository alertaLimiteRepository,
                                OrcamentoMensalRepository orcamentoMensalRepository, MetaRepository metaRepository,
                                MembroFamiliaRepository membroFamiliaRepository,
-                               NfceImportadaRepository nfceImportadaRepository) {
+                               NfceImportadaRepository nfceImportadaRepository,
+                               CompromissoRepository compromissoRepository) {
         this.receitaRepository = receitaRepository;
         this.despesaRepository = despesaRepository;
         this.contaRepository = contaRepository;
@@ -52,6 +55,7 @@ public class FamiliaDataService {
         this.metaRepository = metaRepository;
         this.membroFamiliaRepository = membroFamiliaRepository;
         this.nfceImportadaRepository = nfceImportadaRepository;
+        this.compromissoRepository = compromissoRepository;
     }
 
     @Transactional
@@ -63,6 +67,7 @@ public class FamiliaDataService {
         itemDispensaRepository.deleteAll(itemDispensaRepository.findAllByFamiliaId(familiaId));
         historicoPrecoRepository.deleteAll(historicoPrecoRepository.findAllByFamiliaIdOrderByDataAsc(familiaId));
         tarefaRepository.deleteAll(tarefaRepository.findAllByFamiliaId(familiaId));
+        compromissoRepository.deleteAll(compromissoRepository.findAllByFamiliaId(familiaId));
         alertaLimiteRepository.deleteAll(alertaLimiteRepository.findAllByFamiliaId(familiaId));
         metaRepository.deleteAll(metaRepository.findAllByFamiliaIdFetchAportes(familiaId));
         // apagar o membro apaga, pelo banco, o login de filho, a mesada e o extrato dele
