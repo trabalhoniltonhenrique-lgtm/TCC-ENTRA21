@@ -1018,7 +1018,30 @@ body.dark .conta-card.atrasado { background:#2A1515; }
 .editor-foto-controles { display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem; }
 .editor-foto-controles input[type=range] { flex:1; margin:0; padding:0; accent-color:var(--azul); min-height:36px; }
 .editor-foto-btn { width:44px; height:44px; margin:0; padding:0; flex:none; font-size:1.3rem; font-weight:700; line-height:1; }
-.editor-foto-btn-texto { flex:1; margin:0; min-height:40px; }
+.editor-foto-btn-texto { flex:1 1 auto; margin:0; min-height:40px; padding:6px 8px; font-size:.85rem; white-space:nowrap; }
+.editor-foto-atalhos { flex-wrap:wrap; }
+.editor-foto-fundo { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; margin-bottom:.9rem; font-size:.85rem; color:var(--texto-suave); }
+.editor-foto-cor {
+  width:auto; margin:0; min-height:36px; padding:4px 10px 4px 6px; font-size:.82rem; font-weight:600;
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--bg-card); color:var(--texto-suave); border:2px solid var(--borda-leve); border-radius:8px;
+}
+.editor-foto-cor::before {
+  content:''; width:18px; height:18px; border-radius:50%; background:var(--cor-fundo);
+  border:1px solid rgba(128,128,128,.5); flex:none;
+}
+.editor-foto-cor.selecionada { border-color:var(--azul); color:var(--azul); }
+/* Xadrez = transparente (padrão dos editores de imagem) */
+.editor-foto-quadro.transparente,
+.editor-foto-cor-sem::before {
+  background-color:#fff;
+  background-image:
+    linear-gradient(45deg, #D1D5DB 25%, transparent 25%, transparent 75%, #D1D5DB 75%),
+    linear-gradient(45deg, #D1D5DB 25%, transparent 25%, transparent 75%, #D1D5DB 75%);
+  background-size:16px 16px; background-position:0 0, 8px 8px;
+}
+.editor-foto-cor-sem::before { background-size:8px 8px; background-position:0 0, 4px 4px; }
+.editor-foto-aviso { font-size:.8rem; color:var(--vermelho); margin:-.4rem 0 .75rem; }
 .input-config-curto { margin:0; max-width:220px; width:100%; }
 .input-config-dia { margin:0; max-width:80px; text-align:center; }
 .moedas-ops-wrap { display:flex; gap:.4rem; flex-wrap:wrap; }

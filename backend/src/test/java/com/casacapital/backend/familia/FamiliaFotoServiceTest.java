@@ -24,7 +24,10 @@ class FamiliaFotoServiceTest {
 
     @Test
     void fotoGrandeEhReduzidaEGravadaEmJpeg() throws IOException {
-        byte[] jpeg = FamiliaFotoService.paraJpeg(imagem(4000, 3000, BufferedImage.TYPE_INT_RGB, "png"));
+        FamiliaFotoService.Imagem imagem = FamiliaFotoService.normalizar(imagem(4000, 3000, BufferedImage.TYPE_INT_RGB, "png"));
+        byte[] jpeg = imagem.conteudo();
+
+        assertThat(imagem.tipo()).isEqualTo("image/jpeg");
 
         assertThat(jpeg[0] & 0xFF).isEqualTo(0xFF); // assinatura do JPEG
         assertThat(jpeg[1] & 0xFF).isEqualTo(0xD8);
@@ -36,23 +39,37 @@ class FamiliaFotoServiceTest {
     @Test
     void fotoPequenaNaoEhAumentada() throws IOException {
         BufferedImage lida = ImageIO.read(new ByteArrayInputStream(
-                FamiliaFotoService.paraJpeg(imagem(300, 400, BufferedImage.TYPE_INT_RGB, "jpg"))));
+                FamiliaFotoService.normalizar(imagem(300, 400, BufferedImage.TYPE_INT_RGB, "jpg")).conteudo()));
         assertThat(lida.getWidth()).isEqualTo(300);
         assertThat(lida.getHeight()).isEqualTo(400);
     }
 
     @Test
-    void pngTransparenteFicaComFundoBranco() throws IOException {
-        BufferedImage lida = ImageIO.read(new ByteArrayInputStream(
-                FamiliaFotoService.paraJpeg(imagem(50, 50, BufferedImage.TYPE_INT_ARGB, "png"))));
-        int rgb = lida.getRGB(25, 25);
-        assertThat((rgb >> 16) & 0xFF).isGreaterThan(245);
-        assertThat(rgb & 0xFF).isGreaterThan(245);
+    void pngComTransparenciaContinuaPngTransparente() throws IOException {
+        FamiliaFotoService.Imagem imagem = FamiliaFotoService.normalizar(brasaoSemFundo(2000, 3000));
+        assertThat(imagem.tipo()).isEqualTo("image/png");
+        BufferedImage lida = ImageIO.read(new ByteArrayInputStream(imagem.conteudo()));
+        assertThat(lida.getHeight()).isEqualTo(1024); // reduzida também
+        assertThat(lida.getRGB(5, 5) >>> 24).isZero(); // canto transparente
+        assertThat(lida.getRGB(lida.getWidth() / 2, lida.getHeight() / 2) >>> 24).isEqualTo(255); // desenho opaco
+    }
+
+    @Test
+    void pngComCanalAlfaMasTodoOpacoViraJpeg() throws IOException {
+        // PNG que o navegador gera ao recortar: tem canal alfa, mas nenhum ponto transparente
+        BufferedImage img = new BufferedImage(400, 300, BufferedImage.TYPE_INT_ARGB);
+        var g = img.createGraphics();
+        g.setColor(java.awt.Color.ORANGE);
+        g.fillRect(0, 0, 400, 300);
+        g.dispose();
+        ByteArrayOutputStream saida = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", saida);
+        assertThat(FamiliaFotoService.normalizar(saida.toByteArray()).tipo()).isEqualTo("image/jpeg");
     }
 
     @Test
     void arquivoQueNaoEhImagemEhRecusado() {
-        assertThatThrownBy(() -> FamiliaFotoService.paraJpeg("%PDF-1.7 não é foto".getBytes()))
+        assertThatThrownBy(() -> FamiliaFotoService.normalizar("%PDF-1.7 não é foto".getBytes()))
                 .isInstanceOf(ApiException.class)
                 .extracting("code").isEqualTo("FOTO_INVALIDA");
     }
@@ -60,7 +77,7 @@ class FamiliaFotoServiceTest {
     @Test
     void imagemQueDeclaraResolucaoGiganteEhRecusadaSemAbrir() {
         // PNG de poucos bytes que diz ter 60.000 x 60.000 pixels (abrir de verdade esgotaria a memória)
-        assertThatThrownBy(() -> FamiliaFotoService.paraJpeg(pngSoCabecalho(60_000, 60_000)))
+        assertThatThrownBy(() -> FamiliaFotoService.normalizar(pngSoCabecalho(60_000, 60_000)))
                 .isInstanceOf(ApiException.class)
                 .extracting("code").isEqualTo("FOTO_GRANDE");
     }
@@ -113,6 +130,18 @@ class FamiliaFotoServiceTest {
         } // ARGB fica todo transparente
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         ImageIO.write(img, formato, saida);
+        return saida.toByteArray();
+    }
+
+    /** PNG com fundo transparente e um "brasão" opaco no meio. */
+    private static byte[] brasaoSemFundo(int largura, int altura) throws IOException {
+        BufferedImage img = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
+        var g = img.createGraphics();
+        g.setColor(java.awt.Color.RED);
+        g.fillOval(largura / 4, altura / 4, largura / 2, altura / 2);
+        g.dispose();
+        ByteArrayOutputStream saida = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", saida);
         return saida.toByteArray();
     }
 

@@ -25,9 +25,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 
 /**
- * Foto da família. A imagem recebida é aberta, reduzida para no máximo {@value #LADO_MAXIMO} px e regravada em JPEG:
- * assim só imagens de verdade entram no banco, cada foto ocupa poucas centenas de KB e saem os metadados
- * da câmera (inclusive a localização GPS de onde a foto foi tirada).
+ * Foto da família. A imagem recebida é aberta, reduzida para no máximo {@value #LADO_MAXIMO} px e regravada
+ * (JPEG, ou PNG quando tem partes transparentes, como um brasão com o fundo removido): assim só imagens de verdade
+ * entram no banco, cada foto ocupa poucas centenas de KB e saem os metadados da câmera (inclusive a localização
+ * GPS de onde a foto foi tirada).
  */
 @Service
 public class FamiliaFotoService {
@@ -35,7 +36,6 @@ public class FamiliaFotoService {
     static final int LADO_MAXIMO = 1024;
     static final int TAMANHO_MAXIMO = 15 * 1024 * 1024;
     static final long PIXELS_MAXIMO = 50_000_000L;
-    private static final String TIPO = "image/jpeg";
 
     private final FamiliaFotoRepository fotos;
     private final FamiliaService familiaService;
@@ -58,12 +58,12 @@ public class FamiliaFotoService {
         if (arquivo.length > TAMANHO_MAXIMO) {
             throw new ApiException(HttpStatus.CONTENT_TOO_LARGE, "ARQUIVO_GRANDE", "Foto grande demais (máximo 15 MB).");
         }
-        byte[] jpeg = paraJpeg(arquivo);
+        Imagem imagem = normalizar(arquivo);
 
         Familia familia = familiaService.buscar(familiaId);
         FamiliaFoto foto = fotos.findById(familiaId).orElseGet(() -> new FamiliaFoto(familiaId));
-        foto.setTipo(TIPO);
-        foto.setConteudo(jpeg);
+        foto.setTipo(imagem.tipo());
+        foto.setConteudo(imagem.conteudo());
         fotos.save(foto);
         familia.setFotoAtualizadaEm(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return familia;
@@ -77,27 +77,62 @@ public class FamiliaFotoService {
         return familia;
     }
 
-    /** Abre a imagem (JPEG, PNG, GIF ou BMP), reduz se for grande e devolve em JPEG. */
-    static byte[] paraJpeg(byte[] arquivo) {
+    /** Imagem já pronta para guardar: o conteúdo e o tipo (image/jpeg ou image/png). */
+    record Imagem(byte[] conteudo, String tipo) {
+    }
+
+    /**
+     * Abre a imagem (JPEG, PNG, GIF ou BMP) e reduz se for grande. Com partes transparentes, devolve PNG (mantém a
+     * transparência); sem, devolve JPEG, bem menor para fotos.
+     */
+    static Imagem normalizar(byte[] arquivo) {
         BufferedImage original = ler(arquivo);
 
         double escala = Math.min(1.0, (double) LADO_MAXIMO / Math.max(original.getWidth(), original.getHeight()));
         int largura = Math.max(1, (int) Math.round(original.getWidth() * escala));
         int altura = Math.max(1, (int) Math.round(original.getHeight() * escala));
 
-        // JPEG não tem transparência: o fundo transparente de um PNG fica branco
-        BufferedImage rgb = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = rgb.createGraphics();
+        BufferedImage reduzida = redesenhar(original, largura, altura, BufferedImage.TYPE_INT_ARGB, null);
+        if (temTransparencia(reduzida)) {
+            ByteArrayOutputStream saida = new ByteArrayOutputStream();
+            try {
+                ImageIO.write(reduzida, "png", saida);
+            } catch (IOException e) {
+                throw new IllegalStateException("Falha ao gravar a foto em PNG", e);
+            }
+            return new Imagem(saida.toByteArray(), "image/png");
+        }
+        return new Imagem(paraJpeg(redesenhar(original, largura, altura, BufferedImage.TYPE_INT_RGB, Color.WHITE)),
+                "image/jpeg");
+    }
+
+    private static BufferedImage redesenhar(BufferedImage original, int largura, int altura, int tipo, Color fundo) {
+        BufferedImage destino = new BufferedImage(largura, altura, tipo);
+        Graphics2D g = destino.createGraphics();
         try {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g.setColor(Color.WHITE);
-            g.fillRect(0, 0, largura, altura);
+            if (fundo != null) {
+                g.setColor(fundo);
+                g.fillRect(0, 0, largura, altura);
+            }
             g.drawImage(original, 0, 0, largura, altura, null);
         } finally {
             g.dispose();
         }
+        return destino;
+    }
 
+    private static boolean temTransparencia(BufferedImage argb) {
+        for (int y = 0; y < argb.getHeight(); y++) {
+            for (int x = 0; x < argb.getWidth(); x++) {
+                if ((argb.getRGB(x, y) >>> 24) < 250) return true;
+            }
+        }
+        return false;
+    }
+
+    private static byte[] paraJpeg(BufferedImage rgb) {
         ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         try (ImageOutputStream ios = ImageIO.createImageOutputStream(saida)) {

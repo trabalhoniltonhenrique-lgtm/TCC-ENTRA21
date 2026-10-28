@@ -120,7 +120,7 @@ async function enviarFotoFamilia(foto) {
   document.getElementById('btnEscolherFotoTexto').textContent = 'Enviando…';
   try {
     const form = new FormData();
-    form.append('foto', foto, 'foto.jpg');
+    form.append('foto', foto, foto.type === 'image/png' ? 'foto.png' : 'foto.jpg');
     const atualizada = await api.post('/familia/foto', form);
     cfg.fotoAtualizadaEm = atualizada.fotoAtualizadaEm;
     await carregarFotoFamilia();
