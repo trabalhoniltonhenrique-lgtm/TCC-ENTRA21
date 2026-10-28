@@ -68,8 +68,12 @@ public class ContaService {
                         "Informe um número de parcelas válido (mínimo 2).");
             }
             boolean valorTotal = "total".equalsIgnoreCase(req.tipoValorParcela());
+            // Pelo total, a divisão nem sempre é exata (R$ 100 em 3x): a última parcela leva os centavos que sobram
             BigDecimal valorParcela = valorTotal
-                    ? req.valor().divide(BigDecimal.valueOf(qtd), 2, RoundingMode.HALF_UP)
+                    ? req.valor().divide(BigDecimal.valueOf(qtd), 2, RoundingMode.DOWN)
+                    : req.valor();
+            BigDecimal valorUltima = valorTotal
+                    ? req.valor().subtract(valorParcela.multiply(BigDecimal.valueOf(qtd - 1)))
                     : req.valor();
 
             long grupoId = System.currentTimeMillis();
@@ -79,7 +83,7 @@ public class ContaService {
                 c.setFamilia(familiaRef);
                 c.setDescricao(req.descricao() + " (" + (i + 1) + "/" + qtd + ")");
                 c.setCategoria(req.categoria());
-                c.setValor(valorParcela);
+                c.setValor(i == qtd - 1 ? valorUltima : valorParcela);
                 c.setVencimento(req.vencimento().plusMonths(i));
                 c.setRecorrencia(Recorrencia.PARCELADA);
                 c.setObs(req.obs());
@@ -127,6 +131,8 @@ public class ContaService {
     @Transactional
     public Conta marcarPago(Long familiaId, Long id) {
         Conta c = buscar(familiaId, id);
+        // Já paga (duplo clique, ou outro aparelho pagou antes): não lança a despesa nem gera a próxima de novo
+        if (c.isPago()) return c;
         c.setPago(true);
         c.setDataPagamento(LocalDate.now());
 
@@ -144,14 +150,20 @@ public class ContaService {
         }
 
         if (c.getRecorrencia() == Recorrencia.MENSAL || c.getRecorrencia() == Recorrencia.ANUAL) {
+            LocalDate vencimentoProxima = c.getRecorrencia() == Recorrencia.MENSAL
+                    ? c.getVencimento().plusMonths(1)
+                    : c.getVencimento().plusYears(1);
+            // Reaberta e paga de novo: a próxima já foi gerada no primeiro pagamento
+            boolean proximaJaExiste = contaRepository.existsByFamiliaIdAndDescricaoAndVencimentoAndRecorrencia(
+                    familiaId, c.getDescricao(), vencimentoProxima, c.getRecorrencia());
+            if (proximaJaExiste) return c;
+
             Conta proxima = new Conta();
             proxima.setFamilia(c.getFamilia());
             proxima.setDescricao(c.getDescricao());
             proxima.setCategoria(c.getCategoria());
             proxima.setValor(c.getValor());
-            proxima.setVencimento(c.getRecorrencia() == Recorrencia.MENSAL
-                    ? c.getVencimento().plusMonths(1)
-                    : c.getVencimento().plusYears(1));
+            proxima.setVencimento(vencimentoProxima);
             proxima.setRecorrencia(c.getRecorrencia());
             proxima.setObs(c.getObs());
             proxima.setCartao(c.getCartao());

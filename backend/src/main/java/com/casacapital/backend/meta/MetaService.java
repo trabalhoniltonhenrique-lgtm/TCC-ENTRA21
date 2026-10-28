@@ -48,6 +48,8 @@ public class MetaService {
         m.setNome(req.nome());
         m.setValorAlvo(req.valorAlvo());
         m.setPrazo(req.prazo());
+        // Mudar o alvo pode concluir a meta (alvo menor que o poupado) ou reabri-la (alvo maior)
+        m.setConcluida(m.totalPoupado().compareTo(m.getValorAlvo()) >= 0);
         return m;
     }
 
