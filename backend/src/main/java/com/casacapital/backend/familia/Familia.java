@@ -73,6 +73,10 @@ public class Familia {
     @Column(name = "fechamento_email", nullable = false)
     private boolean fechamentoEmail = false;
 
+    /** Quando a foto da família foi trocada pela última vez; null = sem foto (a imagem fica em familia_foto). */
+    @Column(name = "foto_atualizada_em")
+    private java.time.LocalDateTime fotoAtualizadaEm;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

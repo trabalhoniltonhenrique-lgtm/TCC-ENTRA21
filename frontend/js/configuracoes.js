@@ -29,6 +29,7 @@ async function carregarConfig() {
 
   previewAvatar();
   renderCoresFamilia();
+  carregarFotoFamilia();
 }
 
 // ── Cores da Família ──
@@ -56,10 +57,111 @@ function toggleTemaConfig() {
   if (window.atualizarIconeTema) atualizarIconeTema();
 }
 
+let fotoFamiliaUrl = null; // data URL da foto atual (null = mostra a inicial do nome)
+
 function previewAvatar() {
   const nome = document.getElementById('cfgNomeFamilia').value.trim();
   const av   = document.getElementById('avatarFamilia');
-  av.textContent = nome ? nome.charAt(0).toUpperCase() : '?';
+  av.classList.toggle('com-foto', !!fotoFamiliaUrl);
+  if (fotoFamiliaUrl) {
+    av.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = fotoFamiliaUrl;
+    img.alt = 'Foto da família';
+    av.appendChild(img);
+  } else {
+    av.textContent = nome ? nome.charAt(0).toUpperCase() : '?';
+  }
+  document.getElementById('avatarLegenda').textContent = fotoFamiliaUrl
+    ? 'Aparece aqui e no topo do menu, para todos da família'
+    : 'Avatar gerado pelo nome da família';
+  document.getElementById('btnEscolherFotoTexto').textContent = fotoFamiliaUrl ? 'Trocar foto' : 'Importar foto da família';
+  document.getElementById('btnRemoverFoto').hidden = !fotoFamiliaUrl;
+}
+
+async function carregarFotoFamilia() {
+  fotoFamiliaUrl = await fotoDaFamilia(cfg);
+  previewAvatar();
+}
+
+// Foto de celular tem vários MB: reduz no próprio aparelho antes de enviar (o servidor reduz de novo e regrava em JPEG).
+// Se o navegador não conseguir abrir o arquivo (ex.: HEIC no computador), envia como veio e o servidor responde.
+function reduzirFoto(arquivo, ladoMaximo) {
+  return new Promise(function (resolver) {
+    const url = URL.createObjectURL(arquivo);
+    const img = new Image();
+    img.onload = function () {
+      const escala = Math.min(1, ladoMaximo / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.max(1, Math.round(img.naturalWidth * escala));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * escala));
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(function (blob) { resolver(blob || arquivo); }, 'image/jpeg', 0.9);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); resolver(arquivo); };
+    img.src = url;
+  });
+}
+
+async function enviarFotoFamilia(event) {
+  const arquivo = event.target.files[0];
+  event.target.value = ''; // permite escolher o mesmo arquivo de novo
+  if (!arquivo) return;
+  if (arquivo.type && !arquivo.type.startsWith('image/')) {
+    toast('Escolha um arquivo de imagem (JPG ou PNG).', '#DC2626');
+    return;
+  }
+
+  const btn = document.getElementById('btnEscolherFoto');
+  btn.disabled = true;
+  document.getElementById('btnEscolherFotoTexto').textContent = 'Enviando…';
+  try {
+    const foto = await reduzirFoto(arquivo, 1600);
+    const form = new FormData();
+    form.append('foto', foto, 'foto.jpg');
+    const atualizada = await api.post('/familia/foto', form);
+    cfg.fotoAtualizadaEm = atualizada.fotoAtualizadaEm;
+    await carregarFotoFamilia();
+    atualizarFotoMenu();
+    toast('Foto da família salva!', '#16A34A');
+  } catch (erro) {
+    previewAvatar();
+    toast((erro.message || 'Não foi possível enviar a foto.'), '#DC2626');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function removerFotoFamilia() {
+  if (!confirm('Remover a foto da família?')) return;
+  try {
+    const atualizada = await api.del('/familia/foto');
+    cfg.fotoAtualizadaEm = atualizada.fotoAtualizadaEm;
+    await carregarFotoFamilia();
+    atualizarFotoMenu();
+    toast('Foto removida.', '#2563EB');
+  } catch (erro) {
+    toast((erro.message || 'Não foi possível remover a foto.'), '#DC2626');
+  }
+}
+
+// Mostra a foto nova (ou tira a antiga) no topo do menu sem recarregar a página
+function atualizarFotoMenu() {
+  const h1 = document.querySelector('header.sidebar h1');
+  if (!h1) return;
+  let img = h1.querySelector('.foto-familia-menu');
+  if (!fotoFamiliaUrl) { if (img) img.remove(); return; }
+  if (!img) {
+    img = document.createElement('img');
+    img.className = 'foto-familia-menu';
+    img.alt = 'Foto da família';
+    h1.prepend(img);
+  }
+  img.src = fotoFamiliaUrl;
 }
 
 function selecionarMoeda(moeda, btn) {
@@ -175,6 +277,11 @@ function toast(msg, cor) {
 
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('cfgNomeFamilia').addEventListener('input', previewAvatar);
+  document.getElementById('btnEscolherFoto').addEventListener('click', function () {
+    document.getElementById('fotoFamiliaArquivo').click();
+  });
+  document.getElementById('fotoFamiliaArquivo').addEventListener('change', enviarFotoFamilia);
+  document.getElementById('btnRemoverFoto').addEventListener('click', removerFotoFamilia);
   document.getElementById('cfgTemaEscuro').addEventListener('change', toggleTemaConfig);
   document.getElementById('cfgMostrarSaldo').addEventListener('change', salvarConfig);
   document.getElementById('cfgAlertaContas').addEventListener('change', salvarConfig);

@@ -15,6 +15,40 @@ function setToken(token) {
 function limparSessao() {
   localStorage.removeItem(CHAVE_TOKEN);
   localStorage.removeItem('casacapital_cor'); // a próxima família a entrar não herda as cores desta
+  localStorage.removeItem(CHAVE_FOTO_FAMILIA); // nem a foto
+}
+
+// ── Foto da família ──
+// A imagem exige login, então não dá para usar <img src="/api/..."> direto: baixa com o token e guarda uma cópia
+// (data URL) no navegador, trocada só quando familia.fotoAtualizadaEm muda.
+const CHAVE_FOTO_FAMILIA = 'casacapital_foto_familia';
+
+async function fotoDaFamilia(familia) {
+  if (!familia || !familia.fotoAtualizadaEm) {
+    try { localStorage.removeItem(CHAVE_FOTO_FAMILIA); } catch { /* armazenamento bloqueado */ }
+    return null;
+  }
+  const versao = familia.id + '@' + familia.fotoAtualizadaEm;
+  try {
+    const guardada = JSON.parse(localStorage.getItem(CHAVE_FOTO_FAMILIA) || 'null');
+    if (guardada && guardada.versao === versao) return guardada.dataUrl;
+  } catch { /* cópia estragada ou armazenamento bloqueado: baixa de novo */ }
+
+  try {
+    const res = await fetch(API_BASE + '/familia/foto', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const dataUrl = await new Promise((ok, falha) => {
+      const leitor = new FileReader();
+      leitor.onload = () => ok(leitor.result);
+      leitor.onerror = falha;
+      leitor.readAsDataURL(blob);
+    });
+    try { localStorage.setItem(CHAVE_FOTO_FAMILIA, JSON.stringify({ versao, dataUrl })); } catch { /* sem espaço: só não guarda */ }
+    return dataUrl;
+  } catch {
+    return null;
+  }
 }
 
 function estaAutenticado() {

@@ -120,5 +120,16 @@
     document.head.appendChild(alertaScript);
   }
 
+  // Foto da família no topo do menu (chega depois, sem atrasar o resto da tela)
+  fotoDaFamilia(familia).then(function (dataUrl) {
+    const h1 = document.querySelector('header.sidebar h1');
+    if (!dataUrl || !h1) return;
+    const img = document.createElement('img');
+    img.className = 'foto-familia-menu';
+    img.alt = 'Foto da família';
+    img.src = dataUrl;
+    h1.prepend(img);
+  });
+
   document.dispatchEvent(new CustomEvent('familia-carregada', { detail: familia }));
 })();

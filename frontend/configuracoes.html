@@ -32,10 +32,19 @@
     <div class="config-secao">
       <h3><span class="ico ico-home"></span> Perfil da Família</h3>
 
-      <!-- Avatar com inicial -->
+      <!-- Foto da família (ou a inicial do nome, enquanto não houver foto) -->
       <div class="config-avatar-wrap">
         <div class="avatar-familia" id="avatarFamilia">?</div>
-        <div class="config-avatar-legenda">Avatar gerado pelo nome da família</div>
+        <div class="config-avatar-legenda" id="avatarLegenda">Avatar gerado pelo nome da família</div>
+        <div class="foto-familia-acoes">
+          <input type="file" id="fotoFamiliaArquivo" accept="image/*" class="input-file-oculto">
+          <button type="button" id="btnEscolherFoto" class="btn-secundario btn-alterar-plano">
+            <span class="ico ico-upload"></span> <span id="btnEscolherFotoTexto">Importar foto da família</span>
+          </button>
+          <button type="button" id="btnRemoverFoto" class="btn-secundario btn-alterar-plano" hidden>
+            <span class="ico ico-trash"></span> Remover foto
+          </button>
+        </div>
       </div>
 
       <div class="config-linha com-quebra">

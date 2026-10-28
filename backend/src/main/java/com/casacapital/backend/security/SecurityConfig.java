@@ -37,8 +37,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         // O filho (dependente) só alcança a própria mesada, as próprias tarefas e compromissos e a lista de
-                        // compras; os controllers ainda escopam pelo membro do login.
-                        .requestMatchers(HttpMethod.GET, "/api/familia/me", "/api/tarefas", "/api/compras",
+                        // compras; os controllers ainda escopam pelo membro do login. A foto da família ele só vê.
+                        .requestMatchers(HttpMethod.GET, "/api/familia/me", "/api/familia/foto", "/api/tarefas", "/api/compras",
                                 "/api/compromissos", "/api/compromissos/alertas")
                             .hasAnyRole("RESPONSAVEL", "DEPENDENTE")
                         .requestMatchers(HttpMethod.POST, "/api/tarefas/*/concluir", "/api/compras",
