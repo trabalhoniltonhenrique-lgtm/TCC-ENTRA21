@@ -77,6 +77,7 @@ function previewAvatar() {
     : 'Avatar gerado pelo nome da família';
   document.getElementById('btnEscolherFotoTexto').textContent = fotoFamiliaUrl ? 'Trocar foto' : 'Importar foto da família';
   document.getElementById('btnRemoverFoto').hidden = !fotoFamiliaUrl;
+  document.getElementById('btnAjustarFoto').hidden = !fotoFamiliaUrl;
 }
 
 async function carregarFotoFamilia() {
@@ -84,30 +85,18 @@ async function carregarFotoFamilia() {
   previewAvatar();
 }
 
-// Foto de celular tem vários MB: reduz no próprio aparelho antes de enviar (o servidor reduz de novo e regrava em JPEG).
-// Se o navegador não conseguir abrir o arquivo (ex.: HEIC no computador), envia como veio e o servidor responde.
-function reduzirFoto(arquivo, ladoMaximo) {
-  return new Promise(function (resolver) {
-    const url = URL.createObjectURL(arquivo);
-    const img = new Image();
-    img.onload = function () {
-      const escala = Math.min(1, ladoMaximo / Math.max(img.naturalWidth, img.naturalHeight));
-      const canvas = document.createElement('canvas');
-      canvas.width  = Math.max(1, Math.round(img.naturalWidth * escala));
-      canvas.height = Math.max(1, Math.round(img.naturalHeight * escala));
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      canvas.toBlob(function (blob) { resolver(blob || arquivo); }, 'image/jpeg', 0.9);
-    };
-    img.onerror = function () { URL.revokeObjectURL(url); resolver(arquivo); };
-    img.src = url;
-  });
+// Abre o editor (aproximar, arrastar, girar) e devolve a foto já recortada; null = cancelou.
+// Se o navegador não conseguir abrir o arquivo (ex.: HEIC no computador), devolve o arquivo como veio
+// e o servidor responde se der para usar.
+async function enquadrarFoto(fonte) {
+  try {
+    return await abrirEditorFoto(fonte);
+  } catch (erro) {
+    return fonte instanceof Blob ? fonte : null;
+  }
 }
 
-async function enviarFotoFamilia(event) {
+async function escolherFotoFamilia(event) {
   const arquivo = event.target.files[0];
   event.target.value = ''; // permite escolher o mesmo arquivo de novo
   if (!arquivo) return;
@@ -115,12 +104,21 @@ async function enviarFotoFamilia(event) {
     toast('Escolha um arquivo de imagem (JPG ou PNG).', '#DC2626');
     return;
   }
+  const foto = await enquadrarFoto(arquivo);
+  if (foto) enviarFotoFamilia(foto);
+}
 
+async function ajustarFotoFamilia() {
+  if (!fotoFamiliaUrl) return;
+  const foto = await enquadrarFoto(fotoFamiliaUrl);
+  if (foto) enviarFotoFamilia(foto);
+}
+
+async function enviarFotoFamilia(foto) {
   const btn = document.getElementById('btnEscolherFoto');
   btn.disabled = true;
   document.getElementById('btnEscolherFotoTexto').textContent = 'Enviando…';
   try {
-    const foto = await reduzirFoto(arquivo, 1600);
     const form = new FormData();
     form.append('foto', foto, 'foto.jpg');
     const atualizada = await api.post('/familia/foto', form);
@@ -280,7 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btnEscolherFoto').addEventListener('click', function () {
     document.getElementById('fotoFamiliaArquivo').click();
   });
-  document.getElementById('fotoFamiliaArquivo').addEventListener('change', enviarFotoFamilia);
+  document.getElementById('fotoFamiliaArquivo').addEventListener('change', escolherFotoFamilia);
+  document.getElementById('btnAjustarFoto').addEventListener('click', ajustarFotoFamilia);
   document.getElementById('btnRemoverFoto').addEventListener('click', removerFotoFamilia);
   document.getElementById('cfgTemaEscuro').addEventListener('change', toggleTemaConfig);
   document.getElementById('cfgMostrarSaldo').addEventListener('change', salvarConfig);

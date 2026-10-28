@@ -995,6 +995,30 @@ body.dark .conta-card.atrasado { background:#2A1515; }
 .foto-familia-acoes { display:flex; justify-content:center; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; }
 .foto-familia-acoes button { margin:0; }
 .foto-familia-acoes .ico { vertical-align:-2px; }
+
+/* Editor da foto da família (enquadrar antes de salvar) */
+.modal-box.editor-foto { max-width:460px; max-height:calc(100vh - 2rem); overflow-y:auto; }
+.editor-foto-quadro {
+  position:relative; width:100%; aspect-ratio:4/3; border-radius:12px; overflow:hidden;
+  background:var(--bg-hover); cursor:grab; touch-action:none; user-select:none; margin:.5rem 0 .75rem;
+  outline:2px solid var(--borda-leve); outline-offset:-2px;
+}
+.editor-foto-quadro:active { cursor:grabbing; }
+.editor-foto-quadro:focus-visible { outline-color:var(--azul); }
+.editor-foto-quadro canvas { width:100%; height:100%; display:block; }
+/* Linhas de terço, para ajudar a centralizar as pessoas */
+.editor-foto-quadro::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255,255,255,.55) calc(33.33% - .5px), rgba(255,255,255,.55) calc(33.33% + .5px), transparent calc(33.33% + .5px),
+                              transparent calc(66.66% - .5px), rgba(255,255,255,.55) calc(66.66% - .5px), rgba(255,255,255,.55) calc(66.66% + .5px), transparent calc(66.66% + .5px)),
+    linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255,255,255,.55) calc(33.33% - .5px), rgba(255,255,255,.55) calc(33.33% + .5px), transparent calc(33.33% + .5px),
+                               transparent calc(66.66% - .5px), rgba(255,255,255,.55) calc(66.66% - .5px), rgba(255,255,255,.55) calc(66.66% + .5px), transparent calc(66.66% + .5px));
+}
+.editor-foto-controles { display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem; }
+.editor-foto-controles input[type=range] { flex:1; margin:0; padding:0; accent-color:var(--azul); min-height:36px; }
+.editor-foto-btn { width:44px; height:44px; margin:0; padding:0; flex:none; font-size:1.3rem; font-weight:700; line-height:1; }
+.editor-foto-btn-texto { flex:1; margin:0; min-height:40px; }
 .input-config-curto { margin:0; max-width:220px; width:100%; }
 .input-config-dia { margin:0; max-width:80px; text-align:center; }
 .moedas-ops-wrap { display:flex; gap:.4rem; flex-wrap:wrap; }
