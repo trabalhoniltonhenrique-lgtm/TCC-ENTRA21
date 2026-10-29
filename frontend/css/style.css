@@ -1769,6 +1769,11 @@ body.dark .rel-tabela th { background:var(--azul-claro-escuro); color:var(--azul
 .atalho-financas { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; font-size:.86rem; font-weight:600;
   border:1.5px solid var(--borda-leve); color:var(--azul); background:var(--bg-card); text-decoration:none; }
 .atalho-financas:hover { background:var(--bg-hover); }
+button.atalho-financas { width:auto; margin:0; cursor:pointer; font-family:inherit; }
+/* Botão de quadro aberto (Receitas/Despesas em Finanças) */
+.atalho-financas.ativo { background:var(--azul); border-color:var(--azul); color:#fff; }
+/* Receitas e despesas fechadas: some também o espaço do bloco */
+.cards:has(> #quadroReceitas.oculto):has(> #quadroDespesas.oculto) { display:none; }
 .aviso-fechamento { margin:0 1.25rem; padding:.65rem .9rem; border-radius:10px; font-size:.86rem; display:flex; flex-wrap:wrap; gap:.4rem; align-items:center;
   background:var(--azul-claro); color:var(--texto-primario); border:1px solid color-mix(in srgb, var(--azul) 30%, transparent); }
 .aviso-fechamento a { margin-left:auto; font-weight:600; white-space:nowrap; }

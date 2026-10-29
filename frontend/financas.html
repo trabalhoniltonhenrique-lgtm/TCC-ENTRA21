@@ -40,6 +40,8 @@
         <button class="btn-secundario btn-relatorio-modulo" data-relatorio-modulo><span class="ico ico-file-text"></span> Relatório</button>
       </div>
       <div class="atalhos-financas">
+        <button type="button" class="atalho-financas" data-abrir-quadro="quadroReceitas" aria-expanded="false" aria-controls="quadroReceitas"><span class="ico ico-trending-up"></span> Receitas</button>
+        <button type="button" class="atalho-financas" data-abrir-quadro="quadroDespesas" aria-expanded="false" aria-controls="quadroDespesas"><span class="ico ico-trending-down"></span> Despesas</button>
         <a href="fechamento.html" class="atalho-financas"><span class="ico ico-calendar-days"></span> Fechamento do mês</a>
         <a href="imposto-renda.html" class="atalho-financas"><span class="ico ico-file-text"></span> Imposto de Renda</a>
         <a href="nota-fiscal.html" class="atalho-financas"><span class="ico ico-note"></span> Nota do mercado (QR code)</a>
@@ -47,10 +49,11 @@
     </div>
   </div>
 
+  <!-- Receitas e despesas ficam recolhidas; abrem pelos botões do topo -->
   <div class="cards">
 
     <!-- Receitas -->
-    <div class="card card-full">
+    <div class="card card-full oculto" id="quadroReceitas">
       <h2><span class="ico ico-trending-up"></span> Receitas</h2>
       <input id="receitaNome" placeholder="Descrição (ex: Salário)">
       <div class="linha-dupla">
@@ -64,7 +67,7 @@
     </div>
 
     <!-- Despesas -->
-    <div class="card card-full">
+    <div class="card card-full oculto" id="quadroDespesas">
       <h2><span class="ico ico-trending-down"></span> Despesas</h2>
       <input id="despesaNome" placeholder="Descrição (ex: Aluguel)">
       <div class="linha-dupla">
