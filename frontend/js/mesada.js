@@ -1,12 +1,14 @@
 // ── CasaCapital — mesada.js: mesada e login dos filhos (tela dos pais) ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinheiro = v => (Number(v) < 0 ? '-' : '') + 'R$ ' + Math.abs(Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const dataBR = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
-  const hoje = () => new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
+  const dinheiro = v => formatarDinheiro(v, window.__familia); // util.js, com a moeda da família
+  const dataBR = formatarData; // util.js
+  const hoje = hojeISO; // util.js
   const TIPO = { MESADA: 'Mesada', EXTRA: 'Extra', GASTO: 'Gasto' };
 
   let lista = [];
+  let mostrarTodos = false;
+  // Filho(a) pelo parentesco (cadastros antigos podem ter "Filho" ou "Filha"), ou alguém que já tem mesada/login
+  const ehDaMesada = m => /^filh/i.test(m.parentesco || '') || m.configurada || !!m.login || m.movimentos.length > 0;
 
   function extrato(m) {
     if (!m.movimentos.length) return '<p class="dica-planejamento">Nenhum lançamento ainda.</p>';
@@ -96,7 +98,18 @@
     }
     // Abertos antes de recarregar continuam abertos
     const abertos = new Set([...el.querySelectorAll('details[open]')].map(d => d.closest('[data-membro]').dataset.membro + '|' + d.querySelector('summary').textContent.trim().slice(0, 12)));
-    el.innerHTML = `<div class="cards resumo-grade">${lista.map(cartao).join('')}</div>`;
+    // Mesada é dos filhos: os demais membros (pais, avós...) ficam atrás de um botão — a não ser que já tenham
+    // mesada ou login, para nada configurado sumir da tela
+    const visiveis = mostrarTodos ? lista : lista.filter(ehDaMesada);
+    const ocultos = lista.length - visiveis.length;
+    el.innerHTML = (visiveis.length
+        ? `<div class="cards resumo-grade">${visiveis.map(cartao).join('')}</div>`
+        : `<div class="card-box"><p class="dica-planejamento">Nenhum filho cadastrado. Cadastre os filhos em
+            <a href="familia.html">Família</a> com o parentesco "Filho(a)".</p></div>`)
+      + (ocultos ? `<p class="mesada-outros"><button type="button" class="btn-secundario btn-alterar-plano" data-mostrar-todos>
+            Mostrar os outros membros (${ocultos})</button></p>` : '')
+      + (mostrarTodos && lista.some(m => !ehDaMesada(m)) ? `<p class="mesada-outros"><button type="button" class="btn-secundario btn-alterar-plano" data-mostrar-todos>
+            Mostrar só os filhos</button></p>` : '');
     el.querySelectorAll('details').forEach(d => {
       if (abertos.has(d.closest('[data-membro]').dataset.membro + '|' + d.querySelector('summary').textContent.trim().slice(0, 12))) d.open = true;
     });
@@ -148,6 +161,11 @@
       enviar(e.target, Number(e.target.closest('[data-membro]').dataset.membro));
     });
     el.addEventListener('click', async e => {
+      if (e.target.closest('[data-mostrar-todos]')) {
+        mostrarTodos = !mostrarTodos;
+        render();
+        return;
+      }
       const card = e.target.closest('[data-membro]');
       if (!card) return;
       const membroId = Number(card.dataset.membro);

@@ -1,8 +1,7 @@
 // ── CasaCapital — imposto-renda.js: dados do ano para ajudar na declaração ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinheiro = v => (Number(v) < 0 ? '-' : '') + 'R$ ' + Math.abs(Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const dataBR = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  const dinheiro = v => formatarDinheiro(v, window.__familia); // util.js, com a moeda da família
+  const dataBR = formatarData; // util.js
   const SITUACAO = {
     PROVAVEL: ['provavelmente dedutível', 'sit-provavel'],
     NAO: ['em geral não dedutível', 'sit-nao'],

@@ -1,6 +1,5 @@
 // ── CasaCapital — compromissos.js: aba Compromissos da página Tarefas ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = id => document.getElementById(id);
   const ABAS = ['tarefas', 'compromissos'];
   const AVISO = { 0: 'aviso na hora', 5: 'aviso 5 min antes', 15: 'aviso 15 min antes', 30: 'aviso 30 min antes',

@@ -68,6 +68,12 @@ async function adicionarCompra() {
   const cat  = el('compraCat')?.value || 'Geral';
   const freq = el('compraFrequencia')?.value || 'sem-frequencia';
   if (!nome) return;
+  // Mesmo produto já na lista (sem diferenciar maiúsculas/espaços): pergunta antes de repetir
+  const repetido = compras.find(c => chaveProduto(c.nome) === chaveProduto(nome));
+  if (repetido && !confirm(`"${repetido.nome}" já está na lista (x${repetido.qtd || 1}). Adicionar de novo mesmo assim?`)) {
+    el('compra').select();
+    return;
+  }
   const nova = await api.post('/compras', { nome, qtd: qtd || 1, categoria: cat, frequencia: FREQ_API[freq] });
   compras.push({ ...nova, frequencia: freq });
   el('compra').value = '';

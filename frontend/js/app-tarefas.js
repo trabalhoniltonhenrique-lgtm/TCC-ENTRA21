@@ -11,8 +11,11 @@ async function adicionarTarefa() {
   if (!nome) return;
   const nova = await api.post('/tarefas', { nome, prazo, membroId, diaSemana });
   tarefas.push(nova);
+  // Limpa o formulário inteiro: a próxima tarefa não herda o responsável nem o dia da anterior
   el('tarefa').value = '';
   if (el('tarefaPrazo')) el('tarefaPrazo').value = '';
+  if (el('tarefaDia')) el('tarefaDia').value = '';
+  if (el('tarefaMembro')) el('tarefaMembro').value = '';
   renderTarefas(); atualizarDashboard();
 }
 

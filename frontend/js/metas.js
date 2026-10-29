@@ -10,7 +10,6 @@ let cdiAnual = null;         // CDI em % ao ano, informado pela família (GET /i
 let editandoInvestimento = null;
 window.carteiraInvestimentos = investimentos; // renderMetas (app.js) lista os investimentos ligados a cada meta
 
-const escM = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
 const pctFmt = v => (v >= 0 ? '+' : '') + v.toFixed(2).replace('.', ',') + '%';
 
 // ── Abas ──
@@ -84,7 +83,7 @@ function preencherSelectMetas() {
   const sel = document.getElementById('invMeta');
   const atual = sel.value;
   sel.innerHTML = '<option value="">— Nenhuma —</option>' +
-    metas.map(m => `<option value="${m.id}">${escM(m.nome)}</option>`).join('');
+    metas.map(m => `<option value="${m.id}">${esc(m.nome)}</option>`).join('');
   sel.value = metas.some(m => String(m.id) === atual) ? atual : '';
 }
 
@@ -191,7 +190,7 @@ function renderInvestimentos() {
   const lista = document.getElementById('listaInvestimentos');
 
   document.getElementById('listaInstituicoes').innerHTML = [...new Set(investimentos.map(i => i.instituicao).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b)).map(n => `<option value="${escM(n)}">`).join('');
+    .sort((a, b) => a.localeCompare(b)).map(n => `<option value="${esc(n)}">`).join('');
 
   if (!investimentos.length) {
     resumo.innerHTML = '';
@@ -240,7 +239,7 @@ function renderInvestimentos() {
       ${tipos.map(([t, v]) => {
         const p = atual > 0 ? (v / atual) * 100 : 0;
         return `<div class="linha-distribuicao">
-          <span class="tipo">${escM(t)}</span>
+          <span class="tipo">${esc(t)}</span>
           <div class="barra-fundo-meta"><div class="barra-progresso-meta" style="--largura:${p}%;"></div></div>
           <span class="valor">${fmt(v)} <small>${p.toFixed(0)}%</small></span>
         </div>`;
@@ -255,20 +254,20 @@ function renderInvestimentos() {
       i.dataAplicacao ? 'Aplicado em ' + fmtD(i.dataAplicacao) : null,
       i.vencimento ? 'Vence ' + fmtD(i.vencimento) : null,
       i.obs,
-    ].filter(Boolean).map(escM).join(' · ');
+    ].filter(Boolean).map(esc).join(' · ');
     const p = projecao(i);
     let linhaProj = '';
     if (i.taxa != null) {
       const taxaTxt = `${fmtTaxa(i.taxa)}${UNIDADE_TAXA[i.tipoTaxa] || ''}`;
       linhaProj = p
-        ? `<span class="projecao-inv">Rentabilidade ${escM(taxaTxt)} · ≈ <strong>${fmt(p.porMes)}/mês</strong> · 12 meses: ≈ ${fmt(p.rend12)} (${fmt(p.valor12)})${p.venc ? ` · no vencimento: ≈ ${fmt(p.venc)}` : ''}</span>`
-        : `<span class="projecao-inv">Rentabilidade ${escM(taxaTxt)} · informe o CDI no topo para ver a projeção</span>`;
+        ? `<span class="projecao-inv">Rentabilidade ${esc(taxaTxt)} · ≈ <strong>${fmt(p.porMes)}/mês</strong> · 12 meses: ≈ ${fmt(p.rend12)} (${fmt(p.valor12)})${p.venc ? ` · no vencimento: ≈ ${fmt(p.venc)}` : ''}</span>`
+        : `<span class="projecao-inv">Rentabilidade ${esc(taxaTxt)} · informe o CDI no topo para ver a projeção</span>`;
     }
     return `<div class="card-investimento">
       <div class="info">
-        <strong>${escM(i.nome)} <span class="tag-tipo-inv">${escM(i.tipo)}</span></strong>
+        <strong>${esc(i.nome)} <span class="tag-tipo-inv">${esc(i.tipo)}</span></strong>
         ${detalhes ? `<span>${detalhes}</span>` : ''}
-        ${i.metaNome ? `<span class="meta-ligada"><span class="ico ico-trophy"></span> Meta: ${escM(i.metaNome)}</span>` : ''}
+        ${i.metaNome ? `<span class="meta-ligada"><span class="ico ico-trophy"></span> Meta: ${esc(i.metaNome)}</span>` : ''}
         ${linhaProj}
         <span class="atualizado">Valor atualizado em ${fmtD(i.atualizadoEm)}</span>
       </div>

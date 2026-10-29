@@ -52,7 +52,7 @@ async function renderCardContas() {
   const contasLista = await api.get('/contas');
   const hojeStr = hoje();
   const fmt2    = v => fmt(v);
-  const fmtD2   = dt => dt ? new Date(dt+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  const fmtD2   = formatarData;
 
   const atrasadas = contasLista.filter(c => !c.pago && c.vencimento < hojeStr);
   const venceHoje = contasLista.filter(c => !c.pago && c.vencimento === hojeStr);

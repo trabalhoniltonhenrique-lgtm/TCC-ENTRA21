@@ -7,9 +7,6 @@ const CATEGORIAS_DESPESA_FATURA = ['Alimentação', 'Moradia', 'Transporte', 'Sa
 let faturaLida = null;   // resposta de /faturas/analisar
 let faturaItens = [];    // itens editáveis da revisão: { ...item, sel }
 
-const escFatura = s => String(s ?? '').replace(/[&<>"']/g, ch =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-
 function abrirPainelFatura() {
   document.getElementById('formulario').classList.add('oculto');
   document.getElementById('painelFatura').classList.remove('oculto');
@@ -83,10 +80,10 @@ function mostrarContaFatura(conta) {
   document.getElementById('fcValor').value = conta.valor != null ? Number(conta.valor).toFixed(2) : '';
   document.getElementById('fcVenc').value = conta.vencimento || '';
 
-  let aviso = `<div class="fatura-status">Conta de ${escFatura(conta.categoria.toLowerCase())} reconhecida` +
-    (conta.referencia ? ` (referência ${escFatura(conta.referencia)})` : '') + '. Confira os dados abaixo.</div>';
+  let aviso = `<div class="fatura-status">Conta de ${esc(conta.categoria.toLowerCase())} reconhecida` +
+    (conta.referencia ? ` (referência ${esc(conta.referencia)})` : '') + '. Confira os dados abaixo.</div>';
   if (conta.jaCadastrada) {
-    aviso = `<div class="fatura-status erro">Já existe a conta "${escFatura(conta.contaExistenteDescricao)}" com este valor e vencimento. Cadastrar de novo vai duplicá-la.</div>`;
+    aviso = `<div class="fatura-status erro">Já existe a conta "${esc(conta.contaExistenteDescricao)}" com este valor e vencimento. Cadastrar de novo vai duplicá-la.</div>`;
   }
   if (!conta.vencimento) {
     aviso += '<div class="fatura-status erro">Não encontrei o vencimento no PDF. Preencha antes de cadastrar.</div>';
@@ -150,7 +147,7 @@ function mostrarRevisaoFatura() {
   if (creditos.length) {
     const soma = creditos.reduce((s, c) => s + Number(c.valor), 0);
     elCred.innerHTML = `<strong>Estornos e créditos na fatura (não importados):</strong> ` +
-      creditos.map(c => `${escFatura(c.descricao)} ${fmt(c.valor)}`).join(' · ') +
+      creditos.map(c => `${esc(c.descricao)} ${fmt(c.valor)}`).join(' · ') +
       ` — total ${fmt(soma)}`;
     elCred.classList.remove('oculto');
   } else {
@@ -164,7 +161,7 @@ function tipoItemFatura(it) {
   const tipo = it.parcelaTotal ? `Parcela ${it.parcelaAtual}/${it.parcelaTotal}` : 'À vista';
   const classe = it.acao === 'JA_IMPORTADA' ? 'aviso-dup' : it.acao === 'QUITAR_PARCELA' ? 'aviso-quitar' : '';
   return `<div class="fatura-tipo">${tipo}</div>` +
-    (it.aviso ? `<div class="fatura-aviso ${classe}">${escFatura(it.aviso)}</div>` : '') +
+    (it.aviso ? `<div class="fatura-aviso ${classe}">${esc(it.aviso)}</div>` : '') +
     (it.categoriaLembrada ? `<div class="fatura-aviso aviso-lembrada" title="Você escolheu esta categoria para este estabelecimento numa fatura anterior">Categoria lembrada</div>` : '');
 }
 
@@ -173,11 +170,11 @@ function renderItensFatura() {
   corpo.innerHTML = faturaItens.map((it, i) => `
     <tr class="${it.sel ? '' : 'desmarcado'}" data-i="${i}">
       <td><input type="checkbox" data-campo="sel" ${it.sel ? 'checked' : ''} aria-label="Importar este lançamento"></td>
-      <td><input type="date" data-campo="data" value="${escFatura(it.data)}"></td>
-      <td><input type="text" data-campo="descricao" value="${escFatura(it.descricao)}" maxlength="150"></td>
+      <td><input type="date" data-campo="data" value="${esc(it.data)}"></td>
+      <td><input type="text" data-campo="descricao" value="${esc(it.descricao)}" maxlength="150"></td>
       <td>${tipoItemFatura(it)}</td>
       <td><select data-campo="categoria">${CATEGORIAS_DESPESA_FATURA.map(c =>
-        `<option ${c === it.categoria ? 'selected' : ''}>${escFatura(c)}</option>`).join('')}</select></td>
+        `<option ${c === it.categoria ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></td>
       <td class="num"><input type="number" data-campo="valor" value="${Number(it.valor).toFixed(2)}" min="0.01" step="0.01"></td>
     </tr>`).join('');
   atualizarResumoFatura();
@@ -210,9 +207,9 @@ function atualizarResumoFatura() {
   document.getElementById('faturaResumo').innerHTML = `
     <div class="fatura-resumo-grid">
       <div><label class="rotulo" for="fCartaoFatura">Cartão</label>
-        <input id="fCartaoFatura" maxlength="40" placeholder="Ex.: Itaú" value="${escFatura(faturaLida.emissor || '')}"></div>
+        <input id="fCartaoFatura" maxlength="40" placeholder="Ex.: Itaú" value="${esc(faturaLida.emissor || '')}"></div>
       <div><label class="rotulo" for="fVencFatura">Vencimento da fatura</label>
-        <input type="date" id="fVencFatura" value="${escFatura(faturaLida.vencimento || '')}"></div>
+        <input type="date" id="fVencFatura" value="${esc(faturaLida.vencimento || '')}"></div>
       <div><span class="rotulo">Total da fatura</span><strong>${faturaLida.total ? fmt(faturaLida.total) : '—'}</strong></div>
       <div><span class="rotulo">Selecionados</span><strong>${selecionados.length} de ${faturaItens.length} · ${fmt(somaSel)}</strong></div>
     </div>

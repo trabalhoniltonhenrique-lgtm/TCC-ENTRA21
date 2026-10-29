@@ -10,18 +10,12 @@ const selecionadas = new Set();  // ids de contas em aberto marcadas para pagar 
 const SEM_CARTAO = 'Cartão não informado';
 const ehDeCartao = c => !!c.cartao || c.categoria === 'Cartão de Crédito';
 const nomeCartao = c => c.cartao || SEM_CARTAO;
-const escC = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
 
-const hoje = () => new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local (não UTC)
+const hoje = hojeISO; // funções de util.js
 let _moedaContas = 'R$';
 let _sepContas    = ',';
-const fmt  = v => {
-  const [inteiro, dec] = Math.abs(Number(v) || 0).toFixed(2).split('.');
-  const milhar = _sepContas === ',' ? '.' : ',';
-  const numero = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, milhar) + (_sepContas === ',' ? ',' : '.') + dec;
-  return (v < 0 ? '-' : '') + _moedaContas + ' ' + numero;
-};
-const fmtD = dt => dt ? new Date(dt + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+const fmt  = v => formatarDinheiro(v, { moeda: _moedaContas, separadorDecimal: _sepContas });
+const fmtD = formatarData;
 
 async function carregarContas() {
   contas = await api.get('/contas');
@@ -123,7 +117,7 @@ function atualizarListaCartoes() {
   const nomes = new Set(['Itaú', 'Nubank', 'Inter', 'Caixa']);
   contas.forEach(c => { if (c.cartao) nomes.add(c.cartao); });
   document.getElementById('listaCartoes').innerHTML =
-    [...nomes].sort((a, b) => a.localeCompare(b)).map(n => `<option value="${escC(n)}">`).join('');
+    [...nomes].sort((a, b) => a.localeCompare(b)).map(n => `<option value="${esc(n)}">`).join('');
 }
 
 function fecharForm() {
@@ -299,7 +293,7 @@ function setFiltroCartao(nome) {
 // ── Pagamento em lote ──
 const caixaSelecao = (c, rotulo) => `<label class="sel-conta" title="Selecionar para pagar em lote" data-action="rotulo-selecao">
     <input type="checkbox" data-action="selecionar" data-id="${c.id}" ${selecionadas.has(c.id) ? 'checked' : ''}
-      aria-label="Selecionar ${escC(c.descricao)}">${rotulo ? `<span>${rotulo}</span>` : ''}</label>`;
+      aria-label="Selecionar ${esc(c.descricao)}">${rotulo ? `<span>${rotulo}</span>` : ''}</label>`;
 
 // Opções do lote, na linha "Selecionar todas": só aparecem quando há contas selecionadas
 function opcoesLote() {
@@ -347,7 +341,7 @@ function renderItemConta(c) {
       ${!c.pago ? caixaSelecao(c) : '<span class="sel-conta-vazio"></span>'}
       <div class="conta-info">
         <strong>${c.descricao}${recorrIcon}</strong>
-        <span>${c.categoria}${c.cartao ? ' · ' + escC(c.cartao) : ''} · Venc: ${fmtD(c.vencimento)}${c.obs ? ' · ' + c.obs : ''}</span>
+        <span>${c.categoria}${c.cartao ? ' · ' + esc(c.cartao) : ''} · Venc: ${fmtD(c.vencimento)}${c.obs ? ' · ' + c.obs : ''}</span>
         ${avisoVencimento(c)}
         ${c.pago && c.dataPagamento ? `<div class="pago-em"><span class="ico ico-check"></span> Pago em ${fmtD(c.dataPagamento)}</div>` : ''}
       </div>
@@ -383,7 +377,7 @@ function renderGrupoParcela(grupoId, parcelas) {
         ${proxima ? caixaSelecao(proxima, 'próx.') : '<span class="sel-conta-vazio"></span>'}
         <div class="conta-info">
           <strong><span class="ico ico-credit-card"></span> ${nomeBase}</strong>
-          <span>${cat}${parcelas[0].cartao ? ' · ' + escC(parcelas[0].cartao) : ''} · ${pagas.length}/${parcelas.length} parcelas pagas
+          <span>${cat}${parcelas[0].cartao ? ' · ' + esc(parcelas[0].cartao) : ''} · ${pagas.length}/${parcelas.length} parcelas pagas
             ${proxima ? ` · Próxima: ${fmtD(proxima.vencimento)}` : ' · Concluído'}
           </span>
           ${temAtrasada ? `<div class="vencimento-aviso aviso-atrasado"><span class="ico ico-alert-triangle"></span> Há parcela(s) atrasada(s)</div>` : ''}
@@ -491,8 +485,8 @@ function renderContas() {
     chipsCartao = nomes.length ? `<div class="chips-cartao" role="group" aria-label="Filtrar por cartão">
       <button class="chip-cartao ${filtroCartaoAtivo === 'todos' ? 'ativo' : ''}" data-action="filtro-cartao" data-cartao="todos">
         Todos <span>${fmt(totalAberto)} em aberto</span></button>
-      ${nomes.map(n => `<button class="chip-cartao ${filtroCartaoAtivo === n ? 'ativo' : ''}" data-action="filtro-cartao" data-cartao="${escC(n)}">
-        ${escC(n)} <span>${fmt(porCartao[n].aberto)} em aberto</span></button>`).join('')}
+      ${nomes.map(n => `<button class="chip-cartao ${filtroCartaoAtivo === n ? 'ativo' : ''}" data-action="filtro-cartao" data-cartao="${esc(n)}">
+        ${esc(n)} <span>${fmt(porCartao[n].aberto)} em aberto</span></button>`).join('')}
     </div>` : '';
     if (filtroCartaoAtivo !== 'todos') lista2 = lista2.filter(c => nomeCartao(c) === filtroCartaoAtivo);
   }

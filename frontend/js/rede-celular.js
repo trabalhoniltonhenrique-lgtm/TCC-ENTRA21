@@ -1,6 +1,5 @@
 // ── CasaCapital — rede-celular.js: endereço e QR code para abrir o sistema no celular (Configurações) ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   // QR code (linhas de "0"/"1" vindas do servidor) desenhado em SVG, com a margem branca que os leitores pedem
   function svgQr(linhas) {

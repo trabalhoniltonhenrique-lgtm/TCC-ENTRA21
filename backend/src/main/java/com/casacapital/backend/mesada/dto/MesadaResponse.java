@@ -12,6 +12,7 @@ public record MesadaResponse(
         Long membroId,
         String nome,
         String cor,
+        String parentesco, // a tela mostra os filhos e esconde os demais membros
         boolean configurada,
         BigDecimal valor,
         Integer diaPagamento,

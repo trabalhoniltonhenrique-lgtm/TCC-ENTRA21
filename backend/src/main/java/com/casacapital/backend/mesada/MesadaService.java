@@ -258,7 +258,7 @@ public class MesadaService {
         }
 
         return new MesadaResponse(
-                membro.getId(), membro.getNome(), membro.getCor(),
+                membro.getId(), membro.getNome(), membro.getCor(), membro.getParentesco(),
                 mesada != null,
                 mesada != null ? mesada.getValor() : null,
                 mesada != null ? mesada.getDiaPagamento() : null,

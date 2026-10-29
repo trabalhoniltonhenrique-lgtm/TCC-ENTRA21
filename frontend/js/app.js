@@ -48,14 +48,9 @@ function getCfg() {
 }
 function getMoeda() { return getCfg().moeda || 'R$'; }
 function getSep()   { return getCfg().separadorDecimal || ','; }
-// Formata o valor absoluto com 2 casas e separador de milhar: 10.000,00 (ou 10,000.00 se o decimal for ponto)
-function fmtNumero(v, sep) {
-  const [inteiro, dec] = Math.abs(Number(v) || 0).toFixed(2).split('.');
-  const milhar = sep === ',' ? '.' : ',';
-  return inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, milhar) + (sep === ',' ? ',' : '.') + dec;
-}
+// Valor com a moeda e o separador da família (formatarDinheiro está em util.js)
 function fmtValor(v) {
-  return (v < 0 ? '-' : '') + getMoeda() + ' ' + fmtNumero(v, getSep());
+  return formatarDinheiro(v, getCfg());
 }
 // Atualiza rótulos/placeholders estáticos que mencionam a moeda (ex: "Limite mensal ({moeda})")
 // para refletir a moeda configurada em Configurações, em vez do "R$" fixo do HTML.
@@ -68,10 +63,8 @@ function aplicarUnidadeMoeda() {
   });
 }
 const fmt  = v => fmtValor(v);
-const fmtN = v => (v < 0 ? '-' : '') + fmtNumero(v, getSep());
-const fmtD = dt => { const d = new Date(dt + 'T12:00:00'); return d.toLocaleDateString('pt-BR'); };
-// Data de hoje no fuso do aparelho (AAAA-MM-DD). toISOString() usaria UTC: depois das 21h em Brasília já seria amanhã.
-const hoje = () => new Date().toLocaleDateString('sv-SE');
+const fmtD = formatarData;
+const hoje = hojeISO; // data de hoje no fuso do aparelho (util.js)
 const el   = id => document.getElementById(id);
 
 // ── Carregamento inicial de dados (substitui a leitura direta de localStorage) ──

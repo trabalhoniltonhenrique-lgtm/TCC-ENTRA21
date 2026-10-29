@@ -8,7 +8,6 @@
     const t = new Date(chave + '-15T12:00:00').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     return t.charAt(0).toUpperCase() + t.slice(1);
   };
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   function renderPatrimonio(p) {
     const card = document.getElementById('cardPatrimonio');

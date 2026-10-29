@@ -1,7 +1,7 @@
 // ── CasaCapital — relatorio-modulo.js ──
 // Botão "Relatório" de cada módulo. Ao clicar, busca os dados do módulo na API e abre uma
 // janela com a prévia em tabelas e as opções Imprimir, Baixar TXT e Baixar PDF (Premium).
-// Não depende de app.js (algumas páginas não o carregam), por isso tem a própria formatação.
+// Não depende de app.js (algumas páginas não o carregam); a formatação básica vem de util.js.
 
 (function () {
   const DIAS_SEMANA = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
@@ -10,25 +10,14 @@
 
   // ── Formatação ──
   let familia = {};
-  const hojeISO = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  };
   const mesAtual = () => hojeISO().slice(0, 7);
-  function dinheiro(v) {
-    const sep = familia.separadorDecimal || ',';
-    const [inteiro, dec] = Math.abs(Number(v) || 0).toFixed(2).split('.');
-    const milhar = sep === ',' ? '.' : ',';
-    return (v < 0 ? '-' : '') + (familia.moeda || 'R$') + ' ' +
-      inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, milhar) + sep + dec;
-  }
-  const data = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  const dinheiro = v => formatarDinheiro(v, familia);
+  const data = formatarData;
   const nomeMes = chave => {
     const t = new Date(chave + '-15T12:00:00').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     return t.charAt(0).toUpperCase() + t.slice(1);
   };
   const soma = (lista, campo) => lista.reduce((a, x) => a + (Number(x[campo]) || 0), 0);
-  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pct = (parte, total) => total > 0 ? Math.round(parte / total * 100) + '%' : '—';
 
   async function nomesMembros() {

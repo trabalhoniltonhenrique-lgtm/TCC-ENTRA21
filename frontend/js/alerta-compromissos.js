@@ -6,7 +6,6 @@
   const INTERVALO_MS = 30000;
   const REPETIR_SOM_MS = 60000;
   const MAX_REPETICOES = 5;
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   let alertas = [];
   const jaTocou = new Set();   // id|momento: alerta novo toca o som uma vez ao aparecer

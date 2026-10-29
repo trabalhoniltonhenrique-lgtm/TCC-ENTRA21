@@ -1,9 +1,8 @@
 // ── CasaCapital — minha-area.js: a área do filho (perfil dependente) ──
 // Mesada, tarefas dele e lista de compras. O servidor só devolve o que é dele.
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinheiro = v => (Number(v) < 0 ? '-' : '') + 'R$ ' + Math.abs(Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const dataBR = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  const dinheiro = v => formatarDinheiro(v, window.__familia); // util.js, com a moeda da família
+  const dataBR = formatarData; // util.js
   const DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 
   function renderMesada(m) {

@@ -1,9 +1,8 @@
 // ── CasaCapital — mercados.js: qual mercado é mais barato (notas fiscais importadas) ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinheiro = v => 'R$ ' + (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const dinheiro = v => formatarDinheiro(v, window.__familia); // util.js, com a moeda da família
   const pct = v => Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
-  const dataBR = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  const dataBR = formatarData; // util.js
   const diasDesde = d => Math.floor((Date.now() - new Date(d + 'T12:00:00')) / 86400000);
   const antigo = d => diasDesde(d) > 90; // preço de mais de 3 meses: pode ter mudado
 

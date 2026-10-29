@@ -1947,3 +1947,5 @@ a.btn-secundario.btn-relatorio-modulo:hover { background:var(--bg-hover); }
 .merc-chip.barato { border-color:var(--verde); background:color-mix(in srgb, var(--verde) 10%, transparent); }
 .merc-chip.barato strong { color:var(--verde); }
 .merc-chip small { font-size:.68rem; color:var(--texto-suave); }
+.mesada-outros { text-align:center; margin-top:.75rem; }
+.mesada-outros button { margin:0; }

@@ -1,10 +1,9 @@
 // ── CasaCapital — fechamento.js: resumo de um mês (página Fechamento do mês) ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinheiro = v => (Number(v) < 0 ? '-' : '') + 'R$ ' + Math.abs(Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const dinheiro = v => formatarDinheiro(v, window.__familia); // util.js, com a moeda da família
   const pctTxt = v => (v > 0 ? '+' : '') + Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
   const nomeMes = chave => { const t = new Date(chave + '-15T12:00:00').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); };
-  const dataBR = d => new Date(d + 'T12:00:00').toLocaleDateString('pt-BR');
+  const dataBR = formatarData; // util.js
 
   // variação de gasto: subir é ruim (vermelho), cair é bom (verde)
   const variacaoGasto = v => v == null ? '<span class="var-neutra">—</span>'

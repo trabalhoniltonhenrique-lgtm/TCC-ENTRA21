@@ -1,6 +1,5 @@
 // ── CasaCapital — backup-status.js: situação do backup automático diário em Configurações ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   async function carregar() {
     const el = document.getElementById('statusBackup');

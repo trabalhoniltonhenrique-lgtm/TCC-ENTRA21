@@ -2,7 +2,6 @@
 // As assinaturas são detectadas no servidor a partir das despesas que se repetem todo mês. Usa fmt/fmtD de app.js.
 
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const pct = v => Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
 
   function item(a) {

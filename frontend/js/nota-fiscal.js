@@ -1,9 +1,8 @@
 // ── CasaCapital — nota-fiscal.js: importação da nota do mercado (NFC-e) pelo QR code ──
 (function () {
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinheiro = v => 'R$ ' + (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const dinheiro = v => formatarDinheiro(v, window.__familia); // util.js, com a moeda da família
   const qtdTxt = v => Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 3 });
-  const dataBR = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  const dataBR = formatarData; // util.js
   const CATS = ['Geral', 'Hortifruti', 'Laticínios', 'Carnes', 'Bebidas', 'Higiene', 'Limpeza', 'Frios', 'Padaria', 'Outros'];
   const CATS_DESPESA = ['Alimentação', 'Moradia', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Vestuário', 'Contas & Serviços', 'Outros'];
   const $ = id => document.getElementById(id);
