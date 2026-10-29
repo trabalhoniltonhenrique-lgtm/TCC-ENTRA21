@@ -21,6 +21,9 @@ import java.util.Map;
 @Service
 public class ContaService {
 
+    /** 10 anos de parcelas — mais que isso é engano de digitação (e geraria milhares de contas). */
+    static final int MAX_PARCELAS = 120;
+
     /** Mapeia categoria de conta -> categoria de despesa, espelhando contas.js (marcarPago). */
     private static final Map<String, String> MAPA_CATEGORIA_DESPESA = Map.ofEntries(
             Map.entry("Moradia", "Moradia"),
@@ -63,9 +66,9 @@ public class ContaService {
 
         if (req.recorrencia() == Recorrencia.PARCELADA) {
             int qtd = req.qtdParcelas() != null ? req.qtdParcelas() : 0;
-            if (qtd < 2) {
+            if (qtd < 2 || qtd > MAX_PARCELAS) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "QTD_PARCELAS_INVALIDA",
-                        "Informe um número de parcelas válido (mínimo 2).");
+                        "Informe um número de parcelas entre 2 e " + MAX_PARCELAS + ".");
             }
             boolean valorTotal = "total".equalsIgnoreCase(req.tipoValorParcela());
             // Pelo total, a divisão nem sempre é exata (R$ 100 em 3x): a última parcela leva os centavos que sobram

@@ -147,6 +147,13 @@ async function removerFotoFamilia() {
   }
 }
 
+// Troca o nome da família no topo do menu sem recarregar a página (o texto fica entre a foto e o selo do plano)
+function atualizarNomeMenu(nome) {
+  const h1 = document.querySelector('header.sidebar h1');
+  const texto = h1 && [...h1.childNodes].find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+  if (texto && nome) texto.textContent = nome + ' ';
+}
+
 // Mostra a foto nova (ou tira a antiga) no topo do menu sem recarregar a página
 function atualizarFotoMenu() {
   const h1 = document.querySelector('header.sidebar h1');
@@ -194,6 +201,7 @@ async function salvarConfig() {
       corPrimaria: cfg.corPrimaria || '', // '' volta ao azul padrão
     });
     aplicarCorFamilia(cfg.corPrimaria);
+    atualizarNomeMenu(cfg.nomeFamilia);
     toast('Configurações salvas com sucesso!', '#16A34A');
   } catch (erro) {
     toast((erro.message || 'Não foi possível salvar.'), '#DC2626');
@@ -219,7 +227,7 @@ async function exportarDados() {
   const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
-  a.download = `${nome}_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `${nome}_backup_${new Date().toLocaleDateString('sv-SE')}.json`;
   a.click();
   toast('Backup exportado com sucesso!', '#2563EB');
 }

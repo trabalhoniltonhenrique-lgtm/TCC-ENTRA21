@@ -1223,7 +1223,8 @@ body.dark .conta-card.atrasado { background:#2A1515; }
 
 .linha-comp { border-bottom:1px solid var(--bg-borda-leve); }
 .linha-comp td { padding:7px 6px; }
-.td-mes { font-weight:600; color:var(--texto-primario); text-transform:capitalize; }
+.td-mes { font-weight:600; color:var(--texto-primario); }
+.td-mes::first-letter { text-transform:uppercase; } /* "nov. de 25" → "Nov. de 25" */
 .td-receita { text-align:right; color:#16A34A; font-weight:600; }
 .td-despesa { text-align:right; color:#DC2626; font-weight:600; }
 .td-var { text-align:right; }

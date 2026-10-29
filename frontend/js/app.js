@@ -70,7 +70,8 @@ function aplicarUnidadeMoeda() {
 const fmt  = v => fmtValor(v);
 const fmtN = v => (v < 0 ? '-' : '') + fmtNumero(v, getSep());
 const fmtD = dt => { const d = new Date(dt + 'T12:00:00'); return d.toLocaleDateString('pt-BR'); };
-const hoje = () => new Date().toISOString().split('T')[0];
+// Data de hoje no fuso do aparelho (AAAA-MM-DD). toISOString() usaria UTC: depois das 21h em Brasília já seria amanhã.
+const hoje = () => new Date().toLocaleDateString('sv-SE');
 const el   = id => document.getElementById(id);
 
 // ── Carregamento inicial de dados (substitui a leitura direta de localStorage) ──

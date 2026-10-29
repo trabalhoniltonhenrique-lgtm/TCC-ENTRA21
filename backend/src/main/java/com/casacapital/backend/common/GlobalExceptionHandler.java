@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -40,6 +43,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUploadGrande(MaxUploadSizeExceededException ex) {
         return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
                 .body(ErrorResponse.of("ARQUIVO_GRANDE", "Arquivo grande demais (máximo 20 MB)."));
+    }
+
+    // Valor grande demais para a coluna, texto longo demais etc.: é dado inválido de quem enviou, não falha do sistema
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDadoInvalido(DataIntegrityViolationException ex) {
+        log.warn("Dado recusado pelo banco: {}", ex.getMostSpecificCause().getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.of("DADO_INVALIDO",
+                "Algum valor é grande demais ou algum texto é longo demais. Confira e tente de novo."));
+    }
+
+    // Ex.: /api/despesas/abc (o id precisa ser um número)
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MethodArgumentConversionNotSupportedException.class})
+    public ResponseEntity<ErrorResponse> handleParametroInvalido(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of("BAD_REQUEST", "Requisição inválida."));
     }
 
     @ExceptionHandler(Exception.class)

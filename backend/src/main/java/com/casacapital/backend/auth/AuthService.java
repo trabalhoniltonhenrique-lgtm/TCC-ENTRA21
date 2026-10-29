@@ -3,6 +3,7 @@ package com.casacapital.backend.auth;
 import com.casacapital.backend.auth.dto.AuthResponse;
 import com.casacapital.backend.auth.dto.LoginRequest;
 import com.casacapital.backend.auth.dto.RegistrarRequest;
+import com.casacapital.backend.common.ApiException;
 import com.casacapital.backend.common.BadCredentialsException;
 import com.casacapital.backend.common.EmailJaCadastradoException;
 import com.casacapital.backend.common.TokenInvalidoException;
@@ -13,6 +14,10 @@ import com.casacapital.backend.security.JwtService;
 import com.casacapital.backend.usuario.PerfilUsuario;
 import com.casacapital.backend.usuario.Usuario;
 import com.casacapital.backend.usuario.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +30,7 @@ import java.util.HexFormat;
 @Service
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private static final int EXPIRACAO_TOKEN_RESET_MINUTOS = 30;
 
     private final FamiliaRepository familiaRepository;
@@ -96,7 +102,14 @@ public class AuthService {
             String token = gerarTokenAleatorio();
             Instant expiraEm = Instant.now().plus(EXPIRACAO_TOKEN_RESET_MINUTOS, ChronoUnit.MINUTES);
             passwordResetTokenRepository.save(new PasswordResetToken(usuario, token, expiraEm));
-            mailService.enviarEmailRedefinicaoSenha(usuario.getEmail(), usuario.getNome(), token);
+            try {
+                mailService.enviarEmailRedefinicaoSenha(usuario.getEmail(), usuario.getNome(), token);
+            } catch (MailException e) {
+                // Gmail fora do ar, sem internet ou senha de app trocada: avisa em vez de "erro inesperado"
+                log.error("Falha ao enviar o e-mail de redefinição de senha", e);
+                throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "EMAIL_INDISPONIVEL",
+                        "Não foi possível enviar o e-mail agora. Confira a internet do computador da casa e tente de novo.");
+            }
         });
     }
 

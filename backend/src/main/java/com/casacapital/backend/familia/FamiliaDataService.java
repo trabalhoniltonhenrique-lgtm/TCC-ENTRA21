@@ -1,22 +1,29 @@
 package com.casacapital.backend.familia;
 
 import com.casacapital.backend.alerta.AlertaLimiteRepository;
+import com.casacapital.backend.assinatura.AssinaturaIgnoradaRepository;
 import com.casacapital.backend.compra.CompraRepository;
 import com.casacapital.backend.compromisso.CompromissoRepository;
 import com.casacapital.backend.conta.ContaRepository;
 import com.casacapital.backend.despesa.DespesaRepository;
 import com.casacapital.backend.dispensa.ItemDispensaRepository;
+import com.casacapital.backend.fatura.CategoriaAprendidaRepository;
 import com.casacapital.backend.historicoprecos.HistoricoPrecoRepository;
+import com.casacapital.backend.investimento.InvestimentoRepository;
 import com.casacapital.backend.membro.MembroFamiliaRepository;
 import com.casacapital.backend.meta.MetaRepository;
 import com.casacapital.backend.nfce.NfceImportadaRepository;
 import com.casacapital.backend.orcamento.OrcamentoMensalRepository;
+import com.casacapital.backend.planejamento.PatrimonioMensalRepository;
 import com.casacapital.backend.receita.ReceitaRepository;
 import com.casacapital.backend.tarefa.TarefaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Apaga todos os dados transacionais de uma família, mantendo a família/usuários e o plano. */
+/**
+ * Apaga todos os dados de uma família (lançamentos, contas, listas, metas, investimentos, histórico de patrimônio
+ * e o que o sistema aprendeu nas faturas), mantendo a família, os logins dos pais, o plano, as configurações e a foto.
+ */
 @Service
 public class FamiliaDataService {
 
@@ -33,6 +40,10 @@ public class FamiliaDataService {
     private final MembroFamiliaRepository membroFamiliaRepository;
     private final NfceImportadaRepository nfceImportadaRepository;
     private final CompromissoRepository compromissoRepository;
+    private final InvestimentoRepository investimentoRepository;
+    private final PatrimonioMensalRepository patrimonioMensalRepository;
+    private final AssinaturaIgnoradaRepository assinaturaIgnoradaRepository;
+    private final CategoriaAprendidaRepository categoriaAprendidaRepository;
 
     public FamiliaDataService(ReceitaRepository receitaRepository, DespesaRepository despesaRepository,
                                ContaRepository contaRepository, CompraRepository compraRepository,
@@ -42,7 +53,11 @@ public class FamiliaDataService {
                                OrcamentoMensalRepository orcamentoMensalRepository, MetaRepository metaRepository,
                                MembroFamiliaRepository membroFamiliaRepository,
                                NfceImportadaRepository nfceImportadaRepository,
-                               CompromissoRepository compromissoRepository) {
+                               CompromissoRepository compromissoRepository,
+                               InvestimentoRepository investimentoRepository,
+                               PatrimonioMensalRepository patrimonioMensalRepository,
+                               AssinaturaIgnoradaRepository assinaturaIgnoradaRepository,
+                               CategoriaAprendidaRepository categoriaAprendidaRepository) {
         this.receitaRepository = receitaRepository;
         this.despesaRepository = despesaRepository;
         this.contaRepository = contaRepository;
@@ -56,6 +71,10 @@ public class FamiliaDataService {
         this.membroFamiliaRepository = membroFamiliaRepository;
         this.nfceImportadaRepository = nfceImportadaRepository;
         this.compromissoRepository = compromissoRepository;
+        this.investimentoRepository = investimentoRepository;
+        this.patrimonioMensalRepository = patrimonioMensalRepository;
+        this.assinaturaIgnoradaRepository = assinaturaIgnoradaRepository;
+        this.categoriaAprendidaRepository = categoriaAprendidaRepository;
     }
 
     @Transactional
@@ -69,7 +88,12 @@ public class FamiliaDataService {
         tarefaRepository.deleteAll(tarefaRepository.findAllByFamiliaId(familiaId));
         compromissoRepository.deleteAll(compromissoRepository.findAllByFamiliaId(familiaId));
         alertaLimiteRepository.deleteAll(alertaLimiteRepository.findAllByFamiliaId(familiaId));
+        // investimentos antes das metas: um investimento pode estar ligado a uma meta
+        investimentoRepository.deleteAll(investimentoRepository.findAllByFamiliaId(familiaId));
         metaRepository.deleteAll(metaRepository.findAllByFamiliaIdFetchAportes(familiaId));
+        patrimonioMensalRepository.deleteAll(patrimonioMensalRepository.findAllByFamiliaIdOrderByMesAsc(familiaId));
+        assinaturaIgnoradaRepository.deleteAll(assinaturaIgnoradaRepository.findAllByFamiliaId(familiaId));
+        categoriaAprendidaRepository.deleteAll(categoriaAprendidaRepository.findAllByFamiliaId(familiaId));
         // apagar o membro apaga, pelo banco, o login de filho, a mesada e o extrato dele
         membroFamiliaRepository.deleteAll(membroFamiliaRepository.findAllByFamiliaIdOrderByNomeAsc(familiaId));
         nfceImportadaRepository.deleteAll(nfceImportadaRepository.findAllByFamiliaId(familiaId));

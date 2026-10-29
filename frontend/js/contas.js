@@ -12,7 +12,7 @@ const ehDeCartao = c => !!c.cartao || c.categoria === 'Cartão de Crédito';
 const nomeCartao = c => c.cartao || SEM_CARTAO;
 const escC = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
 
-const hoje = () => new Date().toISOString().split('T')[0];
+const hoje = () => new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local (não UTC)
 let _moedaContas = 'R$';
 let _sepContas    = ',';
 const fmt  = v => {
@@ -151,9 +151,15 @@ function atualizarPreviewParcelas() {
   const prev  = document.getElementById('previewParcelas');
   if (!valor || !qtd) { prev.innerHTML = ''; return; }
 
-  const valorParcela = tipo === 'total' ? valor / qtd : valor;
-  const valorTotal    = tipo === 'total' ? valor : valor * qtd;
-  prev.innerHTML = `<span class="ico ico-calendar"></span> Serão geradas <strong>${qtd} parcelas de ${fmt(valorParcela)}</strong>, totalizando <strong>${fmt(valorTotal)}</strong>, uma por mês a partir do vencimento informado.`;
+  // Pelo total, o servidor arredonda as parcelas para baixo e a última leva os centavos que sobram (R$ 100 em 3x = 33,33 + 33,33 + 33,34)
+  const centavos     = Math.round(valor * 100); // 1.15 * 100 = 114.999... no JavaScript
+  const valorParcela = tipo === 'total' ? Math.floor(centavos / qtd) / 100 : valor;
+  const valorUltima  = tipo === 'total' ? (centavos - Math.floor(centavos / qtd) * (qtd - 1)) / 100 : valor;
+  const valorTotal   = tipo === 'total' ? valor : valor * qtd;
+  const parcelas = valorUltima === valorParcela
+    ? `${qtd} parcelas de ${fmt(valorParcela)}`
+    : `${qtd - 1} parcelas de ${fmt(valorParcela)} e a última de ${fmt(valorUltima)}`;
+  prev.innerHTML = `<span class="ico ico-calendar"></span> Serão geradas <strong>${parcelas}</strong>, totalizando <strong>${fmt(valorTotal)}</strong>, uma por mês a partir do vencimento informado.`;
 }
 
 async function salvarConta() {

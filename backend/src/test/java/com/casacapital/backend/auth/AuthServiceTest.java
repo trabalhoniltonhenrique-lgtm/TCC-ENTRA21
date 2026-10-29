@@ -129,6 +129,16 @@ class AuthServiceTest {
     }
 
     @Test
+    void falhaNoEnvioDoEmailViraAvisoClaro() {
+        org.mockito.Mockito.doThrow(new org.springframework.mail.MailSendException("Gmail fora do ar"))
+                .when(mail).enviarEmailRedefinicaoSenha(any(), any(), any());
+
+        assertThatThrownBy(() -> service.esqueciSenha("pai@casa.com"))
+                .isInstanceOf(com.casacapital.backend.common.ApiException.class)
+                .extracting("code").isEqualTo("EMAIL_INDISPONIVEL");
+    }
+
+    @Test
     void redefinirTrocaASenhaEInvalidaOLink() {
         PasswordResetToken token = new PasswordResetToken(pai, "abc", Instant.now().plusSeconds(600));
         when(tokens.findByToken("abc")).thenReturn(Optional.of(token));

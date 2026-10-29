@@ -1,6 +1,7 @@
 package com.casacapital.backend.orcamento;
 
 import com.casacapital.backend.common.ApiException;
+import com.casacapital.backend.common.Categorias;
 import com.casacapital.backend.common.ResourceNotFoundException;
 import com.casacapital.backend.familia.FamiliaRepository;
 import com.casacapital.backend.orcamento.dto.OrcamentoItemRequest;
@@ -35,6 +36,7 @@ public class OrcamentoMensalService {
     @Transactional
     public OrcamentoMensal definir(Long familiaId, String mesAno, OrcamentoItemRequest req) {
         validarMesAno(mesAno);
+        Categorias.validar(Categorias.DESPESA, req.categoria());
         OrcamentoMensal o = orcamentoRepository.findByFamiliaIdAndMesAnoAndCategoria(familiaId, mesAno, req.categoria())
                 .orElseGet(() -> {
                     OrcamentoMensal novo = new OrcamentoMensal();
@@ -86,6 +88,11 @@ public class OrcamentoMensalService {
     private void validarMesAno(String mesAno) {
         if (mesAno == null || !MES_ANO.matcher(mesAno).matches()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "MES_ANO_INVALIDO", "Formato esperado: YYYY-MM.");
+        }
+        try {
+            YearMonth.parse(mesAno, FORMATO); // "2026-13" passa no formato, mas não é um mês
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "MES_ANO_INVALIDO", "Mês inválido: " + mesAno + ".");
         }
     }
 }

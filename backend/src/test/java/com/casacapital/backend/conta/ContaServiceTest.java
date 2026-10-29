@@ -83,6 +83,15 @@ class ContaServiceTest {
     }
 
     @Test
+    void parceladoComMaisDe120ParcelasEhRecusado() {
+        // 1000 parcelas por engano geraria mil contas
+        assertThatThrownBy(() -> service.criar(FAMILIA, parcelado("90.00", 121, "total", LocalDate.of(2026, 1, 10))))
+                .isInstanceOf(ApiException.class)
+                .extracting("code").isEqualTo("QTD_PARCELAS_INVALIDA");
+        assertThat(service.criar(FAMILIA, parcelado("1200.00", 120, "total", LocalDate.of(2026, 1, 10)))).hasSize(120);
+    }
+
+    @Test
     void editarUmaParcelaNaoMudaARecorrencia() {
         Conta parcela = conta(5L, "Geladeira (2/4)", Recorrencia.PARCELADA, false);
         parcela.setGrupoParcelaId(99L);

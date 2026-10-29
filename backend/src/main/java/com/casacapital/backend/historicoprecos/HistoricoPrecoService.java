@@ -1,5 +1,6 @@
 package com.casacapital.backend.historicoprecos;
 
+import com.casacapital.backend.common.ResourceNotFoundException;
 import com.casacapital.backend.compra.CompraRepository;
 import com.casacapital.backend.dispensa.ItemDispensaRepository;
 import com.casacapital.backend.familia.Familia;
@@ -81,6 +82,9 @@ public class HistoricoPrecoService {
     public ProdutoHistoricoResponse buscar(Long familiaId, String produtoChave) {
         List<HistoricoPreco> registros = historicoPrecoRepository
                 .findAllByFamiliaIdAndProdutoChaveOrderByDataAsc(familiaId, produtoChave);
+        if (registros.isEmpty()) {
+            throw new ResourceNotFoundException("Produto sem histórico de preços.");
+        }
         return montarResposta(familiaId, produtoChave, registros);
     }
 

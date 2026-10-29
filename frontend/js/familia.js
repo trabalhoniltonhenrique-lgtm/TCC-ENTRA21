@@ -131,7 +131,7 @@ function renderMembros() {
     const tarefasMembro = (typeof tarefas !== 'undefined' ? tarefas : []).filter(t => String(t.membroId) === String(m.id));
     const pendentes = tarefasMembro.filter(t => !t.concluida).length;
 
-    const mesAtual = new Date().toISOString().slice(0,7);
+    const mesAtual = new Date().toLocaleDateString('sv-SE').slice(0,7); // mês no fuso local (não UTC)
     const gastoMes = (typeof despesas !== 'undefined' ? despesas : [])
       .filter(d => String(d.membroId) === String(m.id) && d.data?.startsWith(mesAtual))
       .reduce((a,b) => a + b.valor, 0);

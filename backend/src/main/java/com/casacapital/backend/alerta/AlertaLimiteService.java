@@ -1,6 +1,7 @@
 package com.casacapital.backend.alerta;
 
 import com.casacapital.backend.alerta.dto.AlertaLimiteRequest;
+import com.casacapital.backend.common.Categorias;
 import com.casacapital.backend.common.PremiumRequiredException;
 import com.casacapital.backend.common.ResourceNotFoundException;
 import com.casacapital.backend.familia.Familia;
@@ -29,6 +30,7 @@ public class AlertaLimiteService {
     @Transactional
     public AlertaLimite salvar(Long familiaId, AlertaLimiteRequest req) {
         exigirPremium(familiaId);
+        Categorias.validar(Categorias.DESPESA, req.categoria());
         AlertaLimite a = alertaLimiteRepository.findByFamiliaIdAndCategoria(familiaId, req.categoria())
                 .orElseGet(() -> {
                     AlertaLimite novo = new AlertaLimite();
